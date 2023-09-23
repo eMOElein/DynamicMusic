@@ -31,7 +31,9 @@ local soundBanks = {
         path='Music/em_dynamicMusic/Magic 3.mp3',
         length=61.5
       },
-      'Music/em_dynamicMusic/Magic 2.mp3'
+      {path='Music/em_dynamicMusic/Magic 2.mp3',
+	  length=91
+	  }
     }
   },
   {
@@ -116,7 +118,8 @@ local function newMusic()
 
   currentSoundBank = soundBank
 
-  local track = soundBank.tracks[1]
+  local rnd = math.random(1,#soundBank.tracks)
+  local track = soundBank.tracks[rnd]
   local trackPath = nil
 
   if type(track) == "table" then
