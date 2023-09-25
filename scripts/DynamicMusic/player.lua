@@ -1,8 +1,8 @@
-local I = require('openmw.interfaces')
 local ui = require('openmw.ui')
 local core = require('openmw.core')
 local self = require('openmw.self')
 local ambient = require('openmw.ambient')
+local vfs = require('openmw.vfs')
 
 local hostiles = {}
 
@@ -20,45 +20,30 @@ local currentCombatState = nil
 
 local gameTime = os.time()
 
-local soundBanks = {
-  {
-    cellNamePatterns = {
-      'Guild of Mages',
-      'Mage\'s Guild'
-    },
-    tracks = {
-      {
-        path='Music/em_dynamicMusic/Magic 3.mp3',
-        length=61.5
-      },
-      {path='Music/em_dynamicMusic/Magic 2.mp3',
-	  length=91
-	  }
-    }
-  },
-  {
-    cellNamePatterns = {
-      'Guild of Fighters'
-    },
-    tracks = {
-      {
-        path='Music/em_dynamicMusic/Theme 023 (Fighter Guild - Ship).mp3',
-        length=62
-      }
-    }
-  },
-  {
-    cellNamePatterns = {
-      'Balmora, Eight Plates'
-    },
-    tracks = {
-      {path='Music/em_dynamicMusic/Tavern.mp3',
-        length=3
-      }
-    }
-  }
-}
+local soundBanks = {}
 
+--- Collect sound banks.
+-- Collects the user defined soundbanks that are stored inside the soundBanks folder
+local function collectSoundBanks()
+  local soundBanksPath = "scripts/DynamicMusic/soundBanks"
+  print("collecting soundBanks from: " ..soundBanksPath)
+
+  for file in vfs.pathsWithPrefix(soundBanksPath) do
+    file = file.gsub(file, ".lua", "")
+    print("requiring soundBank: " ..file)
+    local soundBank = require(file)
+
+    if type(soundBank) == 'table' then
+      table.insert(soundBanks,soundBank)
+    else
+      print("soundBank returned no table: " ..file)
+    end
+  end
+end
+
+---Check combat state.
+-- Checks if the game is currently in combat state or not.
+-- @return true/false
 local function isCombatState()
   local combat = false
   for id, npc in pairs(hostiles) do
@@ -69,6 +54,10 @@ local function isCombatState()
   return combat
 end
 
+---Check if sound bank is allowed
+-- Returns if the specified soundbank is allowed to play in the current ingame situation.
+-- @param soundBank the soundbank that should be checked
+-- @return true/false
 local function isSoundBankAllowed(soundBank)
   if not soundBank then
     return false
@@ -89,6 +78,9 @@ local function isSoundBankAllowed(soundBank)
   end
 end
 
+---Fetche appropriate soundbank.
+-- Chooses a soundbank that is allowed for the current ingame situation
+-- @return a soundbank
 local function fetchSoundBank()
   local cell = self.cell.name
 
@@ -100,6 +92,9 @@ local function fetchSoundBank()
 
 end
 
+---Plays another track from an allowed soundbank
+-- Chooses a fitting soundbank and plays a track from it
+-- If no soundbank could be found a vanilla track is played
 local function newMusic()
   local soundBank = fetchSoundBank()
 
@@ -122,7 +117,7 @@ local function newMusic()
   local track = soundBank.tracks[rnd]
   local trackPath = nil
 
-  if type(track) == "table" then
+  if type(track) == 'table' then
     trackPath = track.path
     if track.length then
       currentTrackLength = track.length
@@ -185,9 +180,16 @@ local function disengaging(eventData)
   hostiles[eventData.actor.id] = nil;
 end
 
+local function onInit(initData)
+
+end
+
+collectSoundBanks()
+
 return {
   engineHandlers = {
-    onFrame = onFrame
+    onFrame = onFrame,
+    onInit = onInit
   },
   eventHandlers = {
     engaging = engaging,
