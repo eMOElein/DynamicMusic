@@ -69,6 +69,16 @@ local function isSoundBankAllowed(soundBank)
 
   local cell = self.cell.name
 
+  if soundBank.cellNamePatternsExclude then
+    if soundBank.cellNamePatternsExclude then
+      for  _, bankCell in ipairs(soundBank.cellNamePatternsExclude) do
+        if string.find(cell, bankCell) then
+          return false
+        end
+      end
+    end
+  end
+
   if soundBank.cellNamePatterns then
     for  _, bankCell in ipairs(soundBank.cellNamePatterns) do
       if string.find(cell, bankCell) then
