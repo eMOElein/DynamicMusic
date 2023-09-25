@@ -1,2 +1,2 @@
 PLAYER:scripts/DynamicMusic/player.lua
-NPC:scripts/DynamicMusic/npc.lua
+CREATURE, NPC:scripts/DynamicMusic/npc.lua

@@ -59,7 +59,7 @@ local function collectSoundBanks()
       if(availableTracks > 0) then
         table.insert(soundBanks,soundBank)
       else
-        print('no tracks available soundbank will note be added: '..file)
+        print('no tracks available soundbank will not be added: '..file)
       end
     else
       print("soundBank returned no table: " ..file)
