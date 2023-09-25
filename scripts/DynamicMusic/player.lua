@@ -22,6 +22,26 @@ local gameTime = os.time()
 
 local soundBanks = {}
 
+local function countAvailableTracks(soundBank)
+  if not soundBank.tracks or #soundBank.tracks == 0 then
+    return 0
+  end
+
+  local availableTracks = 0
+
+  for _, track in ipairs(soundBank.tracks) do
+    if type(track) == "table" then
+      track = track.path
+    end
+
+    if vfs.fileExists(track) then
+      availableTracks = availableTracks + 1
+    end
+  end
+
+  return availableTracks
+end
+
 --- Collect sound banks.
 -- Collects the user defined soundbanks that are stored inside the soundBanks folder
 local function collectSoundBanks()
@@ -34,7 +54,13 @@ local function collectSoundBanks()
     local soundBank = require(file)
 
     if type(soundBank) == 'table' then
-      table.insert(soundBanks,soundBank)
+      local availableTracks = countAvailableTracks(soundBank)
+
+      if(availableTracks > 0) then
+        table.insert(soundBanks,soundBank)
+      else
+        print('no tracks available soundbank will note be added: '..file)
+      end
     else
       print("soundBank returned no table: " ..file)
     end
