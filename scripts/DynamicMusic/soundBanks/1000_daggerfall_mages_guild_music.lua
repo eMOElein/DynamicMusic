@@ -5,11 +5,11 @@ local soundBank =  {
   },
   tracks = {
     {
-      path='Music/em_dynamicMusic/Magic 3.mp3',
-      length=61.5
+      path='Music/em_dynamicMusic/mage_2.mp3',
+      length=88
     },
-    {path='Music/em_dynamicMusic/Magic 2.mp3',
-      length=91
+    {path='Music/em_dynamicMusic/mage_3.mp3',
+      length=62
     }
   }
 }

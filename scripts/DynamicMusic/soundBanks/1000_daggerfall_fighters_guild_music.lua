@@ -5,8 +5,8 @@ local soundBank =  {
   },
   tracks = {
     {
-      path='Music/em_dynamicMusic/Theme 023 (Fighter Guild - Ship).mp3',
-      length=62
+      path='Music/em_dynamicMusic/fighter_1.mp3',
+      length=65
     }
   }
 }
