@@ -3,6 +3,7 @@ local soundBank =      {
   cellNamePatterns = {
     'Caldera',
     'Ebonheart',
+	'Ebon Tower',
     'Pelagiad',
     'Seyda Neen',
     'Moonmoth',
