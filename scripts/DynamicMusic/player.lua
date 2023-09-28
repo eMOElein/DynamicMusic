@@ -1,16 +1,13 @@
-local ui = require('openmw.ui')
+local ambient = require('openmw.ambient')
 local core = require('openmw.core')
 local self = require('openmw.self')
-local ambient = require('openmw.ambient')
 local vfs = require('openmw.vfs')
 
-local hostiles = {}
+local soundBanks = {}
+local hostilesActors = {}
+local initialized = false
 
-local previousCellName = nil
-local previousCombatState = nil
-local previousGameTime = 0
-
-
+local currentGameTime = os.time()
 local currentCell = nil
 local currentTrackPath = nil
 local currentTrackLength = nil
@@ -18,9 +15,9 @@ local currentPlaytime = 0
 local currentSoundBank = nil
 local currentCombatState = nil
 
-local gameTime = os.time()
-
-local soundBanks = {}
+local previousCellName = nil
+local previousCombatState = nil
+local previousGameTime = 0
 
 local function countAvailableTracks(soundBank)
   if not soundBank.tracks or #soundBank.tracks == 0 then
@@ -72,7 +69,7 @@ end
 -- @return true/false
 local function isCombatState()
   local combat = false
-  for id, npc in pairs(hostiles) do
+  for id, npc in pairs(hostilesActors) do
     combat = true
     break
   end
@@ -89,6 +86,7 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
+  -- combat situations not supported yet
   if currentCombatState then
     return false
   end
@@ -96,11 +94,9 @@ local function isSoundBankAllowed(soundBank)
   local cell = self.cell.name
 
   if soundBank.cellNamePatternsExclude then
-    if soundBank.cellNamePatternsExclude then
-      for  _, bankCell in ipairs(soundBank.cellNamePatternsExclude) do
-        if string.find(cell, bankCell) then
-          return false
-        end
+    for  _, bankCell in ipairs(soundBank.cellNamePatternsExclude) do
+      if string.find(cell, bankCell) then
+        return false
       end
     end
   end
@@ -189,12 +185,12 @@ local function isSoundSwitchNeeded()
 end
 
 local function onFrame(dt)
-  gameTime = os.time()
+  currentGameTime = os.time()
   currentCombatState = isCombatState()
   currentCell = self.cell.name
 
   if currentPlaytime then
-    currentPlaytime = currentPlaytime + (gameTime - previousGameTime)
+    currentPlaytime = currentPlaytime + (currentGameTime - previousGameTime)
   end
 
   if isSoundSwitchNeeded() then
@@ -202,30 +198,41 @@ local function onFrame(dt)
   end
 
   previousCellName = currentCell
-  previousGameTime = gameTime
+  previousGameTime = currentGameTime
   previousCombatState = currentCombatState
 end
 
 local function engaging(eventData)
   if (not eventData.actor) then return end;
-  hostiles[eventData.actor.id] = eventData.actor;
+  hostilesActors[eventData.actor.id] = eventData.actor;
 end
 
 local function disengaging(eventData)
   if (not eventData.actor) then return end;
-  hostiles[eventData.actor.id] = nil;
+  hostilesActors[eventData.actor.id] = nil;
+end
+
+local function initialize()
+  if not initialized then
+    print('initializing')
+    collectSoundBanks()
+    initialized = true
+  end
 end
 
 local function onInit(initData)
-
+  initialize()
 end
 
-collectSoundBanks()
+local function onLoad(initData)
+  initialize()
+end
 
 return {
   engineHandlers = {
     onFrame = onFrame,
-    onInit = onInit
+    onInit = onInit,
+    onLoad = onLoad
   },
   eventHandlers = {
     engaging = engaging,
