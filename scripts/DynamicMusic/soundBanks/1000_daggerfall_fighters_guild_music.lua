@@ -1,4 +1,5 @@
 local soundBank =  {
+  id = 'daggerfall_fighters_guild_music',
   cellNamePatterns = {
     'Guild of Fighters',
     'Fighter\'s Guild'
