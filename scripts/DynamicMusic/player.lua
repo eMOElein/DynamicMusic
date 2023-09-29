@@ -91,7 +91,7 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
-  local cell = self.cell.name
+  local cell = currentCell
 
   if soundBank.cellNamePatternsExclude then
     for  _, bankCell in ipairs(soundBank.cellNamePatternsExclude) do
@@ -114,7 +114,7 @@ end
 -- Chooses a soundbank that is allowed for the current ingame situation
 -- @return a soundbank
 local function fetchSoundBank()
-  local cell = self.cell.name
+  local cell = currentCell
 
   for _, soundBank in ipairs(soundBanks) do
     if isSoundBankAllowed(soundBank) then
@@ -187,7 +187,7 @@ end
 local function onFrame(dt)
   currentGameTime = os.time()
   currentCombatState = isCombatState()
-  currentCell = self.cell.name
+  currentCell = self.cell and self.cell.name or ""
 
   if currentPlaytime then
     currentPlaytime = currentPlaytime + (currentGameTime - previousGameTime)
