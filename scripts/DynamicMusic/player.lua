@@ -129,12 +129,14 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
-  -- combat situations not supported yet
-  if currentCombatState then
-    return false
-  end
-
   if  isSoundBankAllowedForCellName(soundBank, currentCell, true) then
+    if currentCombatState then
+      if soundBank.combatTracks and #soundBank.combatTracks > 0 then
+        return true
+      else
+        return false
+      end
+    end
     return true
   end
 end
@@ -143,8 +145,6 @@ end
 -- Chooses a soundbank that is allowed for the current ingame situation
 -- @return a soundbank
 local function fetchSoundBank()
-  local cell = currentCell
-
   for _, soundBank in ipairs(soundBanks) do
     if isSoundBankAllowed(soundBank) then
       return soundBank
@@ -157,9 +157,11 @@ end
 -- Chooses a fitting soundbank and plays a track from it
 -- If no soundbank could be found a vanilla track is played
 local function newMusic()
+  print("newmusic")
   local soundBank = fetchSoundBank()
 
   if not soundBank then
+    print("no soundbank")
     if currentSoundBank then
       ambient.streamMusic('')
     end
@@ -169,13 +171,16 @@ local function newMusic()
     return
   end
 
-  if soundBank == currentSoundBank then
+  currentSoundBank = soundBank
+  print("fetch track")
+  local tracks = soundBank.tracks
+
+  if currentCombatState and soundBank.combatTracks then
+    tracks = soundBank.combatTracks
   end
 
-  currentSoundBank = soundBank
-
-  local rnd = math.random(1,#soundBank.tracks)
-  local track = soundBank.tracks[rnd]
+  local rnd = math.random(1,#tracks)
+  local track = tracks[rnd]
   local trackPath = nil
 
   if type(track) == 'table' then
@@ -217,22 +222,24 @@ end
 -- Every sondBank is checked agains each cellName and the dictionary is populated if the soundBank is allowed for that cell
 -- @param cellNames all cellNames of the game
 local function prefetchCells(cellNames)
-  cellNameDictionary = {}
+  local dictionary = {}
 
   print("prefetching cells")
   for _, cellName in ipairs(cellNames) do
     for _, soundBank in ipairs(soundBanks) do
       if isSoundBankAllowedForCellName(soundBank, cellName, false) then
-        local dict = cellNameDictionary[cellName]
+        local dict = dictionary[cellName]
         if not dict then
           dict = {}
-          cellNameDictionary[cellName] = dict
+          dictionary[cellName] = dict
         end
         --       print("adding: " ..tostring(soundBank.id) .." to " ..cellName)
         table.insert(dict, soundBank)
       end
     end
   end
+
+  cellNameDictionary = dictionary
 end
 
 local function onFrame(dt)
@@ -245,7 +252,6 @@ local function onFrame(dt)
   end
 
   if isSoundSwitchNeeded() then
- --   print("newmusic")
     newMusic()
   end
 

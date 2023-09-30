@@ -3,7 +3,7 @@ local soundBank =      {
   cellNamePatterns = {
     'Caldera',
     'Ebonheart',
-	'Ebon Tower',
+    'Ebon Tower',
     'Pelagiad',
     'Seyda Neen',
     'Moonmoth',
@@ -41,6 +41,20 @@ local soundBank =      {
     {
       path="Music/MS/cell/Empire/exploration5.mp3",
       length=249
+    }
+  },
+  combatTracks = {
+    {
+      path="Music/MS/combat/Empire/combat1.mp3",
+      length=79
+    },
+    {
+      path="Music/MS/combat/Empire/combat2.mp3",
+      length=68
+    },
+    {
+      path="Music/MS/combat/Empire/combat3.mp3",
+      length=89
     }
   }
 }
