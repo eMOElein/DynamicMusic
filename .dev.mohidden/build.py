@@ -4,7 +4,7 @@ from time import gmtime, strftime
 
 buildPath = ".build.mohidden"
 projectPath = ".build.mohidden/project"
-buildName = "build-" +strftime("%Y%m%d%H%M%S", gmtime())
+buildName = "DynamicMusic-" +strftime("%Y%m%d%H%M%S", gmtime())
 
 os.chdir("..")
 
