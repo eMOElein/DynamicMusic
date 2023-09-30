@@ -1,8 +1,10 @@
 import os
 import shutil
+from time import gmtime, strftime
 
 buildPath = ".build.mohidden"
 projectPath = ".build.mohidden/project"
+buildName = "build-" +strftime("%Y%m%d%H%M%S", gmtime())
 
 os.chdir("..")
 
@@ -14,4 +16,4 @@ os.makedirs(projectPath)
 
 shutil.copyfile("DynamicMusic.omwscripts", projectPath +"/DynamicMusic.omwscripts")
 shutil.copytree("scripts", projectPath +"/scripts")
-shutil.make_archive(buildPath +"/build", 'zip', projectPath)
+shutil.make_archive(buildPath +"/" +buildName, 'zip', projectPath)
