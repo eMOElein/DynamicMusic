@@ -29,6 +29,7 @@ local gameState = {
 
 local soundBanks = {}
 local cellNameDictionary = nil
+local regionNameDictionary = nil
 
 local hostileActors = {}
 local initialized = false
@@ -142,6 +143,8 @@ local function isSoundBankAllowedForRegionName(soundBank, regionName, useDiction
       return true
     end
   end
+
+  return false
 end
 
 ---Check if sound bank is allowed
@@ -153,13 +156,27 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
-  if gameState.playerState.current == playerStates.combat and (not soundBank.combatTracks or #soundBank.combatTracks == 0) then
+  if gameState.playerState.current == playerStates.explore then
+    if not soundBank.tracks or #soundBank.tracks == 0 then
+      return false
+    end
+  end
+
+  if gameState.playerState.current == playerStates.combat then
+    if not soundBank.combatTracks or #soundBank.combatTracks == 0 then
+      return false
+    end
+  end
+
+  if (soundBank.cellNames or soundBank.cellNamePatterns) and not isSoundBankAllowedForCellName(soundBank, gameState.cellName.current, true) then
     return false
   end
 
-  if  not isSoundBankAllowedForCellName(soundBank, gameState.cellName.current, true) then
+  if soundBank.regionNames and not isSoundBankAllowedForRegionName(soundBank, gameState.regionName.current,true) then
+    print("ask region: " ..gameState.regionName.current)
     return false
   end
+
 
   return true
 end
@@ -195,7 +212,7 @@ local function newMusic()
   end
 
   currentSoundBank = soundBank
-  print("fetch track from: " soundBank.id)
+  print("fetch track from: " ..soundBank.id)
   local tracks = soundBank.tracks
 
   if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
@@ -225,7 +242,7 @@ local function isSoundSwitchNeeded()
   if gameState.playerState.previous ~= gameState.playerState.current then
     return true
   end
-  
+
   if not ambient.isMusicPlaying() then
     return true
   end
@@ -261,6 +278,26 @@ local function createCellNameDictionary(cellNames, soundBanks)
           dictionary[cellName] = dict
         end
         --       print("adding: " ..tostring(soundBank.id) .." to " ..cellName)
+        table.insert(dict, soundBank)
+      end
+    end
+  end
+
+  return dictionary
+end
+
+local function createRegionNameDictionary(regionNames, soundBanks)
+  local dictionary = {}
+
+  print("prefetching cells")
+  for _, regionName in ipairs(regionNames) do
+    for _, soundBank in ipairs(soundBanks) do
+      if isSoundBankAllowedForRegionName(soundBank, regionName, false) then
+        local dict = dictionary[regionName]
+        if not dict then
+          dict = {}
+          dictionary[regionName] = dict
+        end
         table.insert(dict, soundBank)
       end
     end
@@ -305,6 +342,10 @@ local function globalDataCollected(eventData)
 
   if data.cellNames then
     cellNameDictionary = createCellNameDictionary(data.cellNames, soundBanks)
+  end
+
+  if data.regionNames then
+    regionNameDictionary = createRegionNameDictionary(data.regionNames, soundBanks)
   end
 
   data = nil
