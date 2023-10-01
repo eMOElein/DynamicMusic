@@ -1,7 +1,5 @@
 local world = require('openmw.world')
 
-local cellDict = {}
-
 local initialized = false
 
 local function globalDataCollected(data)
@@ -17,16 +15,25 @@ local function initialize()
 
   print("initializing global script")
   local cellNames = {}
+  local regionNames = {}
+  local regionNamesSet = {}
 
   for _,cell in ipairs(world.cells) do
     if cell.name ~= '' then
       --   print("addingCell: " ..cell.name)
       table.insert(cellNames,cell.name)
+      regionNamesSet[cell.region] = true
     end
   end
 
-  globalDataCollected({cellNames = cellNames})
+  for regionName,_ in pairs(regionNamesSet) do
+    table.insert(regionNames, regionName)
+  end
 
+  globalDataCollected({
+    cellNames = cellNames,
+    regionNames = regionNames
+  })
   initialized = true
 end
 

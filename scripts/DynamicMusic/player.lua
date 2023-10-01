@@ -3,23 +3,40 @@ local core = require('openmw.core')
 local self = require('openmw.self')
 local vfs = require('openmw.vfs')
 
+local playerStates = {
+  combat = 'combat',
+  explore = 'explore'
+}
+
+local gameState = {
+  cellName = {
+    current = nil,
+    previous = nil
+  },
+  playtime = {
+    current = os.time(),
+    previous = 0
+  },
+  playerState = {
+    current = nil,
+    previous = nil
+  },
+  regionName = {
+    current = nil,
+    previous = nil
+  }
+}
+
 local soundBanks = {}
 local cellNameDictionary = nil
 
-local hostilesActors = {}
+local hostileActors = {}
 local initialized = false
 
-local currentGameTime = os.time()
-local currentCell = nil
+local currentPlaybacktime = 0
 local currentTrackPath = nil
 local currentTrackLength = nil
-local currentPlaytime = 0
 local currentSoundBank = nil
-local currentCombatState = nil
-
-local previousCellName = nil
-local previousCombatState = nil
-local previousGameTime = 0
 
 local function contains(elements, element)
   if not elements then
@@ -80,17 +97,12 @@ local function collectSoundBanks()
   end
 end
 
----Check combat state.
--- Checks if the game is currently in combat state or not.
--- @return true/false
-local function isCombatState()
-  local combat = false
-  for id, npc in pairs(hostilesActors) do
-    combat = true
-    break
+local function getPlayerState()
+  for id, npc in pairs(hostileActors) do
+    return playerStates.combat
   end
 
-  return combat
+  return playerStates.explore
 end
 
 --- Returns if the given sondBank is allowed for the given cellname
@@ -120,6 +132,18 @@ local function isSoundBankAllowedForCellName(soundBank, cellName, useDictionary)
   end
 end
 
+local function isSoundBankAllowedForRegionName(soundBank, regionName, useDictionary)
+  if not soundBank.regionNames then
+    return false
+  end
+
+  for _, allowedRegionName in ipairs(soundBank.regionNames) do
+    if regionName == allowedRegionName then
+      return true
+    end
+  end
+end
+
 ---Check if sound bank is allowed
 -- Returns if the specified soundbank is allowed to play in the current ingame situation.
 -- @param soundBank the soundbank that should be checked
@@ -129,16 +153,15 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
-  if  isSoundBankAllowedForCellName(soundBank, currentCell, true) then
-    if currentCombatState then
-      if soundBank.combatTracks and #soundBank.combatTracks > 0 then
-        return true
-      else
-        return false
-      end
-    end
-    return true
+  if gameState.playerState.current == playerStates.combat and (not soundBank.combatTracks or #soundBank.combatTracks == 0) then
+    return false
   end
+
+  if  not isSoundBankAllowedForCellName(soundBank, gameState.cellName.current, true) then
+    return false
+  end
+
+  return true
 end
 
 ---Fetche appropriate soundbank.
@@ -161,21 +184,21 @@ local function newMusic()
   local soundBank = fetchSoundBank()
 
   if not soundBank then
-    print("no soundbank")
+    print("no matching soundbank found")
     if currentSoundBank then
       ambient.streamMusic('')
     end
     currentTrackPath = nil
-    currentPlaytime = nil
+    currentPlaybacktime = nil
     currentSoundBank = nil
     return
   end
 
   currentSoundBank = soundBank
-  print("fetch track")
+  print("fetch track from: " soundBank.id)
   local tracks = soundBank.tracks
 
-  if currentCombatState and soundBank.combatTracks then
+  if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
     tracks = soundBank.combatTracks
   end
 
@@ -193,25 +216,29 @@ local function newMusic()
     trackPath = track
   end
 
-  currentPlaytime = 0
+  currentPlaybacktime = 0
   currentTrackPath = trackPath
   ambient.streamMusic(trackPath)
 end
 
 local function isSoundSwitchNeeded()
-  if currentTrackLength and currentPlaytime and currentPlaytime >= currentTrackLength then
+  if gameState.playerState.previous ~= gameState.playerState.current then
     return true
   end
-
+  
   if not ambient.isMusicPlaying() then
     return true
   end
 
-  if currentCell ~= previousCellName and not isSoundBankAllowed(currentSoundBank)then
+  if currentTrackLength and currentPlaybacktime and currentPlaybacktime >= currentTrackLength then
     return true
   end
 
-  if previousCombatState ~= currentCombatState then
+  if gameState.regionName.current ~= gameState.regionName.previous and not isSoundBankAllowed(currentSoundBank) then
+    return true
+  end
+
+  if gameState.cellName.current ~= gameState.cellName.previous and not isSoundBankAllowed(currentSoundBank) then
     return true
   end
 
@@ -221,7 +248,7 @@ end
 --- Prefetches dictionary.cells
 -- Every sondBank is checked agains each cellName and the dictionary is populated if the soundBank is allowed for that cell
 -- @param cellNames all cellNames of the game
-local function prefetchCells(cellNames)
+local function createCellNameDictionary(cellNames, soundBanks)
   local dictionary = {}
 
   print("prefetching cells")
@@ -239,35 +266,37 @@ local function prefetchCells(cellNames)
     end
   end
 
-  cellNameDictionary = dictionary
+  return dictionary
 end
 
 local function onFrame(dt)
-  currentGameTime = os.time()
-  currentCombatState = isCombatState()
-  currentCell = self.cell and self.cell.name or ""
+  gameState.cellName.current = self.cell and self.cell.name or ""
+  gameState.playtime.current = os.time()
+  gameState.regionName.current = self.cell and self.cell.region or ""
+  gameState.playerState.current = getPlayerState()
 
-  if currentPlaytime then
-    currentPlaytime = currentPlaytime + (currentGameTime - previousGameTime)
+  if currentPlaybacktime then
+    currentPlaybacktime = currentPlaybacktime + (gameState.playtime.current - gameState.playtime.previous)
   end
 
   if isSoundSwitchNeeded() then
     newMusic()
   end
 
-  previousCellName = currentCell
-  previousGameTime = currentGameTime
-  previousCombatState = currentCombatState
+  gameState.cellName.previous = gameState.cellName.current
+  gameState.playtime.previous = gameState.playtime.current
+  gameState.playerState.previous = gameState.playerState.current
+  gameState.regionName.previous = gameState.regionName.current
 end
 
 local function engaging(eventData)
   if (not eventData.actor) then return end;
-  hostilesActors[eventData.actor.id] = eventData.actor;
+  hostileActors[eventData.actor.id] = eventData.actor;
 end
 
 local function disengaging(eventData)
   if (not eventData.actor) then return end;
-  hostilesActors[eventData.actor.id] = nil;
+  hostileActors[eventData.actor.id] = nil;
 end
 
 local function globalDataCollected(eventData)
@@ -275,8 +304,10 @@ local function globalDataCollected(eventData)
   local data = eventData.data
 
   if data.cellNames then
-    prefetchCells(data.cellNames)
+    cellNameDictionary = createCellNameDictionary(data.cellNames, soundBanks)
   end
+
+  data = nil
 end
 
 local function initialize()
