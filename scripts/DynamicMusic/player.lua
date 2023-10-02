@@ -34,9 +34,9 @@ local regionNameDictionary = nil
 local hostileActors = {}
 local initialized = false
 
-local currentPlaybacktime = 0
+local currentPlaybacktime = -1
 local currentTrackPath = nil
-local currentTrackLength = nil
+local currentTrackLength = -1
 local currentSoundBank = nil
 
 local function contains(elements, element)
@@ -60,13 +60,27 @@ local function countAvailableTracks(soundBank)
 
   local availableTracks = 0
 
-  for _, track in ipairs(soundBank.tracks) do
-    if type(track) == "table" then
-      track = track.path
-    end
+  if soundBank.tracks then
+    for _, track in ipairs(soundBank.tracks) do
+      if type(track) == "table" then
+        track = track.path
+      end
 
-    if vfs.fileExists(track) then
-      availableTracks = availableTracks + 1
+      if vfs.fileExists(track) then
+        availableTracks = availableTracks + 1
+      end
+    end
+  end
+
+  if soundBank.combatTracks then
+    for _, track in ipairs(soundBank.combatTracks) do
+      if type(track) == "table" then
+        track = track.path
+      end
+
+      if vfs.fileExists(track) then
+        availableTracks = availableTracks + 1
+      end
     end
   end
 
@@ -90,10 +104,10 @@ local function collectSoundBanks()
       if(availableTracks > 0) then
         table.insert(soundBanks,soundBank)
       else
-        print('no tracks available soundbank will not be added: '..file)
+        print('no tracks available: '..file)
       end
     else
-      print("soundBank returned no table: " ..file)
+      print("not a lua table: " ..file)
     end
   end
 end
@@ -138,6 +152,10 @@ local function isSoundBankAllowedForRegionName(soundBank, regionName, useDiction
     return false
   end
 
+  if useDictionary and regionNameDictionary then
+    return contains(regionNameDictionary[regionName], soundBank)
+  end
+
   for _, allowedRegionName in ipairs(soundBank.regionNames) do
     if regionName == allowedRegionName then
       return true
@@ -173,7 +191,6 @@ local function isSoundBankAllowed(soundBank)
   end
 
   if soundBank.regionNames and not isSoundBankAllowedForRegionName(soundBank, gameState.regionName.current,true) then
-    print("ask region: " ..gameState.regionName.current)
     return false
   end
 
@@ -200,13 +217,17 @@ local function newMusic()
   print("newmusic")
   local soundBank = fetchSoundBank()
 
+  if currentSoundBank == soundBank and currentPlaybacktime < currentTrackLength then
+    return
+  end
+
   if not soundBank then
     print("no matching soundbank found")
     if currentSoundBank then
       ambient.streamMusic('')
     end
     currentTrackPath = nil
-    currentPlaybacktime = nil
+    currentPlaybacktime = -1
     currentSoundBank = nil
     return
   end
@@ -229,7 +250,7 @@ local function newMusic()
       currentTrackLength = track.length
     end
   else
-    currentTrackLength = nil
+    currentTrackLength = -1
     trackPath = track
   end
 
@@ -238,7 +259,7 @@ local function newMusic()
   ambient.streamMusic(trackPath)
 end
 
-local function isSoundSwitchNeeded()
+local function hasGameStateChanged()
   if gameState.playerState.previous ~= gameState.playerState.current then
     return true
   end
@@ -251,11 +272,11 @@ local function isSoundSwitchNeeded()
     return true
   end
 
-  if gameState.regionName.current ~= gameState.regionName.previous and not isSoundBankAllowed(currentSoundBank) then
+  if gameState.regionName.current ~= gameState.regionName.previous then
     return true
   end
 
-  if gameState.cellName.current ~= gameState.cellName.previous and not isSoundBankAllowed(currentSoundBank) then
+  if gameState.cellName.current ~= gameState.cellName.previous then
     return true
   end
 
@@ -289,7 +310,7 @@ end
 local function createRegionNameDictionary(regionNames, soundBanks)
   local dictionary = {}
 
-  print("prefetching cells")
+  print("prefetching regions")
   for _, regionName in ipairs(regionNames) do
     for _, soundBank in ipairs(soundBanks) do
       if isSoundBankAllowedForRegionName(soundBank, regionName, false) then
@@ -316,7 +337,7 @@ local function onFrame(dt)
     currentPlaybacktime = currentPlaybacktime + (gameState.playtime.current - gameState.playtime.previous)
   end
 
-  if isSoundSwitchNeeded() then
+  if hasGameStateChanged() then
     newMusic()
   end
 
