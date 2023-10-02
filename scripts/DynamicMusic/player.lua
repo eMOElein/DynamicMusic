@@ -217,8 +217,10 @@ local function newMusic()
   print("newmusic")
   local soundBank = fetchSoundBank()
 
-  if currentSoundBank == soundBank and currentPlaybacktime < currentTrackLength then
-    return
+  if gameState.playerState.current == gameState.playerState.previous then
+    if currentSoundBank == soundBank and currentPlaybacktime < currentTrackLength then
+      return
+    end
   end
 
   if not soundBank then
@@ -338,6 +340,7 @@ local function onFrame(dt)
   end
 
   if hasGameStateChanged() then
+    print("state changed")
     newMusic()
   end
 
