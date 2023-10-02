@@ -15,7 +15,7 @@ local gameState = {
   },
   playtime = {
     current = os.time(),
-    previous = 0
+    previous = -1
   },
   playerState = {
     current = nil,
