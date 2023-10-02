@@ -24,6 +24,10 @@ local gameState = {
   regionName = {
     current = nil,
     previous = nil
+  },
+  soundBank = {
+    current = nil,
+    previous = nil
   }
 }
 
@@ -37,7 +41,6 @@ local initialized = false
 local currentPlaybacktime = -1
 local currentTrackPath = nil
 local currentTrackLength = -1
-local currentSoundBank = nil
 
 local function contains(elements, element)
   if not elements then
@@ -218,23 +221,23 @@ local function newMusic()
   local soundBank = fetchSoundBank()
 
   if gameState.playerState.current == gameState.playerState.previous then
-    if currentSoundBank == soundBank and currentPlaybacktime < currentTrackLength then
+    if gameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
       return
     end
   end
 
   if not soundBank then
     print("no matching soundbank found")
-    if currentSoundBank then
+    if gameState.soundBank.current then
       ambient.streamMusic('')
     end
     currentTrackPath = nil
     currentPlaybacktime = -1
-    currentSoundBank = nil
+    gameState.soundBank.current = nil
     return
   end
 
-  currentSoundBank = soundBank
+  gameState.soundBank.current = soundBank
   print("fetch track from: " ..soundBank.id)
   local tracks = soundBank.tracks
 
@@ -340,7 +343,6 @@ local function onFrame(dt)
   end
 
   if hasGameStateChanged() then
-    print("state changed")
     newMusic()
   end
 
@@ -348,6 +350,7 @@ local function onFrame(dt)
   gameState.playtime.previous = gameState.playtime.current
   gameState.playerState.previous = gameState.playerState.current
   gameState.regionName.previous = gameState.regionName.current
+  gameState.soundBank.previous = gameState.soundBank.current
 end
 
 local function engaging(eventData)
