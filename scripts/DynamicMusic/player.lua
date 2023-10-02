@@ -1,5 +1,4 @@
 local ambient = require('openmw.ambient')
-local core = require('openmw.core')
 local self = require('openmw.self')
 local vfs = require('openmw.vfs')
 

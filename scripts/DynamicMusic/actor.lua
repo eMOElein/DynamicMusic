@@ -1,6 +1,5 @@
 local nearby = require('openmw.nearby')
 local self = require('openmw.self')
-local types = require('openmw.types')
 local AI = require('openmw.interfaces').AI
 local types = require('openmw.types')
 
