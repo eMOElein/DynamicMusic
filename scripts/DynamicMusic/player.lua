@@ -219,6 +219,11 @@ local function newMusic()
   print("newmusic")
   local soundBank = fetchSoundBank()
 
+  -- force new music when strammusic was used in the ingame console
+  if not ambient.isMusicPlaying() then
+    gameState.soundBank.current = nil
+  end
+
   if gameState.playerState.current == gameState.playerState.previous then
     if gameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
       return
