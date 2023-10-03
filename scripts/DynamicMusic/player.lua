@@ -2,6 +2,9 @@ local ambient = require('openmw.ambient')
 local self = require('openmw.self')
 local vfs = require('openmw.vfs')
 
+local hostileActors = {}
+local soundBanks = {}
+
 local playerStates = {
   combat = 'combat',
   explore = 'explore'
@@ -30,11 +33,9 @@ local gameState = {
   }
 }
 
-local soundBanks = {}
 local cellNameDictionary = nil
 local regionNameDictionary = nil
 
-local hostileActors = {}
 local initialized = false
 
 local currentPlaybacktime = -1
@@ -93,29 +94,29 @@ end
 -- Collects the user defined soundbanks that are stored inside the soundBanks folder
 local function collectSoundBanks()
   local soundBanksPath = "scripts/DynamicMusic/soundBanks"
-  print("collecting soundBanks from: " ..soundBanksPath)
+  print("collecting soundBanks from: " .. soundBanksPath)
 
   for file in vfs.pathsWithPrefix(soundBanksPath) do
     file = file.gsub(file, ".lua", "")
-    print("requiring soundBank: " ..file)
+    print("requiring soundBank: " .. file)
     local soundBank = require(file)
 
     if type(soundBank) == 'table' then
       local availableTracks = countAvailableTracks(soundBank)
 
-      if(availableTracks > 0) then
-        table.insert(soundBanks,soundBank)
+      if (availableTracks > 0) then
+        table.insert(soundBanks, soundBank)
       else
-        print('no tracks available: '..file)
+        print('no tracks available: ' .. file)
       end
     else
-      print("not a lua table: " ..file)
+      print("not a lua table: " .. file)
     end
   end
 end
 
 local function getPlayerState()
-  for id, npc in pairs(hostileActors) do
+  for _, s in pairs(hostileActors) do
     return playerStates.combat
   end
 
@@ -133,15 +134,23 @@ local function isSoundBankAllowedForCellName(soundBank, cellName, useDictionary)
   end
 
   if soundBank.cellNamePatternsExclude then
-    for  _, cellNameExcludePattern in ipairs(soundBank.cellNamePatternsExclude) do
+    for _, cellNameExcludePattern in ipairs(soundBank.cellNamePatternsExclude) do
       if string.find(cellName, cellNameExcludePattern) then
         return false
       end
     end
   end
 
+  if soundBank.cellNames then
+    for _, allowedCellName in ipairs(soundBank.cellNames) do
+      if cellName == allowedCellName then
+        return true
+      end
+    end
+  end
+
   if soundBank.cellNamePatterns then
-    for  _, cellNamePattern in ipairs(soundBank.cellNamePatterns) do
+    for _, cellNamePattern in ipairs(soundBank.cellNamePatterns) do
       if string.find(cellName, cellNamePattern) then
         return true
       end
@@ -192,7 +201,7 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
-  if soundBank.regionNames and not isSoundBankAllowedForRegionName(soundBank, gameState.regionName.current,true) then
+  if soundBank.regionNames and not isSoundBankAllowedForRegionName(soundBank, gameState.regionName.current, true) then
     return false
   end
 
@@ -209,7 +218,6 @@ local function fetchSoundBank()
       return soundBank
     end
   end
-
 end
 
 ---Plays another track from an allowed soundbank
@@ -219,11 +227,12 @@ local function newMusic()
   print("newmusic")
   local soundBank = fetchSoundBank()
 
-  -- force new music when strammusic was used in the ingame console
+  -- force new music when streammusic was used in the ingame console
   if not ambient.isMusicPlaying() then
     gameState.soundBank.current = nil
   end
 
+  --continue playback if no playerState change happened and the same soundbank should be played again
   if gameState.playerState.current == gameState.playerState.previous then
     if gameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
       return
@@ -242,14 +251,14 @@ local function newMusic()
   end
 
   gameState.soundBank.current = soundBank
-  print("fetch track from: " ..soundBank.id)
+  print("fetch track from: " .. soundBank.id)
   local tracks = soundBank.tracks
 
   if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
     tracks = soundBank.combatTracks
   end
 
-  local rnd = math.random(1,#tracks)
+  local rnd = math.random(1, #tracks)
   local track = tracks[rnd]
   local trackPath = nil
 
@@ -278,6 +287,7 @@ local function hasGameStateChanged()
   end
 
   if currentTrackLength and currentPlaybacktime and currentPlaybacktime >= currentTrackLength then
+    print(currentPlaybacktime .. " - " .. currentTrackLength)
     return true
   end
 
@@ -358,11 +368,13 @@ local function onFrame(dt)
 end
 
 local function engaging(eventData)
+  print("engaging")
   if (not eventData.actor) then return end;
   hostileActors[eventData.actor.id] = eventData.actor;
 end
 
 local function disengaging(eventData)
+  print("disengaging")
   if (not eventData.actor) then return end;
   hostileActors[eventData.actor.id] = nil;
 end
