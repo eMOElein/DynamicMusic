@@ -283,8 +283,7 @@ local function hasGameStateChanged()
     return true
   end
 
-  if currentTrackLength and currentPlaybacktime and currentPlaybacktime >= currentTrackLength then
-    print(currentPlaybacktime .. " - " .. currentTrackLength)
+  if currentTrackLength > -1 and currentPlaybacktime > currentTrackLength then
     return true
   end
 
@@ -349,7 +348,7 @@ local function onFrame(dt)
   gameState.regionName.current = self.cell and self.cell.region or ""
   gameState.playerState.current = getPlayerState()
 
-  if currentPlaybacktime then
+  if currentPlaybacktime > -1 then
     currentPlaybacktime = currentPlaybacktime + (gameState.playtime.current - gameState.playtime.previous)
   end
 
