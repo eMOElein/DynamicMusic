@@ -2,6 +2,7 @@ local soundBank =      {
   id = "tr_ost_region_telvannis",
   regionNames = {
         'molagreahd region',
+		'sunad mora region',
         'boethiah\'s spine region',
         'aranyon pass region',
 		'telvanni isles region'
