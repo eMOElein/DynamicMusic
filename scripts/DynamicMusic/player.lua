@@ -216,9 +216,9 @@ local function newMusic()
   print("newmusic")
   local soundBank = nil
 
-  for _, sb in ipairs(soundBanks) do
-    if isSoundBankAllowed(sb) then
-      soundBank = sb
+  for index = #soundBanks, 1, -1 do
+    if isSoundBankAllowed(soundBanks[index]) then
+      soundBank = soundBanks[index]
       break
     end
   end
