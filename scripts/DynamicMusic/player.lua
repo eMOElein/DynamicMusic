@@ -209,23 +209,19 @@ local function isSoundBankAllowed(soundBank)
   return true
 end
 
----Fetche appropriate soundbank.
--- Chooses a soundbank that is allowed for the current ingame situation
--- @return a soundbank
-local function fetchSoundBank()
-  for _, soundBank in ipairs(soundBanks) do
-    if isSoundBankAllowed(soundBank) then
-      return soundBank
-    end
-  end
-end
-
 ---Plays another track from an allowed soundbank
 -- Chooses a fitting soundbank and plays a track from it
 -- If no soundbank could be found a vanilla track is played
 local function newMusic()
   print("newmusic")
-  local soundBank = fetchSoundBank()
+  local soundBank = nil
+
+  for _, sb in ipairs(soundBanks) do
+    if isSoundBankAllowed(sb) then
+      soundBank = sb
+      break
+    end
+  end
 
   -- force new music when streammusic was used in the ingame console
   if not ambient.isMusicPlaying() then
@@ -235,6 +231,7 @@ local function newMusic()
   --continue playback if no playerState change happened and the same soundbank should be played again
   if gameState.playerState.current == gameState.playerState.previous then
     if gameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
+      print("skipping new track and continue with current")
       return
     end
   end
@@ -368,13 +365,11 @@ local function onFrame(dt)
 end
 
 local function engaging(eventData)
-  print("engaging")
   if (not eventData.actor) then return end;
   hostileActors[eventData.actor.id] = eventData.actor;
 end
 
 local function disengaging(eventData)
-  print("disengaging")
   if (not eventData.actor) then return end;
   hostileActors[eventData.actor.id] = nil;
 end
