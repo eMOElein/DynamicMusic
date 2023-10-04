@@ -259,15 +259,11 @@ local function newMusic()
   local track = tracks[rnd]
   local trackPath = nil
 
-  if type(track) == 'table' then
-    trackPath = track.path
-    if track.length then
-      currentTrackLength = track.length
-    end
-  else
-    currentTrackLength = -1
-    trackPath = track
+  trackPath = track.path
+  if track.length then
+    currentTrackLength = track.length
   end
+
 
   currentPlaybacktime = 0
   currentTrackPath = trackPath
