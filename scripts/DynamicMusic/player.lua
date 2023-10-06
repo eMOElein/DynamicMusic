@@ -253,6 +253,7 @@ local function newMusic()
 
   currentPlaybacktime = 0
   currentTrackPath = trackPath
+  print("playing track: " ..trackPath)
   ambient.streamMusic(trackPath)
 end
 
