@@ -11,6 +11,10 @@ local playerStates = {
 }
 
 local gameState = {
+  exterior = {
+    current = nil,
+    previous = nil
+  },
   cellName = {
     current = nil,
     previous = nil
@@ -171,6 +175,10 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
+  if soundBank.interiorOnly and gameState.exterior.current then
+    return false
+  end
+
   if gameState.playerState.current == playerStates.explore then
     if not soundBank.tracks or #soundBank.tracks == 0 then
       return false
@@ -253,7 +261,7 @@ local function newMusic()
 
   currentPlaybacktime = 0
   currentTrackPath = trackPath
-  print("playing track: " ..trackPath)
+  print("playing track: " .. trackPath)
   ambient.streamMusic(trackPath)
 end
 
@@ -326,6 +334,7 @@ local function createRegionNameDictionary(regionNames, soundBanks)
 end
 
 local function onFrame(dt)
+  gameState.exterior.current = self.cell and self.cell.isExterior
   gameState.cellName.current = self.cell and self.cell.name or ""
   gameState.playtime.current = os.time()
   gameState.regionName.current = self.cell and self.cell.region or ""
@@ -339,6 +348,7 @@ local function onFrame(dt)
     newMusic()
   end
 
+  gameState.exterior.previous = gameState.cellName.current
   gameState.cellName.previous = gameState.cellName.current
   gameState.playtime.previous = gameState.playtime.current
   gameState.playerState.previous = gameState.playerState.current

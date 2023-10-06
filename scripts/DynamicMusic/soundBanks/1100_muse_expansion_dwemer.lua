@@ -1,5 +1,6 @@
 local soundBank =    {
   id = "muse_expansion_dwemer",
+  interiorOnly = true,
   cellNamePatterns = {
     'Aleft',
     'Arkngthand',
