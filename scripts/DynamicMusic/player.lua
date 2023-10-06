@@ -42,20 +42,6 @@ local currentPlaybacktime = -1
 local currentTrackPath = nil
 local currentTrackLength = -1
 
-local function contains(elements, element)
-  if not elements then
-    return false
-  end
-
-  for _, tableElement in pairs(elements) do
-    if tableElement == element then
-      return true
-    end
-  end
-
-  return false
-end
-
 local function countAvailableTracks(soundBank)
   if not soundBank.tracks or #soundBank.tracks == 0 then
     return 0
@@ -130,7 +116,7 @@ end
 -- @returns true/false
 local function isSoundBankAllowedForCellName(soundBank, cellName, useDictionary)
   if useDictionary and cellNameDictionary then
-    return contains(cellNameDictionary[cellName], soundBank)
+    return cellNameDictionary[cellName] and cellNameDictionary[cellName][soundBank]
   end
 
   if soundBank.cellNamePatternsExclude then
@@ -164,7 +150,7 @@ local function isSoundBankAllowedForRegionName(soundBank, regionName, useDiction
   end
 
   if useDictionary and regionNameDictionary then
-    return contains(regionNameDictionary[regionName], soundBank)
+    return regionNameDictionary[regionName] and regionNameDictionary[regionName][soundBank]
   end
 
   for _, allowedRegionName in ipairs(soundBank.regionNames) do
@@ -310,7 +296,7 @@ local function createCellNameDictionary(cellNames, soundBanks)
           dictionary[cellName] = dict
         end
         --       print("adding: " ..tostring(soundBank.id) .." to " ..cellName)
-        table.insert(dict, soundBank)
+        dictionary[cellName][soundBank] = true
       end
     end
   end
@@ -330,7 +316,7 @@ local function createRegionNameDictionary(regionNames, soundBanks)
           dict = {}
           dictionary[regionName] = dict
         end
-        table.insert(dict, soundBank)
+        dictionary[regionName][soundBank] = true
       end
     end
   end
