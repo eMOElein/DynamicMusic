@@ -266,27 +266,33 @@ local function newMusic()
   currentPlaybacktime = 0
   currentTrackPath = trackPath
   print("playing track: " .. trackPath)
+  ambient.stopMusic()
   ambient.streamMusic(trackPath)
 end
 
 local function hasGameStateChanged()
   if gameState.playerState.previous ~= gameState.playerState.current then
+    --    print("change playerState")
     return true
   end
 
   if not ambient.isMusicPlaying() then
+    --    print("change music not playing")
     return true
   end
 
   if currentTrackLength > -1 and currentPlaybacktime > currentTrackLength then
+    --    print("change trackLength")
     return true
   end
 
   if gameState.regionName.current ~= gameState.regionName.previous then
+    --    print("change regionName")
     return true
   end
 
   if gameState.cellName.current ~= gameState.cellName.previous then
+    --    print("change celName")
     return true
   end
 
