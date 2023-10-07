@@ -179,6 +179,10 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
+  if soundBank.exteriorOnly and not gameState.exterior.current then
+    return false
+  end
+
   if gameState.playerState.current == playerStates.explore then
     if not soundBank.tracks or #soundBank.tracks == 0 then
       return false
