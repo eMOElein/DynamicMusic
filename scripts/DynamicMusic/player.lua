@@ -98,6 +98,18 @@ local function collectSoundBanks()
       local availableTracks = countAvailableTracks(soundBank)
 
       if (availableTracks > 0) then
+        if soundBank.tracks then
+          for _, t in ipairs(soundBank.tracks) do
+            t.path = string.lower(t.path)
+          end
+        end
+
+        if soundBank.combatTracks then
+          for _, t in ipairs(soundBank.combatTracks) do
+            t.path = string.lower(t.path)
+          end
+        end
+
         table.insert(soundBanks, soundBank)
       else
         print('no tracks available: ' .. file)
@@ -210,6 +222,33 @@ local function isSoundBankAllowed(soundBank)
   return true
 end
 
+local function contains(elements, element)
+  for _, e in pairs(elements) do
+    if (e == element) then
+      return true
+    end
+  end
+  return false
+end
+
+local function fetchRandomTrack(tracks, options)
+  local allowedTracks = tracks
+
+  if options and options.blacklist and #options.blacklist > 0 then
+    allowedTracks = {}
+    for _, t in pairs(tracks) do
+      if not contains(options.blacklist, t) then
+        table.insert(allowedTracks, t)
+      end
+    end
+  end
+
+  local rnd = math.random(1, #allowedTracks)
+  local track = allowedTracks[rnd]
+
+  return track
+end
+
 ---Plays another track from an allowed soundbank
 -- Chooses a fitting soundbank and plays a track from it
 -- If no soundbank could be found a vanilla track is played
@@ -256,21 +295,24 @@ local function newMusic()
     tracks = soundBank.combatTracks
   end
 
-  local rnd = math.random(1, #tracks)
-  local track = tracks[rnd]
-  local trackPath = nil
+  local track = fetchRandomTrack(tracks)
 
-  trackPath = track.path
+  -- if current trackpath == previous trackpath try to fetch a different track
+  if #tracks > 1 and gameState.track.previous then
+    if currentPlaybacktime < currentTrackLength and track.path == gameState.track.previous.path then
+      track = fetchRandomTrack(tracks, { blacklist = { track } })
+    end
+  end
+
+  gameState.track.current = track
   if track.length then
     currentTrackLength = track.length
   end
-
-
   currentPlaybacktime = 0
-  gameState.track.curent = track
-  print("playing track: " .. trackPath)
+
+  print("playing track: " .. track.path)
   ambient.stopMusic()
-  ambient.streamMusic(trackPath)
+  ambient.streamMusic(track.path)
 end
 
 local function hasGameStateChanged()
@@ -367,7 +409,7 @@ local function onFrame(dt)
   gameState.playerState.previous = gameState.playerState.current
   gameState.regionName.previous = gameState.regionName.current
   gameState.soundBank.previous = gameState.soundBank.current
-  gameState.track.previous = gameState.track.curent
+  gameState.track.previous = gameState.track.current
 end
 
 local function engaging(eventData)
