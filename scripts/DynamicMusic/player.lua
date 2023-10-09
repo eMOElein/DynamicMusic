@@ -34,6 +34,10 @@ local gameState = {
   soundBank = {
     current = nil,
     previous = nil
+  },
+  track = {
+    curent = nil,
+    previous = nil
   }
 }
 
@@ -43,7 +47,6 @@ local regionNameDictionary = nil
 local initialized = false
 
 local currentPlaybacktime = -1
-local currentTrackPath = nil
 local currentTrackLength = -1
 
 local function countAvailableTracks(soundBank)
@@ -239,7 +242,7 @@ local function newMusic()
     if gameState.soundBank.current then
       ambient.streamMusic('')
     end
-    currentTrackPath = nil
+    gameState.track.curent = nil
     currentPlaybacktime = -1
     gameState.soundBank.current = nil
     return
@@ -264,7 +267,7 @@ local function newMusic()
 
 
   currentPlaybacktime = 0
-  currentTrackPath = trackPath
+  gameState.track.curent = track
   print("playing track: " .. trackPath)
   ambient.stopMusic()
   ambient.streamMusic(trackPath)
@@ -364,6 +367,7 @@ local function onFrame(dt)
   gameState.playerState.previous = gameState.playerState.current
   gameState.regionName.previous = gameState.regionName.current
   gameState.soundBank.previous = gameState.soundBank.current
+  gameState.track.previous = gameState.track.curent
 end
 
 local function engaging(eventData)
