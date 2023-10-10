@@ -1,10 +1,11 @@
 import os
 import shutil
-from time import gmtime, strftime
+import time
 
 buildPath = ".build.mohidden"
 projectPath = ".build.mohidden/project"
-buildName = "DynamicMusic-" +strftime("%Y%m%d%H%M%S", gmtime())
+buildTime = time.time()
+buildName = "DynamicMusic-" +str(int(buildTime))
 
 os.chdir("..")
 
