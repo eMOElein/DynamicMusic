@@ -332,7 +332,7 @@ local function newMusic()
 
     if tempTrack then
       print("resuming existing track from previous")
-      gameState.track.curent = tempTrack
+      gameState.track.current = tempTrack
       return
     end
   end
