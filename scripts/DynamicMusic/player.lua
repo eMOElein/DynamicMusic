@@ -1,5 +1,6 @@
 local ambient = require('openmw.ambient')
 local self = require('openmw.self')
+local types = require('openmw.types')
 local vfs = require('openmw.vfs')
 
 local hostileActors = {}
@@ -121,8 +122,10 @@ local function collectSoundBanks()
 end
 
 local function getPlayerState()
-  for _, s in pairs(hostileActors) do
-    return playerStates.combat
+  for _, hostileActor in pairs(hostileActors) do
+    if types.Actor.isInActorsProcessingRange(hostileActor) then
+      return playerStates.combat
+    end
   end
 
   return playerStates.explore
@@ -324,27 +327,27 @@ end
 
 local function hasGameStateChanged()
   if gameState.playerState.previous ~= gameState.playerState.current then
-    --    print("change playerState")
+    -- print("change playerState: " .. gameState.playerState.current)
     return true
   end
 
   if not ambient.isMusicPlaying() then
-    --    print("change music not playing")
+    -- print("change music not playing")
     return true
   end
 
   if currentTrackLength > -1 and currentPlaybacktime > currentTrackLength then
-    --    print("change trackLength")
+    -- print("change trackLength")
     return true
   end
 
   if gameState.regionName.current ~= gameState.regionName.previous then
-    --    print("change regionName")
+    -- print("change regionName")
     return true
   end
 
   if gameState.cellName.current ~= gameState.cellName.previous then
-    --    print("change celName")
+    -- print("change celName")
     return true
   end
 
