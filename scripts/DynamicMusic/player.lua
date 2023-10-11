@@ -253,7 +253,8 @@ end
 -- Chooses a fitting soundbank and plays a track from it
 -- If no soundbank could be found a vanilla track is played
 local function newMusic()
-  print("newmusic")
+  print("new music requested")
+
   local soundBank = nil
 
   for index = #soundBanks, 1, -1 do
@@ -276,32 +277,38 @@ local function newMusic()
     end
   end
 
+  -- no matching soundbank available - switching to default music
   if not soundBank then
     print("no matching soundbank found")
+
     if gameState.soundBank.current then
       ambient.streamMusic('')
     end
+
     gameState.track.curent = nil
     currentPlaybacktime = -1
     gameState.soundBank.current = nil
+
     return
   end
 
   gameState.soundBank.current = soundBank
+
   print("fetch track from: " .. soundBank.id)
+
   local tracks = soundBank.tracks
 
+  -- in case of combat situation use combat tracks
   if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
     tracks = soundBank.combatTracks
   end
 
   local track = fetchRandomTrack(tracks)
 
-  -- if current trackpath == previous trackpath try to fetch a different track
-  if #tracks > 1 and gameState.track.previous then
-    if currentPlaybacktime < currentTrackLength and track.path == gameState.track.previous.path then
-      track = fetchRandomTrack(tracks, { blacklist = { track } })
-    end
+  -- if new trackpath == previous trackpath try to fetch a different track
+  if #tracks > 1 and (gameState.track.previous and track.path == gameState.track.previous.path or false) then
+    print("searching for another track to avoid repeated playback of: " .. gameState.track.previous.path)
+    track = fetchRandomTrack(tracks, { blacklist = { track } })
   end
 
   gameState.track.current = track
