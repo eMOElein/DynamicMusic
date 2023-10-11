@@ -42,6 +42,28 @@ local gameState = {
   }
 }
 
+local SoundBank = {
+
+  trackForPath = function(soundBank, playerState, trackPath)
+    local tracks = {}
+
+    if playerState == playerStates.explore then
+      tracks = soundBank.tracks
+    end
+
+    if playerState == playerStates.combat then
+      tracks = soundBank.combatTracks
+    end
+
+    for _, track in pairs(tracks) do
+      if (track.path == trackPath) then
+        return track
+      end
+    end
+  end
+
+}
+
 local cellNameDictionary = nil
 local regionNameDictionary = nil
 
@@ -299,14 +321,30 @@ local function newMusic()
 
   print("fetch track from: " .. soundBank.id)
 
+
+  -- reusing previous track if trackpath is available
+  if gameState.track.previous and gameState.soundBank.current ~= gameState.soundBank.previous then
+    local tempTrack = SoundBank.trackForPath(
+      gameState.soundBank.current,
+      gameState.playerState.current,
+      gameState.track.previous.path
+    )
+
+    if tempTrack then
+      print("resuming existing track from previous")
+      gameState.track.curent = tempTrack
+      return
+    end
+  end
+
+  local track = nil
   local tracks = soundBank.tracks
 
   -- in case of combat situation use combat tracks
   if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
     tracks = soundBank.combatTracks
   end
-
-  local track = fetchRandomTrack(tracks)
+  track = fetchRandomTrack(tracks)
 
   -- if new trackpath == previous trackpath try to fetch a different track
   if #tracks > 1 and (gameState.track.previous and track.path == gameState.track.previous.path or false) then
@@ -314,11 +352,12 @@ local function newMusic()
     track = fetchRandomTrack(tracks, { blacklist = { track } })
   end
 
+  currentPlaybacktime = 0
+
   gameState.track.current = track
   if track.length then
     currentTrackLength = track.length
   end
-  currentPlaybacktime = 0
 
   print("playing track: " .. track.path)
   ambient.stopMusic()
@@ -327,7 +366,7 @@ end
 
 local function hasGameStateChanged()
   if gameState.playerState.previous ~= gameState.playerState.current then
-    -- print("change playerState: " .. gameState.playerState.current)
+    -- print("change playerState: " ..gameState.playerState.current)
     return true
   end
 
