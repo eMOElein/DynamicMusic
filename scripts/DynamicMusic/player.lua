@@ -313,7 +313,7 @@ local function newMusic()
     gameState.track.curent = nil
     currentPlaybacktime = -1
     gameState.soundBank.current = nil
-
+    gameState.track.current = nil
     return
   end
 
@@ -331,7 +331,7 @@ local function newMusic()
     )
 
     if tempTrack then
-      print("resuming existing track from previous")
+      print("resuming existing track from previous " .. gameState.track.previous.path)
       gameState.track.current = tempTrack
       return
     end
