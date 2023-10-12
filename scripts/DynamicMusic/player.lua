@@ -452,7 +452,7 @@ local function onFrame(dt)
     newMusic()
   end
 
-  gameState.exterior.previous = gameState.cellName.current
+  gameState.exterior.previous = gameState.exterior.current
   gameState.cellName.previous = gameState.cellName.current
   gameState.playtime.previous = gameState.playtime.current
   gameState.playerState.previous = gameState.playerState.current
