@@ -323,7 +323,7 @@ local function newMusic()
 
 
   -- reusing previous track if trackpath is available
-  if gameState.track.previous and gameState.soundBank.current ~= gameState.soundBank.previous then
+  if gameState.track.previous and (gameState.soundBank.current ~= gameState.soundBank.previous or gameState.playerState.current ~= gameState.playerState.previous) then
     local tempTrack = SoundBank.trackForPath(
       gameState.soundBank.current,
       gameState.playerState.current,
