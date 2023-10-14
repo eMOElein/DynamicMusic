@@ -352,6 +352,11 @@ local function newMusic()
     track = fetchRandomTrack(tracks, { blacklist = { track } })
   end
 
+  -- hopefully avoids default music being played on track end sometimes
+  if currentPlaybacktime >= currentTrackLength then
+    ambient.stopMusic()
+  end
+
   currentPlaybacktime = 0
 
   gameState.track.current = track
@@ -360,7 +365,6 @@ local function newMusic()
   end
 
   print("playing track: " .. track.path)
-  ambient.stopMusic()
   ambient.streamMusic(track.path)
 end
 
