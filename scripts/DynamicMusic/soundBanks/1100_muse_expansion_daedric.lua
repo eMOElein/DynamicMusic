@@ -1,5 +1,6 @@
 local soundBank =      {
   id = 'muse_expansion_daedric',
+  interiorOnly = true,
   cellNamePatterns = {
 	"Ashunartes",
 	"Ashurnibibi",
@@ -36,7 +37,8 @@ local soundBank =      {
 	"Zaintiraris",
 	"Anudnabia",
 	"Magas Volar",
-	"Shrine of Azura"
+	"Shrine of Azura",
+	"Malkamalit"
   },
   tracks = {
     {
