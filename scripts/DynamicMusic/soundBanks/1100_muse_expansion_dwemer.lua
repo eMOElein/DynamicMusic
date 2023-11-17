@@ -4,7 +4,7 @@ local soundBank =    {
   cellNamePatterns = {
     'Aleft',
     'Arkngthand',
-    'Arkngthunch-Sturdumz',
+    'Arkngthunch%-Sturdumz',
     'Bethamez',
     'Bthanchend',
     'Bthuand',
