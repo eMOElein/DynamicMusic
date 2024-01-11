@@ -21,7 +21,9 @@ local soundBank =    {
     'Nchuleftingth',
     'Nchurdamz',
     'Bamz-Amschend',
-    'Sotha Sil'
+    'Sotha Sil',
+-- Tamriel Rebuilt cells
+    'Bthungtch'
   },
   tracks={
     {

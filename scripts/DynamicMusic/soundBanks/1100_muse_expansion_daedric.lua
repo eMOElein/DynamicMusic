@@ -38,7 +38,9 @@ local soundBank =      {
 	"Anudnabia",
 	"Magas Volar",
 	"Shrine of Azura",
-	"Malkamalit"
+	"Malkamalit",
+-- Tamriel Rebuilt Shrines
+	"Ossurnashalit"
   },
   tracks = {
     {
