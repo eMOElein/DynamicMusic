@@ -4,12 +4,14 @@ local types = require('openmw.types')
 local vfs = require('openmw.vfs')
 
 local DEFAULT_SOUNDBANK = require("scripts.DynamicMusic.soundBanks.DEFAULT")
-
+local COMBAT_MIN_ENEMY_LEVEL = 5
+local COMBAT_MIN_LEVEL_DIFFERENCE = 2
 local Settings = {
   use_default_soundbank = true
 }
 
 local hostileActors = {}
+
 local soundBanks = {}
 
 local playerStates = {
@@ -149,15 +151,32 @@ local function collectSoundBanks()
   end
 end
 
-local function getPlayerState()
+local function isCombatState()
+  local playerLevel = types.Actor.stats.level(self).current
+
   for _, hostileActor in pairs(hostileActors) do
     if types.Actor.isInActorsProcessingRange(hostileActor) then
-      return playerStates.combat
+      local hostileLevel = types.Actor.stats.level(hostileActor).current
+      local inProcessingRange = types.Actor.isInActorsProcessingRange(hostileActor)
+      local playerLevelAdvantage = playerLevel - hostileLevel
+print("adv; " ..playerLevelAdvantage)
+      if inProcessingRange and (hostileLevel >= COMBAT_MIN_ENEMY_LEVEL or playerLevelAdvantage < COMBAT_MIN_LEVEL_DIFFERENCE) then
+        return true
+      end
     end
+  end
+
+  return false
+end
+
+local function getPlayerState()
+  if isCombatState() then
+    return playerStates.combat
   end
 
   return playerStates.explore
 end
+
 
 --- Returns if the given sondBank is allowed for the given cellname
 -- Performs raw checks and does not use the dictionary
@@ -495,6 +514,7 @@ end
 local function engaging(eventData)
   if (not eventData.actor) then return end;
   hostileActors[eventData.actor.id] = eventData.actor;
+  print("engaging: " ..eventData.actor.recordId)
 end
 
 local function disengaging(eventData)

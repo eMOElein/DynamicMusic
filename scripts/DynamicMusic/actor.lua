@@ -8,7 +8,12 @@ local combatState = false
 local function emitEvent(eventName)
   for _, actor in ipairs(nearby.actors) do
     if actor.type == types.Player then
-      actor:sendEvent(eventName, { actor = self });
+      local level = types.Actor.stats.level(self).current
+
+      actor:sendEvent(eventName, {
+        actor = self,
+        level = level
+      });
     end
   end
 end
