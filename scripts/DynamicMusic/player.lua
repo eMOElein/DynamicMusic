@@ -302,6 +302,25 @@ local function fetch_soundbank()
   return soundbank
 end
 
+local function fetchTrackFromSoundbank(soundBank)
+  local track = nil
+  local tracks = soundBank.tracks
+
+  -- in case of combat situation use combat tracks
+  if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
+    tracks = soundBank.combatTracks
+  end
+  track = fetchRandomTrack(tracks)
+
+  -- if new trackpath == previous trackpath try to fetch a different track
+  if #tracks > 1 and (gameState.track.previous and track.path == gameState.track.previous.path or false) then
+    print("searching for another track to avoid repeated playback of: " .. gameState.track.previous.path)
+    track = fetchRandomTrack(tracks, { blacklist = { track } })
+  end
+
+  return track
+end
+
 ---Plays another track from an allowed soundbank
 -- Chooses a fitting soundbank and plays a track from it
 -- If no soundbank could be found a vanilla track is played
@@ -358,20 +377,7 @@ local function newMusic()
     end
   end
 
-  local track = nil
-  local tracks = soundBank.tracks
-
-  -- in case of combat situation use combat tracks
-  if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
-    tracks = soundBank.combatTracks
-  end
-  track = fetchRandomTrack(tracks)
-
-  -- if new trackpath == previous trackpath try to fetch a different track
-  if #tracks > 1 and (gameState.track.previous and track.path == gameState.track.previous.path or false) then
-    print("searching for another track to avoid repeated playback of: " .. gameState.track.previous.path)
-    track = fetchRandomTrack(tracks, { blacklist = { track } })
-  end
+  local track = fetchTrackFromSoundbank(soundBank)
 
   -- hopefully avoids default music being played on track end sometimes
   if currentPlaybacktime >= currentTrackLength then
