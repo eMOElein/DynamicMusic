@@ -3,6 +3,12 @@ local self = require('openmw.self')
 local types = require('openmw.types')
 local vfs = require('openmw.vfs')
 
+local DEFAULT_SOUNDBANK = require("scripts.DynamicMusic.soundBanks.DEFAULT")
+
+local Settings = {
+  use_default_soundbank = true
+}
+
 local hostileActors = {}
 local soundBanks = {}
 
@@ -243,6 +249,10 @@ local function isSoundBankAllowed(soundBank)
     return false
   end
 
+  if soundBank.id == "DEFAULT" then
+    return false
+  end
+
 
   return true
 end
@@ -274,27 +284,38 @@ local function fetchRandomTrack(tracks, options)
   return track
 end
 
+local function fetch_soundbank()
+  local soundbank = nil
+
+  for index = #soundBanks, 1, -1 do
+    if isSoundBankAllowed(soundBanks[index]) then
+      soundbank = soundBanks[index]
+      break
+    end
+  end
+
+  if not soundbank and Settings.use_default_soundbank then
+    print("using DEFAULT soundbank")
+    soundbank = DEFAULT_SOUNDBANK
+  end
+
+  return soundbank
+end
+
 ---Plays another track from an allowed soundbank
 -- Chooses a fitting soundbank and plays a track from it
 -- If no soundbank could be found a vanilla track is played
 local function newMusic()
   print("new music requested")
 
-  local soundBank = nil
-
-  for index = #soundBanks, 1, -1 do
-    if isSoundBankAllowed(soundBanks[index]) then
-      soundBank = soundBanks[index]
-      break
-    end
-  end
+  local soundBank = fetch_soundbank()
 
   -- force new music when streammusic was used in the ingame console
   if not ambient.isMusicPlaying() then
     gameState.soundBank.current = nil
   end
 
-  --continue playback if no playerState change happened and the same soundbank should be played again
+  --if no playerState change happened and the same soundbank should be played again then continue playback
   if gameState.playerState.current == gameState.playerState.previous then
     if gameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
       print("skipping new track and continue with current")
@@ -302,7 +323,7 @@ local function newMusic()
     end
   end
 
-  -- no matching soundbank available - switching to default music
+  -- no matching soundbank available - switching to default music and return
   if not soundBank then
     print("no matching soundbank found")
 
