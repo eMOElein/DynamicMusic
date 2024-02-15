@@ -1,9 +1,10 @@
 local ambient = require('openmw.ambient')
 local self = require('openmw.self')
 local types = require('openmw.types')
-local vfs = require('openmw.vfs')
 local storage = require('openmw.storage')
 local I = require('openmw.interfaces')
+
+local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.soundBanks.DEFAULT')
 
@@ -127,84 +128,10 @@ I.Settings.registerGroup {
 local playerSettings = storage.playerSection('Dynamic_Music_Default_Settings')
 local advancedSettings = storage.playerSection('Dynamic_Music_Advanced_Settings')
 
-local cellNameDictionary = nil
-local regionNameDictionary = nil
-
 local initialized = false
 
 local currentPlaybacktime = -1
 local currentTrackLength = -1
-
-local function countAvailableTracks(soundBank)
-  if not soundBank.tracks or #soundBank.tracks == 0 then
-    return 0
-  end
-
-  local availableTracks = 0
-
-  if soundBank.tracks then
-    for _, track in ipairs(soundBank.tracks) do
-      if type(track) == "table" then
-        track = track.path
-      end
-
-      if vfs.fileExists(track) then
-        availableTracks = availableTracks + 1
-      end
-    end
-  end
-
-  if soundBank.combatTracks then
-    for _, track in ipairs(soundBank.combatTracks) do
-      if type(track) == "table" then
-        track = track.path
-      end
-
-      if vfs.fileExists(track) then
-        availableTracks = availableTracks + 1
-      end
-    end
-  end
-
-  return availableTracks
-end
-
---- Collect sound banks.
--- Collects the user defined soundbanks that are stored inside the soundBanks folder
-local function collectSoundBanks()
-  local soundBanksPath = "scripts/DynamicMusic/soundBanks"
-  print("collecting soundBanks from: " .. soundBanksPath)
-
-  for file in vfs.pathsWithPrefix(soundBanksPath) do
-    file = file.gsub(file, ".lua", "")
-    print("requiring soundBank: " .. file)
-    local soundBank = require(file)
-
-    if type(soundBank) == 'table' then
-      local availableTracks = countAvailableTracks(soundBank)
-
-      if (availableTracks > 0) then
-        if soundBank.tracks then
-          for _, t in ipairs(soundBank.tracks) do
-            t.path = string.lower(t.path)
-          end
-        end
-
-        if soundBank.combatTracks then
-          for _, t in ipairs(soundBank.combatTracks) do
-            t.path = string.lower(t.path)
-          end
-        end
-
-        table.insert(soundBanks, soundBank)
-      else
-        print('no tracks available: ' .. file)
-      end
-    else
-      print("not a lua table: " .. file)
-    end
-  end
-end
 
 local function isCombatState()
   local playerLevel = types.Actor.stats.level(self).current
@@ -232,60 +159,6 @@ local function getPlayerState()
   end
 
   return playerStates.explore
-end
-
-
---- Returns if the given sondBank is allowed for the given cellname
--- Performs raw checks and does not use the dictionary
--- @param soundBank a soundBank
--- @paran cellName a cellName of type string
--- @returns true/false
-local function isSoundBankAllowedForCellName(soundBank, cellName, useDictionary)
-  if useDictionary and cellNameDictionary then
-    return cellNameDictionary[cellName] and cellNameDictionary[cellName][soundBank]
-  end
-
-  if soundBank.cellNamePatternsExclude then
-    for _, cellNameExcludePattern in ipairs(soundBank.cellNamePatternsExclude) do
-      if string.find(cellName, cellNameExcludePattern) then
-        return false
-      end
-    end
-  end
-
-  if soundBank.cellNames then
-    for _, allowedCellName in ipairs(soundBank.cellNames) do
-      if cellName == allowedCellName then
-        return true
-      end
-    end
-  end
-
-  if soundBank.cellNamePatterns then
-    for _, cellNamePattern in ipairs(soundBank.cellNamePatterns) do
-      if string.find(cellName, cellNamePattern) then
-        return true
-      end
-    end
-  end
-end
-
-local function isSoundBankAllowedForRegionName(soundBank, regionName, useDictionary)
-  if not soundBank.regionNames then
-    return false
-  end
-
-  if useDictionary and regionNameDictionary then
-    return regionNameDictionary[regionName] and regionNameDictionary[regionName][soundBank]
-  end
-
-  for _, allowedRegionName in ipairs(soundBank.regionNames) do
-    if regionName == allowedRegionName then
-      return true
-    end
-  end
-
-  return false
 end
 
 ---Check if sound bank is allowed
@@ -317,11 +190,11 @@ local function isSoundBankAllowed(soundBank)
     end
   end
 
-  if (soundBank.cellNames or soundBank.cellNamePatterns) and not isSoundBankAllowedForCellName(soundBank, gameState.cellName.current, true) then
+  if (soundBank.cellNames or soundBank.cellNamePatterns) and not DynamicMusic.isSoundBankAllowedForCellName(soundBank, gameState.cellName.current, true) then
     return false
   end
 
-  if soundBank.regionNames and not isSoundBankAllowedForRegionName(soundBank, gameState.regionName.current, true) then
+  if soundBank.regionNames and not DynamicMusic.isSoundBankAllowedForRegionName(soundBank, gameState.regionName.current, true) then
     return false
   end
 
@@ -500,51 +373,11 @@ local function hasGameStateChanged()
   return false
 end
 
---- Prefetches dictionary.cells
--- Every sondBank is checked agains each cellName and the dictionary is populated if the soundBank is allowed for that cell
--- @param cellNames all cellNames of the game
-local function createCellNameDictionary(cellNames, soundBanks)
-  local dictionary = {}
-
-  print("prefetching cells")
-  for _, cellName in ipairs(cellNames) do
-    for _, soundBank in ipairs(soundBanks) do
-      if isSoundBankAllowedForCellName(soundBank, cellName, false) then
-        local dict = dictionary[cellName]
-        if not dict then
-          dict = {}
-          dictionary[cellName] = dict
-        end
-        --       print("adding: " ..tostring(soundBank.id) .." to " ..cellName)
-        dictionary[cellName][soundBank] = true
-      end
-    end
-  end
-
-  return dictionary
-end
-
-local function createRegionNameDictionary(regionNames, soundBanks)
-  local dictionary = {}
-
-  print("prefetching regions")
-  for _, regionName in ipairs(regionNames) do
-    for _, soundBank in ipairs(soundBanks) do
-      if isSoundBankAllowedForRegionName(soundBank, regionName, false) then
-        local dict = dictionary[regionName]
-        if not dict then
-          dict = {}
-          dictionary[regionName] = dict
-        end
-        dictionary[regionName][soundBank] = true
-      end
-    end
-  end
-
-  return dictionary
-end
-
 local function onFrame(dt)
+  if not DynamicMusic.initialized then
+    return
+  end
+
   gameState.exterior.current = self.cell and self.cell.isExterior
   gameState.cellName.current = self.cell and self.cell.name or ""
   gameState.playtime.current = os.time()
@@ -580,16 +413,11 @@ local function disengaging(eventData)
 end
 
 local function globalDataCollected(eventData)
-  print("collecting global data")
+  print("COLLECTING GLOBAL DATA!!!!")
   local data = eventData.data
 
-  if data.cellNames then
-    cellNameDictionary = createCellNameDictionary(data.cellNames, soundBanks)
-  end
-
-  if data.regionNames then
-    regionNameDictionary = createRegionNameDictionary(data.regionNames, soundBanks)
-  end
+  DynamicMusic.initialize(data.cellNames, data.regionNames)
+  soundBanks = DynamicMusic.soundBanks
 
   data = nil
 end
@@ -597,7 +425,7 @@ end
 local function initialize()
   if not initialized then
     print('initializing playerscript')
-    collectSoundBanks()
+--    collectSoundBanks()
     initialized = true
   end
 end
