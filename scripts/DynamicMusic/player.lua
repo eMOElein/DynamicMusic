@@ -2,12 +2,15 @@ local ambient = require('openmw.ambient')
 local self = require('openmw.self')
 local types = require('openmw.types')
 local vfs = require('openmw.vfs')
+local storage = require('openmw.storage')
+local I = require('openmw.interfaces')
 
-local DEFAULT_SOUNDBANK = require("scripts.DynamicMusic.soundBanks.DEFAULT")
-local COMBAT_MIN_ENEMY_LEVEL = 5
-local COMBAT_MIN_LEVEL_DIFFERENCE = 2
+local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.soundBanks.DEFAULT')
+
 local Settings = {
-  use_default_soundbank = true
+  COMBAT_MIN_ENEMY_LEVEL = 'COMBAT_MIN_ENEMY_LEVEL',
+  COMBAT_MIN_LEVEL_DIFFERENCE = 'COMBAT_MIN_LEVEL_DIFFERENCE',
+  USE_DEFAULT_SOUNDBANK = 'USE_DEFAULT_SOUNDBANK'
 }
 
 local hostileActors = {}
@@ -71,6 +74,58 @@ local SoundBank = {
   end
 
 }
+
+I.Settings.registerPage {
+  key = 'Dynamic_Music',
+  l10n = 'Dynamic_Music',
+  name = 'Dynamic Music',
+  description = 'Dynamic Music Framework',
+}
+I.Settings.registerGroup {
+  key = 'Dynamic_Music_Default_Settings',
+  page = 'Dynamic_Music',
+  l10n = 'Dynamic_Music',
+  name = 'Combat',
+  description = 'Combat related settings.',
+  permanentStorage = true,
+  settings = {
+      {
+          key = Settings.COMBAT_MIN_ENEMY_LEVEL,
+          renderer = 'number',
+          name = 'Min. Enemy Level',
+          description = 'Minimum enemy level needed to play combat music. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
+          default = 5,
+      },
+      {
+        key = Settings.COMBAT_MIN_LEVEL_DIFFERENCE,
+        renderer = 'number',
+        name = 'Min. Level Difference',
+        description = 'Ignore Min. Enemy Level if the player is not X levels above the enemy\'s level. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
+        default = 2,
+    },
+  },
+}
+
+I.Settings.registerGroup {
+  key = 'Dynamic_Music_Advanced_Settings',
+  page = 'Dynamic_Music',
+  l10n = 'Dynamic_Music',
+  name = 'Advanced',
+  description = 'Advanced Settings',
+  permanentStorage = true,
+  settings = {
+      {
+          key = Settings.USE_DEFAULT_SOUNDBANK,
+          renderer = 'checkbox',
+          name = 'Use DEFAULT Soundbank',
+          description = 'Uses the DEFAULT soundbank if no other soundbank matches. If you have custom tracks in your vanilla playlist they will be ignored and need to be added to the DEFAULT soundbank manually.',
+          default = true,
+      }
+  },
+}
+
+local playerSettings = storage.playerSection('Dynamic_Music_Default_Settings')
+local advancedSettings = storage.playerSection('Dynamic_Music_Advanced_Settings')
 
 local cellNameDictionary = nil
 local regionNameDictionary = nil
@@ -153,14 +208,16 @@ end
 
 local function isCombatState()
   local playerLevel = types.Actor.stats.level(self).current
+  local minLevelEnemy = playerSettings:get(Settings.COMBAT_MIN_ENEMY_LEVEL)
+  local minLevelDifference = playerSettings:get(Settings.COMBAT_MIN_LEVEL_DIFFERENCE)
 
   for _, hostileActor in pairs(hostileActors) do
     if types.Actor.isInActorsProcessingRange(hostileActor) then
       local hostileLevel = types.Actor.stats.level(hostileActor).current
       local inProcessingRange = types.Actor.isInActorsProcessingRange(hostileActor)
       local playerLevelAdvantage = playerLevel - hostileLevel
-print("adv; " ..playerLevelAdvantage)
-      if inProcessingRange and (hostileLevel >= COMBAT_MIN_ENEMY_LEVEL or playerLevelAdvantage < COMBAT_MIN_LEVEL_DIFFERENCE) then
+
+      if inProcessingRange and (hostileLevel >= minLevelEnemy or playerLevelAdvantage < minLevelDifference) then
         return true
       end
     end
@@ -313,7 +370,7 @@ local function fetch_soundbank()
     end
   end
 
-  if not soundbank and Settings.use_default_soundbank then
+  if not soundbank and advancedSettings:get(Settings.USE_DEFAULT_SOUNDBANK)then
     print("using DEFAULT soundbank")
     soundbank = DEFAULT_SOUNDBANK
   end
