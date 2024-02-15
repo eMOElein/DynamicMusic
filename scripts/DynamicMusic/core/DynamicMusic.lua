@@ -1,4 +1,6 @@
 local vfs = require('openmw.vfs')
+local GameState = require('scripts.DynamicMusic.core.GameState')
+local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 
 local DynamicMusic = {}
 
@@ -126,6 +128,47 @@ function DynamicMusic.initialize(cellNames, regionNames)
     DynamicMusic.initialized = true
 end
 
+function DynamicMusic.isSoundBankAllowed(soundBank)
+    if not soundBank then
+        return false
+    end
+
+    if soundBank.interiorOnly and GameState.exterior.current then
+        return false
+    end
+
+    if soundBank.exteriorOnly and not GameState.exterior.current then
+        return false
+    end
+
+    if GameState.playerState.current == PlayerStates.explore then
+        if not soundBank.tracks or #soundBank.tracks == 0 then
+            return false
+        end
+    end
+
+    if GameState.playerState.current == PlayerStates.combat then
+        if not soundBank.combatTracks or #soundBank.combatTracks == 0 then
+            return false
+        end
+    end
+
+    if (soundBank.cellNames or soundBank.cellNamePatterns) and not DynamicMusic.isSoundBankAllowedForCellName(soundBank, GameState.cellName.current) then
+        return false
+    end
+
+    if soundBank.regionNames and not DynamicMusic.isSoundBankAllowedForRegionName(soundBank, GameState.regionName.current) then
+        return false
+    end
+
+    if soundBank.id == "DEFAULT" then
+        return false
+    end
+
+
+    return true
+end
+
 function DynamicMusic.isSoundBankAllowedForCellName(soundBank, cellName)
     if _cellNameDictionary then
         return _cellNameDictionary[cellName] and _cellNameDictionary[cellName][soundBank]
@@ -160,6 +203,7 @@ function DynamicMusic.isSoundBankAllowedForRegionName(soundBank, regionName)
     if not soundBank.regionNames then
         return false
     end
+
     if _regionNameDictionary then
         return _regionNameDictionary[regionName] and _regionNameDictionary[regionName][soundBank]
     end

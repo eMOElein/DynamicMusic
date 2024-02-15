@@ -11,10 +11,9 @@ local function sendGlobalData(player)
 
   for _, cell in ipairs(world.cells) do
     if cell.name ~= '' then
-      --   print("addingCell: " ..cell.name)
       table.insert(cellNames, cell.name)
-      regionNamesSet[cell.region] = true
     end
+    regionNamesSet[cell.region] = true
   end
 
   for regionName, _ in pairs(regionNamesSet) do
@@ -29,15 +28,6 @@ local function sendGlobalData(player)
   player:sendEvent("globalDataCollected", { data = data });
 end
 
-local function initialize()
-end
-
-local function onLoad()
-end
-
-local function onInit()
-end
-
 local function onUpdate()
   for _, player in ipairs(world.players) do
     if not players[player.id] then
@@ -49,8 +39,6 @@ end
 
 return {
   engineHandlers = {
-    onInit = onInit,
-    onLoad = onLoad,
     onUpdate = onUpdate
   }
 }

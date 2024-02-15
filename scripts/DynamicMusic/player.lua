@@ -4,6 +4,8 @@ local types = require('openmw.types')
 local storage = require('openmw.storage')
 local I = require('openmw.interfaces')
 
+local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
+local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.soundBanks.DEFAULT')
@@ -16,54 +18,16 @@ local Settings = {
 
 local hostileActors = {}
 
-local soundBanks = {}
-
-local playerStates = {
-  combat = 'combat',
-  explore = 'explore'
-}
-
-local gameState = {
-  exterior = {
-    current = nil,
-    previous = nil
-  },
-  cellName = {
-    current = nil,
-    previous = nil
-  },
-  playtime = {
-    current = os.time(),
-    previous = -1
-  },
-  playerState = {
-    current = nil,
-    previous = nil
-  },
-  regionName = {
-    current = nil,
-    previous = nil
-  },
-  soundBank = {
-    current = nil,
-    previous = nil
-  },
-  track = {
-    curent = nil,
-    previous = nil
-  }
-}
-
 local SoundBank = {
 
   trackForPath = function(soundBank, playerState, trackPath)
     local tracks = {}
 
-    if playerState == playerStates.explore then
+    if playerState == PlayerStates.explore then
       tracks = soundBank.tracks
     end
 
-    if playerState == playerStates.combat then
+    if playerState == PlayerStates.combat then
       tracks = soundBank.combatTracks
     end
 
@@ -155,55 +119,10 @@ end
 
 local function getPlayerState()
   if isCombatState() then
-    return playerStates.combat
+    return PlayerStates.combat
   end
 
-  return playerStates.explore
-end
-
----Check if sound bank is allowed
--- Returns if the specified soundbank is allowed to play in the current ingame situation.
--- @param soundBank the soundbank that should be checked
--- @return true/false
-local function isSoundBankAllowed(soundBank)
-  if not soundBank then
-    return false
-  end
-
-  if soundBank.interiorOnly and gameState.exterior.current then
-    return false
-  end
-
-  if soundBank.exteriorOnly and not gameState.exterior.current then
-    return false
-  end
-
-  if gameState.playerState.current == playerStates.explore then
-    if not soundBank.tracks or #soundBank.tracks == 0 then
-      return false
-    end
-  end
-
-  if gameState.playerState.current == playerStates.combat then
-    if not soundBank.combatTracks or #soundBank.combatTracks == 0 then
-      return false
-    end
-  end
-
-  if (soundBank.cellNames or soundBank.cellNamePatterns) and not DynamicMusic.isSoundBankAllowedForCellName(soundBank, gameState.cellName.current, true) then
-    return false
-  end
-
-  if soundBank.regionNames and not DynamicMusic.isSoundBankAllowedForRegionName(soundBank, gameState.regionName.current, true) then
-    return false
-  end
-
-  if soundBank.id == "DEFAULT" then
-    return false
-  end
-
-
-  return true
+  return PlayerStates.explore
 end
 
 local function contains(elements, element)
@@ -233,12 +152,12 @@ local function fetchRandomTrack(tracks, options)
   return track
 end
 
-local function fetch_soundbank()
+local function fetchSoundbank()
   local soundbank = nil
 
-  for index = #soundBanks, 1, -1 do
-    if isSoundBankAllowed(soundBanks[index]) then
-      soundbank = soundBanks[index]
+  for index = #DynamicMusic.soundBanks, 1, -1 do
+    if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
+      soundbank = DynamicMusic.soundBanks[index]
       break
     end
   end
@@ -256,14 +175,14 @@ local function fetchTrackFromSoundbank(soundBank)
   local tracks = soundBank.tracks
 
   -- in case of combat situation use combat tracks
-  if gameState.playerState.current == playerStates.combat and soundBank.combatTracks then
+  if GameState.playerState.current == PlayerStates.combat and soundBank.combatTracks then
     tracks = soundBank.combatTracks
   end
   track = fetchRandomTrack(tracks)
 
   -- if new trackpath == previous trackpath try to fetch a different track
-  if #tracks > 1 and (gameState.track.previous and track.path == gameState.track.previous.path or false) then
-    print("searching for another track to avoid repeated playback of: " .. gameState.track.previous.path)
+  if #tracks > 1 and (GameState.track.previous and track.path == GameState.track.previous.path or false) then
+    print("searching for another track to avoid repeated playback of: " .. GameState.track.previous.path)
     track = fetchRandomTrack(tracks, { blacklist = { track } })
   end
 
@@ -276,16 +195,16 @@ end
 local function newMusic()
   print("new music requested")
 
-  local soundBank = fetch_soundbank()
+  local soundBank = fetchSoundbank()
 
   -- force new music when streammusic was used in the ingame console
   if not ambient.isMusicPlaying() then
-    gameState.soundBank.current = nil
+    GameState.soundBank.current = nil
   end
 
   --if no playerState change happened and the same soundbank should be played again then continue playback
-  if gameState.playerState.current == gameState.playerState.previous then
-    if gameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
+  if GameState.playerState.current == GameState.playerState.previous then
+    if GameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
       print("skipping new track and continue with current")
       return
     end
@@ -295,33 +214,33 @@ local function newMusic()
   if not soundBank then
     print("no matching soundbank found")
 
-    if gameState.soundBank.current then
+    if GameState.soundBank.current then
       ambient.streamMusic('')
     end
 
-    gameState.track.curent = nil
+    GameState.track.curent = nil
     currentPlaybacktime = -1
-    gameState.soundBank.current = nil
-    gameState.track.current = nil
+    GameState.soundBank.current = nil
+    GameState.track.current = nil
     return
   end
 
-  gameState.soundBank.current = soundBank
+  GameState.soundBank.current = soundBank
 
   print("fetch track from: " .. soundBank.id)
 
 
   -- reusing previous track if trackpath is available
-  if gameState.track.previous and (gameState.soundBank.current ~= gameState.soundBank.previous or gameState.playerState.current ~= gameState.playerState.previous) then
+  if GameState.track.previous and (GameState.soundBank.current ~= GameState.soundBank.previous or GameState.playerState.current ~= GameState.playerState.previous) then
     local tempTrack = SoundBank.trackForPath(
-      gameState.soundBank.current,
-      gameState.playerState.current,
-      gameState.track.previous.path
+      GameState.soundBank.current,
+      GameState.playerState.current,
+      GameState.track.previous.path
     )
 
     if tempTrack then
-      print("resuming existing track from previous " .. gameState.track.previous.path)
-      gameState.track.current = tempTrack
+      print("resuming existing track from previous " .. GameState.track.previous.path)
+      GameState.track.current = tempTrack
       return
     end
   end
@@ -335,7 +254,7 @@ local function newMusic()
 
   currentPlaybacktime = 0
 
-  gameState.track.current = track
+  GameState.track.current = track
   if track.length then
     currentTrackLength = track.length
   end
@@ -345,7 +264,7 @@ local function newMusic()
 end
 
 local function hasGameStateChanged()
-  if gameState.playerState.previous ~= gameState.playerState.current then
+  if GameState.playerState.previous ~= GameState.playerState.current then
     -- print("change playerState: " ..gameState.playerState.current)
     return true
   end
@@ -360,12 +279,12 @@ local function hasGameStateChanged()
     return true
   end
 
-  if gameState.regionName.current ~= gameState.regionName.previous then
+  if GameState.regionName.current ~= GameState.regionName.previous then
     -- print("change regionName")
     return true
   end
 
-  if gameState.cellName.current ~= gameState.cellName.previous then
+  if GameState.cellName.current ~= GameState.cellName.previous then
     -- print("change celName")
     return true
   end
@@ -378,27 +297,27 @@ local function onFrame(dt)
     return
   end
 
-  gameState.exterior.current = self.cell and self.cell.isExterior
-  gameState.cellName.current = self.cell and self.cell.name or ""
-  gameState.playtime.current = os.time()
-  gameState.regionName.current = self.cell and self.cell.region or ""
-  gameState.playerState.current = getPlayerState()
+  GameState.exterior.current = self.cell and self.cell.isExterior
+  GameState.cellName.current = self.cell and self.cell.name or ""
+  GameState.playtime.current = os.time()
+  GameState.regionName.current = self.cell and self.cell.region or ""
+  GameState.playerState.current = getPlayerState()
 
   if currentPlaybacktime > -1 then
-    currentPlaybacktime = currentPlaybacktime + (gameState.playtime.current - gameState.playtime.previous)
+    currentPlaybacktime = currentPlaybacktime + (GameState.playtime.current - GameState.playtime.previous)
   end
 
   if hasGameStateChanged() then
     newMusic()
   end
 
-  gameState.exterior.previous = gameState.exterior.current
-  gameState.cellName.previous = gameState.cellName.current
-  gameState.playtime.previous = gameState.playtime.current
-  gameState.playerState.previous = gameState.playerState.current
-  gameState.regionName.previous = gameState.regionName.current
-  gameState.soundBank.previous = gameState.soundBank.current
-  gameState.track.previous = gameState.track.current
+  GameState.exterior.previous = GameState.exterior.current
+  GameState.cellName.previous = GameState.cellName.current
+  GameState.playtime.previous = GameState.playtime.current
+  GameState.playerState.previous = GameState.playerState.current
+  GameState.regionName.previous = GameState.regionName.current
+  GameState.soundBank.previous = GameState.soundBank.current
+  GameState.track.previous = GameState.track.current
 end
 
 local function engaging(eventData)
@@ -413,36 +332,16 @@ local function disengaging(eventData)
 end
 
 local function globalDataCollected(eventData)
-  print("COLLECTING GLOBAL DATA!!!!")
   local data = eventData.data
 
   DynamicMusic.initialize(data.cellNames, data.regionNames)
-  soundBanks = DynamicMusic.soundBanks
 
   data = nil
 end
 
-local function initialize()
-  if not initialized then
-    print('initializing playerscript')
---    collectSoundBanks()
-    initialized = true
-  end
-end
-
-local function onInit(initData)
-  initialize()
-end
-
-local function onLoad(initData)
-  initialize()
-end
-
 return {
   engineHandlers = {
-    onFrame = onFrame,
-    onInit = onInit,
-    onLoad = onLoad
+    onFrame = onFrame
   },
   eventHandlers = {
     engaging = engaging,
