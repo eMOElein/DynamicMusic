@@ -2,77 +2,24 @@ local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local CardIndex = require('scripts.DynamicMusic.core.CardIndex')
+local SoundBank = require('scripts.DynamicMusic.core.SoundBank')
 
 local DynamicMusic = {}
 
-local function countAvailableTracks(soundBank)
-    if not soundBank.tracks or #soundBank.tracks == 0 then
-        return 0
-    end
-
-    local availableTracks = 0
-
-    if soundBank.tracks then
-        for _, track in ipairs(soundBank.tracks) do
-            if type(track) == "table" then
-                track = track.path
-            end
-
-            if vfs.fileExists(track) then
-                availableTracks = availableTracks + 1
-            end
-        end
-    end
-
-    if soundBank.combatTracks then
-        for _, track in ipairs(soundBank.combatTracks) do
-            if type(track) == "table" then
-                track = track.path
-            end
-
-            if vfs.fileExists(track) then
-                availableTracks = availableTracks + 1
-            end
-        end
-    end
-
-    return availableTracks
-end
-
---- Collect sound banks.
--- Collects the user defined soundbanks that are stored inside the soundBanks folder
 local function collectSoundBanks()
-    local soundBanks = {}
-
     print("collecting soundBanks from: " .. DynamicMusic.sondBanksPath)
 
+    local soundBanks = {}
     for file in vfs.pathsWithPrefix(DynamicMusic.sondBanksPath) do
         file = file.gsub(file, ".lua", "")
         print("requiring soundBank: " .. file)
         local soundBank = require(file)
+        soundBank = SoundBank.CreateFromTable(soundBank)
 
-        if type(soundBank) == 'table' then
-            local availableTracks = countAvailableTracks(soundBank)
-
-            if (availableTracks > 0) then
-                if soundBank.tracks then
-                    for _, t in ipairs(soundBank.tracks) do
-                        t.path = string.lower(t.path)
-                    end
-                end
-
-                if soundBank.combatTracks then
-                    for _, t in ipairs(soundBank.combatTracks) do
-                        t.path = string.lower(t.path)
-                    end
-                end
-
-                table.insert(soundBanks, soundBank)
-            else
-                print('no tracks available: ' .. file)
-            end
+        if soundBank:countAvailableTracks() > 0 then
+            table.insert(soundBanks, soundBank)
         else
-            print("not a lua table: " .. file)
+            print('no tracks available: ' .. file)
         end
     end
 
@@ -143,7 +90,7 @@ end
 
 function DynamicMusic.isSoundBankAllowedForCellName(cellName, soundBank)
     if _cellNameIndex then
-        return _cellNameIndex:contains(cellName, soundBank) --_cellNameIndex[cellName] and _cellNameIndex[cellName][soundBank]
+        return _cellNameIndex:contains(cellName, soundBank)
     end
 
     if soundBank.cellNamePatternsExclude then
