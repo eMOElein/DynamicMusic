@@ -7,6 +7,7 @@ local I = require('openmw.interfaces')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
+local SB = require('scripts.DynamicMusic.core.SoundBank')
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.soundBanks.DEFAULT')
 
@@ -17,28 +18,6 @@ local Settings = {
 }
 
 local hostileActors = {}
-
-local SoundBank = {
-
-  trackForPath = function(soundBank, playerState, trackPath)
-    local tracks = {}
-
-    if playerState == PlayerStates.explore then
-      tracks = soundBank.tracks
-    end
-
-    if playerState == PlayerStates.combat then
-      tracks = soundBank.combatTracks
-    end
-
-    for _, track in pairs(tracks) do
-      if (track.path == trackPath) then
-        return track
-      end
-    end
-  end
-
-}
 
 I.Settings.registerPage {
   key = 'Dynamic_Music',
@@ -54,19 +33,19 @@ I.Settings.registerGroup {
   description = 'Combat related settings.',
   permanentStorage = true,
   settings = {
-      {
-          key = Settings.COMBAT_MIN_ENEMY_LEVEL,
-          renderer = 'number',
-          name = 'Min. Enemy Level',
-          description = 'Minimum enemy level needed to play combat music. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
-          default = 5,
-      },
-      {
-        key = Settings.COMBAT_MIN_LEVEL_DIFFERENCE,
-        renderer = 'number',
-        name = 'Min. Level Difference',
-        description = 'Ignore Min. Enemy Level if the player is not X levels above the enemy\'s level. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
-        default = 2,
+    {
+      key = Settings.COMBAT_MIN_ENEMY_LEVEL,
+      renderer = 'number',
+      name = 'Min. Enemy Level',
+      description = 'Minimum enemy level needed to play combat music. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
+      default = 5,
+    },
+    {
+      key = Settings.COMBAT_MIN_LEVEL_DIFFERENCE,
+      renderer = 'number',
+      name = 'Min. Level Difference',
+      description = 'Ignore Min. Enemy Level if the player is not X levels above the enemy\'s level. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
+      default = 2,
     },
   },
 }
@@ -79,20 +58,18 @@ I.Settings.registerGroup {
   description = 'Advanced Settings',
   permanentStorage = true,
   settings = {
-      {
-          key = Settings.USE_DEFAULT_SOUNDBANK,
-          renderer = 'checkbox',
-          name = 'Use DEFAULT Soundbank',
-          description = 'Uses the DEFAULT soundbank if no other soundbank matches. If you have custom tracks in your vanilla playlist they will be ignored and need to be added to the DEFAULT soundbank manually.',
-          default = true,
-      }
+    {
+      key = Settings.USE_DEFAULT_SOUNDBANK,
+      renderer = 'checkbox',
+      name = 'Use DEFAULT Soundbank',
+      description = 'Uses the DEFAULT soundbank if no other soundbank matches. If you have custom tracks in your vanilla playlist they will be ignored and need to be added to the DEFAULT soundbank manually.',
+      default = true,
+    }
   },
 }
 
 local combatSettings = storage.playerSection('Dynamic_Music_Combat_Settings')
 local advancedSettings = storage.playerSection('Dynamic_Music_Advanced_Settings')
-
-local initialized = false
 
 local currentPlaybacktime = -1
 local currentTrackLength = -1
@@ -125,33 +102,6 @@ local function getPlayerState()
   return PlayerStates.explore
 end
 
-local function contains(elements, element)
-  for _, e in pairs(elements) do
-    if (e == element) then
-      return true
-    end
-  end
-  return false
-end
-
-local function fetchRandomTrack(tracks, options)
-  local allowedTracks = tracks
-
-  if options and options.blacklist and #options.blacklist > 0 then
-    allowedTracks = {}
-    for _, t in pairs(tracks) do
-      if not contains(options.blacklist, t) then
-        table.insert(allowedTracks, t)
-      end
-    end
-  end
-
-  local rnd = math.random(1, #allowedTracks)
-  local track = allowedTracks[rnd]
-
-  return track
-end
-
 local function fetchSoundbank()
   local soundbank = nil
 
@@ -162,31 +112,12 @@ local function fetchSoundbank()
     end
   end
 
-  if not soundbank and advancedSettings:get(Settings.USE_DEFAULT_SOUNDBANK)then
+  if not soundbank and advancedSettings:get(Settings.USE_DEFAULT_SOUNDBANK) then
     print("using DEFAULT soundbank")
     soundbank = DEFAULT_SOUNDBANK
   end
 
   return soundbank
-end
-
-local function fetchTrackFromSoundbank(soundBank)
-  local track = nil
-  local tracks = soundBank.tracks
-
-  -- in case of combat situation use combat tracks
-  if GameState.playerState.current == PlayerStates.combat and soundBank.combatTracks then
-    tracks = soundBank.combatTracks
-  end
-  track = fetchRandomTrack(tracks)
-
-  -- if new trackpath == previous trackpath try to fetch a different track
-  if #tracks > 1 and (GameState.track.previous and track.path == GameState.track.previous.path or false) then
-    print("searching for another track to avoid repeated playback of: " .. GameState.track.previous.path)
-    track = fetchRandomTrack(tracks, { blacklist = { track } })
-  end
-
-  return track
 end
 
 ---Plays another track from an allowed soundbank
@@ -229,10 +160,9 @@ local function newMusic()
 
   print("fetch track from: " .. soundBank.id)
 
-
   -- reusing previous track if trackpath is available
   if GameState.track.previous and (GameState.soundBank.current ~= GameState.soundBank.previous or GameState.playerState.current ~= GameState.playerState.previous) then
-    local tempTrack = SoundBank.trackForPath(
+    local tempTrack = SB.trackForPath(
       GameState.soundBank.current,
       GameState.playerState.current,
       GameState.track.previous.path
@@ -245,8 +175,7 @@ local function newMusic()
     end
   end
 
-  local track = fetchTrackFromSoundbank(soundBank)
-
+  local track = SB.fetchTrack(soundBank)
   -- hopefully avoids default music being played on track end sometimes
   if currentPlaybacktime >= currentTrackLength then
     ambient.stopMusic()
@@ -323,7 +252,7 @@ end
 local function engaging(eventData)
   if (not eventData.actor) then return end;
   hostileActors[eventData.actor.id] = eventData.actor;
-  print("engaging: " ..eventData.actor.recordId)
+  print("engaging: " .. eventData.actor.recordId)
 end
 
 local function disengaging(eventData)
