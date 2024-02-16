@@ -47,7 +47,7 @@ I.Settings.registerPage {
   description = 'Dynamic Music Framework',
 }
 I.Settings.registerGroup {
-  key = 'Dynamic_Music_Default_Settings',
+  key = 'Dynamic_Music_Combat_Settings',
   page = 'Dynamic_Music',
   l10n = 'Dynamic_Music',
   name = 'Combat',
@@ -89,7 +89,7 @@ I.Settings.registerGroup {
   },
 }
 
-local playerSettings = storage.playerSection('Dynamic_Music_Default_Settings')
+local combatSettings = storage.playerSection('Dynamic_Music_Combat_Settings')
 local advancedSettings = storage.playerSection('Dynamic_Music_Advanced_Settings')
 
 local initialized = false
@@ -99,8 +99,8 @@ local currentTrackLength = -1
 
 local function isCombatState()
   local playerLevel = types.Actor.stats.level(self).current
-  local minLevelEnemy = playerSettings:get(Settings.COMBAT_MIN_ENEMY_LEVEL)
-  local minLevelDifference = playerSettings:get(Settings.COMBAT_MIN_LEVEL_DIFFERENCE)
+  local minLevelEnemy = combatSettings:get(Settings.COMBAT_MIN_ENEMY_LEVEL)
+  local minLevelDifference = combatSettings:get(Settings.COMBAT_MIN_LEVEL_DIFFERENCE)
 
   for _, hostileActor in pairs(hostileActors) do
     if types.Actor.isInActorsProcessingRange(hostileActor) then
