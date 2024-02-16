@@ -1,6 +1,7 @@
 local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
+local CardIndex = require('scripts.DynamicMusic.core.CardIndex')
 
 local DynamicMusic = {}
 
@@ -82,8 +83,8 @@ DynamicMusic.initialized = false
 DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
 
-local _cellNameDictionary = nil
-local _regionNameDictionary = nil
+local _cellNameIndex = nil
+local _regionNameIndex = nil
 
 function DynamicMusic.initialize(cellNames, regionNames)
     if DynamicMusic.initialized then
@@ -92,38 +93,9 @@ function DynamicMusic.initialize(cellNames, regionNames)
 
     DynamicMusic.soundBanks = collectSoundBanks()
 
-    --build cellNameDictionary
-    local cellNameDictionary = {}
-    for _, cellName in pairs(cellNames) do
-        for _, soundBank in ipairs(DynamicMusic.soundBanks) do
-            if DynamicMusic.isSoundBankAllowedForCellName(soundBank, cellName) then
-                local dict = cellNameDictionary[cellName]
-                if not dict then
-                    dict = {}
-                    cellNameDictionary[cellName] = dict
-                end
-                cellNameDictionary[cellName][soundBank] = true
-            end
-        end
-    end
-    _cellNameDictionary = cellNameDictionary
-
-
-    -- build region name dictionary
-    local regionNameDictionary = {}
-    for _, regionName in ipairs(regionNames) do
-        for _, soundBank in ipairs(DynamicMusic.soundBanks) do
-            if DynamicMusic.isSoundBankAllowedForRegionName(soundBank, regionName) then
-                local dict = regionNameDictionary[regionName]
-                if not dict then
-                    dict = {}
-                    regionNameDictionary[regionName] = dict
-                end
-                regionNameDictionary[regionName][soundBank] = true
-            end
-        end
-    end
-    _regionNameDictionary = regionNameDictionary
+    _cellNameIndex = CardIndex.Create(cellNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForCellName)
+    _regionNameIndex = CardIndex.Create(regionNames, DynamicMusic.soundBanks,
+        DynamicMusic.isSoundBankAllowedForRegionName)
 
     DynamicMusic.initialized = true
 end
@@ -153,11 +125,11 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         end
     end
 
-    if (soundBank.cellNames or soundBank.cellNamePatterns) and not DynamicMusic.isSoundBankAllowedForCellName(soundBank, GameState.cellName.current) then
+    if (soundBank.cellNames or soundBank.cellNamePatterns) and not DynamicMusic.isSoundBankAllowedForCellName(GameState.cellName.current, soundBank) then
         return false
     end
 
-    if soundBank.regionNames and not DynamicMusic.isSoundBankAllowedForRegionName(soundBank, GameState.regionName.current) then
+    if soundBank.regionNames and not DynamicMusic.isSoundBankAllowedForRegionName(GameState.regionName.current, soundBank) then
         return false
     end
 
@@ -169,9 +141,9 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
     return true
 end
 
-function DynamicMusic.isSoundBankAllowedForCellName(soundBank, cellName)
-    if _cellNameDictionary then
-        return _cellNameDictionary[cellName] and _cellNameDictionary[cellName][soundBank]
+function DynamicMusic.isSoundBankAllowedForCellName(cellName, soundBank)
+    if _cellNameIndex then
+        return _cellNameIndex:contains(cellName, soundBank) --_cellNameIndex[cellName] and _cellNameIndex[cellName][soundBank]
     end
 
     if soundBank.cellNamePatternsExclude then
@@ -199,13 +171,13 @@ function DynamicMusic.isSoundBankAllowedForCellName(soundBank, cellName)
     end
 end
 
-function DynamicMusic.isSoundBankAllowedForRegionName(soundBank, regionName)
+function DynamicMusic.isSoundBankAllowedForRegionName(regionName, soundBank)
     if not soundBank.regionNames then
         return false
     end
 
-    if _regionNameDictionary then
-        return _regionNameDictionary[regionName] and _regionNameDictionary[regionName][soundBank]
+    if _regionNameIndex then
+        return _regionNameIndex:contains(regionName, soundBank) -- [regionName] and _regionNameIndex[regionName][soundBank]
     end
 
     for _, allowedRegionName in ipairs(soundBank.regionNames) do
