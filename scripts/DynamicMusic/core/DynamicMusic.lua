@@ -1,7 +1,7 @@
 local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
-local CardIndex = require('scripts.DynamicMusic.core.CardIndex')
+local IndexBox = require('scripts.DynamicMusic.core.IndexBox')
 local SoundBank = require('scripts.DynamicMusic.core.SoundBank')
 
 local DynamicMusic = {}
@@ -40,8 +40,8 @@ function DynamicMusic.initialize(cellNames, regionNames)
 
     DynamicMusic.soundBanks = collectSoundBanks()
 
-    _cellNameIndex = CardIndex.Create(cellNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForCellName)
-    _regionNameIndex = CardIndex.Create(regionNames, DynamicMusic.soundBanks,
+    _cellNameIndex = IndexBox.Create(cellNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForCellName)
+    _regionNameIndex = IndexBox.Create(regionNames, DynamicMusic.soundBanks,
         DynamicMusic.isSoundBankAllowedForRegionName)
 
     DynamicMusic.initialized = true
