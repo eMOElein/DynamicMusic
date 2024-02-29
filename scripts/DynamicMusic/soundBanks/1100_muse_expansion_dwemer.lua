@@ -25,7 +25,9 @@ local soundBank =    {
 -- Tamriel Rebuilt cells
     'Akuband',
     'Bthungtch',
-	'Nchal%-Marschend'
+	'Nchal%-Marschend',
+	'Rthungzark',
+	'Bthalag%-Zturamz'
   },
   tracks={
     {

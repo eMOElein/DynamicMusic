@@ -41,7 +41,8 @@ local soundBank =      {
 	"Malkamalit",
 -- Tamriel Rebuilt cells
 	"Ossurnashalit",
-	"Varashimmus"
+	"Varashimmus",
+	"Yamuninisharn"
   },
   tracks = {
     {
