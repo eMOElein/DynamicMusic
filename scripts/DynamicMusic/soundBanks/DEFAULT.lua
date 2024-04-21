@@ -23,7 +23,7 @@ local soundBank =      {
     },
     {
       path="Music/Explore/mx_explore_6.mp3",
-      length=193
+      length=192
     },
     {
       path="Music/Explore/mx_explore_6.mp3",
@@ -35,7 +35,7 @@ local soundBank =      {
     },
     {
       path="Music/Explore/Morrowind Title.mp3",
-      length=114
+      length=113
     },
   },
   combatTracks = {
