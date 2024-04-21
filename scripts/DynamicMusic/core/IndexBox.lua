@@ -1,8 +1,8 @@
-local CardIndex = {}
+local IndexBox = {}
 
-function CardIndex.Create(sections, possibleEntries, validator)
+function IndexBox.Create(sections, possibleEntries, validator)
     local cardIndex = {}
-    cardIndex.contains = CardIndex.contains
+    cardIndex.contains = IndexBox.contains
 
     for _, section in pairs(sections) do
         for _, possibleEntry in ipairs(possibleEntries) do
@@ -20,8 +20,8 @@ function CardIndex.Create(sections, possibleEntries, validator)
     return cardIndex
 end
 
-function CardIndex.contains(self, section, entry)
+function IndexBox.contains(self, section, entry)
     return self[section] and self[section][entry]
 end
 
-return CardIndex
+return IndexBox
