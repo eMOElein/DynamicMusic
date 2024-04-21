@@ -91,8 +91,6 @@ I.Settings.registerPage {
 }
 
 for _, group in pairs(Settings.GROUPS) do
-    print("REGISTERGROUP: " .. group.name)
-
     local settings = {}
     for _, s in pairs(Settings.SETTINGS) do
         if s.group == group then
