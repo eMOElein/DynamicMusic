@@ -42,7 +42,9 @@ local soundBank =      {
 -- Tamriel Rebuilt cells
 	"Ossurnashalit",
 	"Varashimmus",
-	"Yamuninisharn"
+	"Yamuninisharn",
+-- Shrine from Strange Sands: https://www.nexusmods.com/morrowind/mods/54236	
+    "Erenehazu"
   },
   tracks = {
     {
