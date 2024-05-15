@@ -6,6 +6,15 @@ local SoundBank = require('scripts.DynamicMusic.core.SoundBank')
 
 local DynamicMusic = {}
 
+DynamicMusic.initialized = false
+DynamicMusic.soundBanks = {}
+DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
+
+function DynamicMusic.Create()
+    local dynamic_music = {}
+    return dynamic_music
+end
+
 local function collectSoundBanks()
     print("collecting soundBanks from: " .. DynamicMusic.sondBanksPath)
 
@@ -26,23 +35,53 @@ local function collectSoundBanks()
     return soundBanks
 end
 
-DynamicMusic.initialized = false
-DynamicMusic.soundBanks = {}
-DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
-
 local _cellNameIndex = nil
 local _regionNameIndex = nil
+local _enemyRecordIdIndex = nil
+local _hostileActors = {}
 
-function DynamicMusic.initialize(cellNames, regionNames)
+local function _count(table)
+    local cnt = 0
+    for _, e in pairs(table) do
+        cnt = cnt + 1
+    end
+    return cnt
+end
+
+local function _getFirstElement(table)
+    for _, e in pairs(table) do
+        return e
+    end
+end
+
+function DynamicMusic._collectEnemyNames()
+    local enemyNames = {}
+    for _, sb in pairs(DynamicMusic.soundBanks) do
+        if sb.enemies and #sb.enemies > 0 then
+            for _, e in pairs(sb.enemies) do
+                if not enemyNames[e] then
+                    enemyNames[e] = e
+                end
+            end
+        end
+    end
+
+    return enemyNames
+end
+
+function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     if DynamicMusic.initialized then
         return
     end
 
+    _hostileActors = hostileActors
     DynamicMusic.soundBanks = collectSoundBanks()
+    local enemyNames = DynamicMusic._collectEnemyNames()
 
     _cellNameIndex = IndexBox.Create(cellNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForCellName)
-    _regionNameIndex = IndexBox.Create(regionNames, DynamicMusic.soundBanks,
-        DynamicMusic.isSoundBankAllowedForRegionName)
+    _regionNameIndex = IndexBox.Create(regionNames, DynamicMusic.soundBanks, DynamicMusic
+        .isSoundBankAllowedForRegionName)
+    _enemyRecordIdIndex = IndexBox.Create(enemyNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForEnemy)
 
     DynamicMusic.initialized = true
 end
@@ -70,6 +109,12 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         if not soundBank.combatTracks or #soundBank.combatTracks == 0 then
             return false
         end
+
+        local firstHostile = _getFirstElement(_hostileActors)
+
+        if soundBank.enemies and not DynamicMusic.isSoundBankAllowedForEnemy(firstHostile.recordId, soundBank) then
+            return false
+        end
     end
 
     if (soundBank.cellNames or soundBank.cellNamePatterns) and not DynamicMusic.isSoundBankAllowedForCellName(GameState.cellName.current, soundBank) then
@@ -84,8 +129,25 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         return false
     end
 
-
     return true
+end
+
+function DynamicMusic.isSoundBankAllowedForEnemy(enemyRecordId, soundBank)
+    if _enemyRecordIdIndex then
+        return _enemyRecordIdIndex:contains(enemyRecordId, soundBank)
+    end
+
+    if not soundBank.enemies then
+        return false
+    end
+
+    for _, e in pairs(soundBank.enemies) do
+        if e == enemyRecordId then
+            return true
+        end
+    end
+
+    return false
 end
 
 function DynamicMusic.isSoundBankAllowedForCellName(cellName, soundBank)

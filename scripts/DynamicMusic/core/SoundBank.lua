@@ -52,10 +52,6 @@ function SoundBank.CreateFromTable(data)
 end
 
 function SoundBank.countAvailableTracks(self)
-    if not self.tracks or #self.tracks == 0 then
-        return 0
-    end
-
     local availableTracks = 0
 
     if self.tracks then

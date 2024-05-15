@@ -7,7 +7,7 @@ Settings._SETTINGS_DB = {}
 Settings.KEYS = {
     COMBAT_MIN_ENEMY_LEVEL = 'COMBAT_MIN_ENEMY_LEVEL',
     COMBAT_MIN_LEVEL_DIFFERENCE = 'COMBAT_MIN_LEVEL_DIFFERENCE',
-    GENERAL_PLAY_COMBAT_MUSIC = 'GENERAL_PLAY_COMBAT_MUSIC',
+    COMBAT_PLAY_COMBAT_MUSIC = 'COMBAT_PLAY_COMBAT_MUSIC',
     GENERAL_PLAY_EXPLORATION_MUSIC = 'GENERAL_PLAY_EXPLORATION_MUSIC',
     GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK'
 }
@@ -54,25 +54,25 @@ Settings.SETTINGS = {
         renderer = 'number',
         name = 'Min. Level Difference',
         description =
-        'Ignore Min. Enemy Level if the player is not X levels above the enemy\'s level. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
+        'Play combat music if the player is not X levels above the enemy\'s level.',
         default = 2,
     },
     {
-        key = Settings.KEYS.GENERAL_PLAY_COMBAT_MUSIC,
-        group = Settings.GROUPS.GENERAL,
+        key = Settings.KEYS.COMBAT_PLAY_COMBAT_MUSIC,
+        group = Settings.GROUPS.COMBAT,
         renderer = 'checkbox',
         name = 'Play Combat Music',
-        description = 'Whether combat music should be played or not.',
+        description = 'Turns combat music on/off.',
         default = true,
     },
-    {
-        key = Settings.KEYS.GENERAL_PLAY_EXPLORATION_MUSIC,
-        group = Settings.GROUPS.GENERAL,
-        renderer = 'checkbox',
-        name = 'Play Exploration Music',
-        description = 'Whether exploration music should be played or not.',
-        default = true,
-    },
+--    {
+--        key = Settings.KEYS.GENERAL_PLAY_EXPLORATION_MUSIC,
+--        group = Settings.GROUPS.GENERAL,
+--        renderer = 'checkbox',
+--        name = 'Play Exploration Music',
+--        description = 'Whether exploration music should be played or not.',
+--        default = true,
+--    },
     {
         key = Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK,
         group = Settings.GROUPS.GENERAL,

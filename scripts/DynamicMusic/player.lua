@@ -15,6 +15,10 @@ local currentPlaybacktime = -1
 local currentTrackLength = -1
 
 local function isCombatState()
+  if not Settings.getValue(Settings.KEYS.COMBAT_PLAY_COMBAT_MUSIC) then
+    return false
+  end
+
   local playerLevel = types.Actor.stats.level(self).current
   local minLevelEnemy = Settings.getValue(Settings.KEYS.COMBAT_MIN_ENEMY_LEVEL)
   local minLevelDifference = Settings.getValue(Settings.KEYS.COMBAT_MIN_LEVEL_DIFFERENCE)
@@ -195,19 +199,21 @@ end
 
 local function engaging(eventData)
   if (not eventData.actor) then return end;
+
   hostileActors[eventData.actor.id] = eventData.actor;
-  print("engaging: " .. eventData.actor.recordId)
+  -- print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId)
 end
 
 local function disengaging(eventData)
   if (not eventData.actor) then return end;
+
   hostileActors[eventData.actor.id] = nil;
 end
 
 local function globalDataCollected(eventData)
   local data = eventData.data
 
-  DynamicMusic.initialize(data.cellNames, data.regionNames)
+  DynamicMusic.initialize(data.cellNames, data.regionNames, hostileActors)
 
   data = nil
 end
