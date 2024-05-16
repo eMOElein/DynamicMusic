@@ -25,6 +25,10 @@ local function collectSoundBanks()
         local soundBank = require(file)
         soundBank = SoundBank.CreateFromTable(soundBank)
 
+        if not soundBank.id then
+            soundBank.id = file
+        end
+
         if soundBank:countAvailableTracks() > 0 then
             table.insert(soundBanks, soundBank)
         else
@@ -57,8 +61,8 @@ end
 function DynamicMusic._collectEnemyNames()
     local enemyNames = {}
     for _, sb in pairs(DynamicMusic.soundBanks) do
-        if sb.enemies and #sb.enemies > 0 then
-            for _, e in pairs(sb.enemies) do
+        if sb.enemyNames and #sb.enemyNames > 0 then
+            for _, e in pairs(sb.enemyNames) do
                 if not enemyNames[e] then
                     enemyNames[e] = e
                 end
@@ -81,7 +85,8 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     _cellNameIndex = IndexBox.Create(cellNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForCellName)
     _regionNameIndex = IndexBox.Create(regionNames, DynamicMusic.soundBanks, DynamicMusic
         .isSoundBankAllowedForRegionName)
-    _enemyRecordIdIndex = IndexBox.Create(enemyNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForEnemy)
+    _enemyRecordIdIndex = IndexBox.Create(enemyNames, DynamicMusic.soundBanks,
+        DynamicMusic.isSoundBankAllowedForEnemyName)
 
     DynamicMusic.initialized = true
 end
@@ -112,7 +117,7 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
 
         local firstHostile = _getFirstElement(_hostileActors)
 
-        if soundBank.enemies and not DynamicMusic.isSoundBankAllowedForEnemy(firstHostile.recordId, soundBank) then
+        if soundBank.enemyNames and not DynamicMusic.isSoundBankAllowedForEnemyName(firstHostile.name, soundBank) then
             return false
         end
     end
@@ -132,17 +137,17 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
     return true
 end
 
-function DynamicMusic.isSoundBankAllowedForEnemy(enemyRecordId, soundBank)
+function DynamicMusic.isSoundBankAllowedForEnemyName(enemyName, soundBank)
     if _enemyRecordIdIndex then
-        return _enemyRecordIdIndex:contains(enemyRecordId, soundBank)
+        return _enemyRecordIdIndex:contains(enemyName, soundBank)
     end
 
-    if not soundBank.enemies then
+    if not soundBank.enemyNames then
         return false
     end
 
-    for _, e in pairs(soundBank.enemies) do
-        if e == enemyRecordId then
+    for _, e in pairs(soundBank.enemyNames) do
+        if e == enemyName then
             return true
         end
     end

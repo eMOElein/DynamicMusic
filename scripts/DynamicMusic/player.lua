@@ -23,10 +23,11 @@ local function isCombatState()
   local minLevelEnemy = Settings.getValue(Settings.KEYS.COMBAT_MIN_ENEMY_LEVEL)
   local minLevelDifference = Settings.getValue(Settings.KEYS.COMBAT_MIN_LEVEL_DIFFERENCE)
 
-  for _, hostileActor in pairs(hostileActors) do
-    if types.Actor.isInActorsProcessingRange(hostileActor) then
-      local hostileLevel = types.Actor.stats.level(hostileActor).current
-      local inProcessingRange = types.Actor.isInActorsProcessingRange(hostileActor)
+  for _, hostile in pairs(hostileActors) do
+    local actor = hostile.actor
+    if types.Actor.isInActorsProcessingRange(actor) then
+      local hostileLevel = types.Actor.stats.level(actor).current
+      local inProcessingRange = types.Actor.isInActorsProcessingRange(actor)
       local playerLevelAdvantage = playerLevel - hostileLevel
 
       if inProcessingRange and (hostileLevel >= minLevelEnemy or playerLevelAdvantage < minLevelDifference) then
@@ -200,8 +201,8 @@ end
 local function engaging(eventData)
   if (not eventData.actor) then return end;
 
-  hostileActors[eventData.actor.id] = eventData.actor;
-  -- print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId)
+  hostileActors[eventData.actor.id] = eventData;
+  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
 end
 
 local function disengaging(eventData)

@@ -8,11 +8,10 @@ local combatState = false
 local function emitEvent(eventName)
   for _, actor in ipairs(nearby.actors) do
     if actor.type == types.Player then
-      local level = types.Actor.stats.level(self).current
-
       actor:sendEvent(eventName, {
         actor = self,
-        level = level
+        name = self.type.record(self).name,
+        level = types.Actor.stats.level(self).current
       });
     end
   end
@@ -37,7 +36,7 @@ local function onUpdate(dt)
     emitEvent('engaging')
   end
 
---print("health " ..types.Actor.stats.dynamic.health(self).current)
+  --print("health " ..types.Actor.stats.dynamic.health(self).current)
 
   if combatState and (not activePackage or activePackage.type ~= "Combat" or types.Actor.stats.dynamic.health(self).current <= 0) then
     combatState = false
