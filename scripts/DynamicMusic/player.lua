@@ -202,7 +202,7 @@ local function engaging(eventData)
   if (not eventData.actor) then return end;
 
   hostileActors[eventData.actor.id] = eventData;
-  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
+--  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
 end
 
 local function disengaging(eventData)
