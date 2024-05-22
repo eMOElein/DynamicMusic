@@ -21,7 +21,6 @@ local function collectSoundBanks()
     local soundBanks = {}
     for file in vfs.pathsWithPrefix(DynamicMusic.sondBanksPath) do
         file = file.gsub(file, ".lua", "")
-        print("requiring soundBank: " .. file)
         local soundBank = require(file)
 
         if not soundBank.id then
@@ -32,8 +31,7 @@ local function collectSoundBanks()
 
         if soundBank:countAvailableTracks() > 0 then
             table.insert(soundBanks, soundBank)
-        else
-            print('no tracks available: ' .. file)
+            print(string.format("loaded soundbank: %s", file))
         end
     end
 
