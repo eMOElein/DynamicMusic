@@ -1,8 +1,25 @@
 local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
+local Music = require('openmw.interfaces').Music
 
 local SoundBank = {}
+
+local function buildPlaylist(id, tracks)
+    local playlistTracks = {}
+
+    for _, track in pairs(tracks) do
+        table.insert(playlistTracks, track.path)
+    end
+
+    local playlist = {
+        id = id,
+        priority = 1,
+        tracks = playlistTracks
+    }
+
+    return playlist
+end
 
 local function contains(elements, element)
     for _, e in pairs(elements) do
@@ -46,6 +63,18 @@ function SoundBank.CreateFromTable(data)
         for _, t in ipairs(soundBank.combatTracks) do
             t.path = string.lower(t.path)
         end
+    end
+
+    if soundBank.tracks and soundBank.tracks then
+        local explorePlaylist = buildPlaylist(soundBank.id .. "_explore", soundBank.tracks)
+        soundBank.explorePlaylist = explorePlaylist
+        Music.registerPlaylist(explorePlaylist)
+    end
+
+    if soundBank.combatTracks and soundBank.combatTracks then
+        local combatPlaylist = buildPlaylist(soundBank.id .. "_combat", soundBank.combatTracks)
+        soundBank.combatPlaylist = combatPlaylist
+        Music.registerPlaylist(combatPlaylist)
     end
 
     return soundBank

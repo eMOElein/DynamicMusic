@@ -23,11 +23,12 @@ local function collectSoundBanks()
         file = file.gsub(file, ".lua", "")
         print("requiring soundBank: " .. file)
         local soundBank = require(file)
-        soundBank = SoundBank.CreateFromTable(soundBank)
 
         if not soundBank.id then
             soundBank.id = file
         end
+
+        soundBank = SoundBank.CreateFromTable(soundBank)
 
         if soundBank:countAvailableTracks() > 0 then
             table.insert(soundBanks, soundBank)
