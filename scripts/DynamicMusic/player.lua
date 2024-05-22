@@ -1,21 +1,18 @@
-local ambient = require('openmw.ambient')
 local core = require('openmw.core')
 local self = require('openmw.self')
 local storage = require('openmw.storage')
 local types = require('openmw.types')
+local Music = require('openmw.interfaces').Music
 
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
-local SB = require('scripts.DynamicMusic.core.SoundBank')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 
-local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.soundBanks.DEFAULT')
+local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
 
 local initialized = false
 local hostileActors = {}
-local currentPlaybacktime = -1
-local currentTrackLength = -1
 
 local function isCombatState()
   if not Settings.getValue(Settings.KEYS.COMBAT_PLAY_COMBAT_MUSIC) then
@@ -60,103 +57,44 @@ local function fetchSoundbank()
     end
   end
 
-  local useDefaultSoundbank = false
-  --useDefaultSoundbank = advancedSettings:get(Settings.USE_DEFAULT_SOUNDBANK)
-  useDefaultSoundbank = Settings.getValue(Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK)
-
-  if not soundbank and useDefaultSoundbank then
-    print("using DEFAULT soundbank")
+  if not soundbank then
     soundbank = DEFAULT_SOUNDBANK
   end
 
   return soundbank
 end
 
----Plays another track from an allowed soundbank
--- Chooses a fitting soundbank and plays a track from it
--- If no soundbank could be found a vanilla track is played
 local function newMusic()
   print("new music requested")
 
   local soundBank = fetchSoundbank()
+  local newPlaylist = nil
 
-  -- force new music when streammusic was used in the ingame console
-  if not ambient.isMusicPlaying() then
-    GameState.soundBank.current = nil
+  if GameState.playerState.current == PlayerStates.explore and soundBank.explorePlaylist then
+    newPlaylist = soundBank.explorePlaylist
   end
 
-  --if no playerState change happened and the same soundbank should be played again then continue playback
-  if GameState.playerState.current == GameState.playerState.previous then
-    if GameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
-      print("skipping new track and continue with current")
-      return
-    end
+  if GameState.playerState.current == PlayerStates.combat and soundBank.combatPlaylist then
+    newPlaylist = soundBank.combatPlaylist
   end
 
-  -- no matching soundbank available - switching to default music and return
-  if not soundBank then
-    print("no matching soundbank found")
-
-    if GameState.soundBank.current then
-      ambient.streamMusic('')
+  if newPlaylist then
+    if GameState.playlist.current then
+      Music.setPlaylistActive(GameState.playlist.current.id, false)
     end
 
-    GameState.track.curent = nil
-    currentPlaybacktime = -1
-    GameState.soundBank.current = nil
-    GameState.track.current = nil
+    print("activating playlist: " .. newPlaylist.id)
+
+    Music.setPlaylistActive(newPlaylist.id, true)
+    GameState.soundBank.current = soundBank
+    GameState.playlist.current = newPlaylist
     return
   end
-
-  GameState.soundBank.current = soundBank
-
-  print("fetch track from: " .. soundBank.id)
-
-  -- reusing previous track if trackpath is available
-  if GameState.track.previous and (GameState.soundBank.current ~= GameState.soundBank.previous or GameState.playerState.current ~= GameState.playerState.previous) then
-    local tempTrack = SB.trackForPath(
-      GameState.soundBank.current,
-      GameState.playerState.current,
-      GameState.track.previous.path
-    )
-
-    if tempTrack then
-      print("resuming existing track from previous " .. GameState.track.previous.path)
-      GameState.track.current = tempTrack
-      return
-    end
-  end
-
-  local track = SB.fetchTrack(soundBank)
-  -- hopefully avoids default music being played on track end sometimes
-  if currentPlaybacktime >= currentTrackLength then
-    ambient.stopMusic()
-  end
-
-  currentPlaybacktime = 0
-
-  GameState.track.current = track
-  if track.length then
-    currentTrackLength = track.length
-  end
-
-  print("playing track: " .. track.path)
-  ambient.streamMusic(track.path)
 end
 
 local function hasGameStateChanged()
   if GameState.playerState.previous ~= GameState.playerState.current then
     -- print("change playerState: " ..gameState.playerState.current)
-    return true
-  end
-
-  if not ambient.isMusicPlaying() then
-    -- print("change music not playing")
-    return true
-  end
-
-  if currentTrackLength > -1 and currentPlaybacktime > currentTrackLength then
-    -- print("change trackLength")
     return true
   end
 
@@ -179,8 +117,8 @@ local function initialize()
 
     if core.API_REVISION >= 62 then
       print("changing built in openmw combat music setting to false")
-      local omwMusicPlayerSection = storage.playerSection('SettingsOMWMusic')
-      omwMusicPlayerSection:set("CombatMusicEnabled", false)
+
+      storage.playerSection('SettingsOMWMusic'):set("CombatMusicEnabled", false)
     end
   end
 end
@@ -194,13 +132,8 @@ local function onFrame(dt)
 
   GameState.exterior.current = self.cell and self.cell.isExterior
   GameState.cellName.current = self.cell and self.cell.name or ""
-  GameState.playtime.current = os.time()
   GameState.regionName.current = self.cell and self.cell.region or ""
   GameState.playerState.current = getPlayerState()
-
-  if currentPlaybacktime > -1 then
-    currentPlaybacktime = currentPlaybacktime + (GameState.playtime.current - GameState.playtime.previous)
-  end
 
   if hasGameStateChanged() then
     newMusic()
@@ -208,7 +141,6 @@ local function onFrame(dt)
 
   GameState.exterior.previous = GameState.exterior.current
   GameState.cellName.previous = GameState.cellName.current
-  GameState.playtime.previous = GameState.playtime.current
   GameState.playerState.previous = GameState.playerState.current
   GameState.regionName.previous = GameState.regionName.current
   GameState.soundBank.previous = GameState.soundBank.current

@@ -35,4 +35,9 @@ GameState.track = {
     previous = nil
 }
 
+GameState.playlist = {
+    current = nil,
+    previous = nil
+}
+
 return GameState

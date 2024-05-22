@@ -20,14 +20,14 @@ Settings.PAGE = {
 }
 
 Settings.GROUPS = {
-    GENERAL = {
-        key = 'Settings_openmw_dynamic_music_1000_general',
-        page = Settings.PAGE.key,
-        l10n = 'Dynamic_Music',
-        name = '1: General Settings',
-        description = 'General Settings',
-        permanentStorage = true
-    },
+--    GENERAL = {
+--        key = 'Settings_openmw_dynamic_music_1000_general',
+--        page = Settings.PAGE.key,
+--        l10n = 'Dynamic_Music',
+--        name = '1: General Settings',
+--        description = 'General Settings',
+--        permanentStorage = true
+--    },
     COMBAT= {
         key = 'Settings_openmw_dynamic_music_2000_combat',
         page = Settings.PAGE.key,
@@ -73,14 +73,14 @@ Settings.SETTINGS = {
 --        description = 'Whether exploration music should be played or not.',
 --        default = true,
 --    },
-    {
-        key = Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK,
-        group = Settings.GROUPS.GENERAL,
-        renderer = 'checkbox',
-        name = 'Use DEFAULT Soundbank',
-        description = 'Uses the DEFAULT soundbank if no other soundbank matches. If you have custom tracks in your vanilla playlist they will be ignored and need to be added to the DEFAULT soundbank manually.',
-        default = false,
-    }
+--    {
+--        key = Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK,
+--        group = Settings.GROUPS.GENERAL,
+--        renderer = 'checkbox',
+--        name = 'Use DEFAULT Soundbank',
+--        description = 'Uses the DEFAULT soundbank if no other soundbank matches. If you have custom tracks in your vanilla playlist they will be ignored and need to be added to the DEFAULT soundbank manually.',
+--        default = false,
+--    }
 }
 
 I.Settings.registerPage {

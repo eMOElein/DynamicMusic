@@ -4,7 +4,7 @@ local initialized = false
 local players = {}
 
 local function sendGlobalData(player)
-  print("send global data to player: " ..player.id)
+  print("send global data to player: " .. player.id)
   local cellNames = {}
   local regionNames = {}
   local regionNamesSet = {}
