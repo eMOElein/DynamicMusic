@@ -78,7 +78,7 @@ Settings.SETTINGS = {
         key = Settings.KEYS.GENERAL_PLAYLIST_PRIORITY,
         group = Settings.GROUPS.GENERAL,
         renderer = 'number',
-        name = 'Playlist Priority',
+        name = 'Playlist priority',
         description = 'Priority for Dynamic Music playlists. Should be below OpenMW\'s default combat playlist priority which is 10.',
         default = 9,
     }
