@@ -29,3 +29,7 @@ Soundbanks are Lua tables that are used to tell Dynamic Music what tracks to pla
 All soundbanks need to be stored in **scripts/DynamicMusic/soundBanks** in your Morrowind installation's **Data Files** folder.\
  \
 A soundbank contains a list of exploration and/or combat tracks and a set of filters that are used to determine in which situation the tracks should be played.
+
+### Soundbank Priority
+Soundbanks are prioritized by their name.\
+If two or more soundbanks are allowed to play for the current ingame situation the one that come's **last** in alphabetical order (by filename) will be played.
