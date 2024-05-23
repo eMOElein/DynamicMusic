@@ -1,6 +1,8 @@
 local vfs = require('openmw.vfs')
 local Music = require('openmw.interfaces').Music
 
+local Settings = require('scripts.DynamicMusic.core.Settings')
+
 local SoundBank = {}
 
 local function buildPlaylist(id, tracks)
@@ -12,7 +14,7 @@ local function buildPlaylist(id, tracks)
 
     local playlist = {
         id = id,
-        priority = 1,
+        priority = Settings.getValue(Settings.KEYS.GENERAL_PLAYLIST_PRIORITY),
         tracks = playlistTracks
     }
 

@@ -9,25 +9,26 @@ Settings.KEYS = {
     COMBAT_MIN_LEVEL_DIFFERENCE = 'COMBAT_MIN_LEVEL_DIFFERENCE',
     COMBAT_PLAY_COMBAT_MUSIC = 'COMBAT_PLAY_COMBAT_MUSIC',
     GENERAL_PLAY_EXPLORATION_MUSIC = 'GENERAL_PLAY_EXPLORATION_MUSIC',
-    GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK'
+    GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK',
+    GENERAL_PLAYLIST_PRIORITY = 'GENERAL_PLAYLIST_PRIORITY'
 }
 
 Settings.PAGE = {
     key = 'Page_openmw_dynamic_music',
     l10n = 'Dynamic_Music',
     name = 'Dynamic Music',
-    description = 'Dynamic Music Framework',
+    description = 'Dynamic Music framework',
 }
 
 Settings.GROUPS = {
---    GENERAL = {
---        key = 'Settings_openmw_dynamic_music_1000_general',
---        page = Settings.PAGE.key,
---        l10n = 'Dynamic_Music',
---        name = '1: General Settings',
---        description = 'General Settings',
---        permanentStorage = true
---    },
+    GENERAL = {
+        key = 'Settings_openmw_dynamic_music_1000_general',
+        page = Settings.PAGE.key,
+        l10n = 'Dynamic_Music',
+        name = '1: General Settings',
+        description = 'General Settings',
+        permanentStorage = true
+    },
     COMBAT= {
         key = 'Settings_openmw_dynamic_music_2000_combat',
         page = Settings.PAGE.key,
@@ -43,25 +44,25 @@ Settings.SETTINGS = {
         key = Settings.KEYS.COMBAT_MIN_ENEMY_LEVEL,
         group = Settings.GROUPS.COMBAT,
         renderer = 'number',
-        name = 'Min. Enemy Level',
+        name = 'Min. enemy level',
         description =
-        'Minimum enemy level needed to play combat music. (Needs activated DEFAULT soundbank to work in areas where no soundbank matches)',
+        'Minimum enemy level needed to play combat music.',
         default = 5,
     },
     {
         key = Settings.KEYS.COMBAT_MIN_LEVEL_DIFFERENCE,
         group = Settings.GROUPS.COMBAT,
         renderer = 'number',
-        name = 'Min. Level Difference',
+        name = 'Min. level difference',
         description =
-        'Play combat music if the player is not X levels above the enemy\'s level.',
+        'Play combat music if the player is not X levels above the enemy\'s level. Even if the enemy is below the value that was set for Min. enemy level',
         default = 2,
     },
     {
         key = Settings.KEYS.COMBAT_PLAY_COMBAT_MUSIC,
         group = Settings.GROUPS.COMBAT,
         renderer = 'checkbox',
-        name = 'Play Combat Music',
+        name = 'Play combat music',
         description = 'Turns combat music on/off.',
         default = true,
     },
@@ -73,14 +74,14 @@ Settings.SETTINGS = {
 --        description = 'Whether exploration music should be played or not.',
 --        default = true,
 --    },
---    {
---        key = Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK,
---        group = Settings.GROUPS.GENERAL,
---        renderer = 'checkbox',
---        name = 'Use DEFAULT Soundbank',
---        description = 'Uses the DEFAULT soundbank if no other soundbank matches. If you have custom tracks in your vanilla playlist they will be ignored and need to be added to the DEFAULT soundbank manually.',
---        default = false,
---    }
+    {
+        key = Settings.KEYS.GENERAL_PLAYLIST_PRIORITY,
+        group = Settings.GROUPS.GENERAL,
+        renderer = 'number',
+        name = 'Playlist Priority',
+        description = 'Priority for Dynamic Music playlists. Should be below OpenMW\'s default combat playlist priority which is 10.',
+        default = 9,
+    }
 }
 
 I.Settings.registerPage {

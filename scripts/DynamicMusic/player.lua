@@ -69,11 +69,8 @@ local function initialize()
   if not initialized then
     initialized = true
 
-    if core.API_REVISION >= 62 then
       print("changing built in openmw combat music setting to false")
-
       storage.playerSection('SettingsOMWMusic'):set("CombatMusicEnabled", false)
-    end
   end
 end
 
@@ -124,10 +121,6 @@ end
 
 if core.API_REVISION < 62 then
   error(string.format("api revision < 62 detected:%s ", core.API_REVISION))
-  return {}
-end
-
-if core.API_REVISION < Globals.MIN_API_REVISION then
   return {}
 end
 
