@@ -13,11 +13,6 @@ DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
 
-function DynamicMusic.Create()
-    local dynamic_music = {}
-    return dynamic_music
-end
-
 local function collectSoundBanks()
     print("collecting soundBanks from: " .. DynamicMusic.sondBanksPath)
 
