@@ -18,8 +18,7 @@ local soundBank =      {
   },
   tracks = {
     {
-      path="music/MS/cell/MournCity/Indoril Settlement.mp3",
-      length=216
+      path="music/MS/cell/MournCity/Indoril Settlement.mp3"
     }
   }
 }

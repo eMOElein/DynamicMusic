@@ -7,20 +7,16 @@ local soundBank =      {
   },
   tracks = {
     {
-      path="Music/MS/region/Mournhold hills/Mournhold Athmospheres 1.mp3",
-      length=135
+      path="Music/MS/region/Mournhold hills/Mournhold Athmospheres 1.mp3"
     },
     {
-      path="Music/MS/region/Mournhold hills/Mournhold Athmospheres 2.mp3",
-      length=143
+      path="Music/MS/region/Mournhold hills/Mournhold Athmospheres 2.mp3"
     },
     {
-      path="Music/MS/region/Mournhold hills/",
-      length=262
+      path="Music/MS/region/Mournhold hills/Mournhold explore.mp3"
     },
     {
-      path="Music/MS/region/Mournhold hills/",
-      length=169
+      path="Music/MS/region/Mournhold hills/Mournhold fields.mp3"
     },
   }
 }

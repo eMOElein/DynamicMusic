@@ -36,20 +36,16 @@ local soundBank =      {
   },
   combatTracks = {
     {
-      path="Music/MS/combat/Tomb/combat1.mp3",
-      length=90
+      path="Music/MS/combat/Tomb/combat1.mp3"
     },
     {
-      path="Music/MS/combat/Tomb/combat2.mp3",
-      length=76
+      path="Music/MS/combat/Tomb/combat2.mp3"
     },
     {
-      path="Music/MS/combat/Tomb/combat3.mp3",
-      length=107
+      path="Music/MS/combat/Tomb/combat3.mp3"
     },
     {
-      path="Music/MS/combat/Tomb/combat4.mp3",
-      length=66
+      path="Music/MS/combat/Tomb/combat4.mp3"
     }
   }
 }

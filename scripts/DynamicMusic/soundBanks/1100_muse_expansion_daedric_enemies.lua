@@ -28,20 +28,16 @@ local soundBank =      {
   },
   combatTracks = {
     {
-      path="Music/MS/combat/Daedric/combat1.mp3",
-      length=86
+      path="Music/MS/combat/Daedric/combat1.mp3"
     },
     {
-      path="Music/MS/combat/Daedric/combat2.mp3",
-      length=77
+      path="Music/MS/combat/Daedric/combat2.mp3"
     },
     {
-      path="Music/MS/combat/Daedric/combat3.mp3",
-      length=78
+      path="Music/MS/combat/Daedric/combat3.mp3"
     },
     {
-      path="Music/MS/combat/Daedric/combat4.mp3",
-      length=58
+      path="Music/MS/combat/Daedric/combat4.mp3"
     }
   }
 }

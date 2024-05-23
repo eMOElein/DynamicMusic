@@ -11,8 +11,7 @@ local soundBank =      {
   },
   tracks = {
     {
-      path="Music/MS/cell/ImperialCity/Beacon of Cyrodiil.mp3",
-      length=264
+      path="Music/MS/cell/ImperialCity/Beacon of Cyrodiil.mp3"
     }
   }
 }

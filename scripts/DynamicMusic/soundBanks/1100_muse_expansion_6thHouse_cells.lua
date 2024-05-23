@@ -30,24 +30,19 @@ local soundBank =      {
   },
   tracks = {
     {
-      path='Music/MS/cell/6thHouse/exploration1.mp3',
-      length=179
+      path='Music/MS/cell/6thHouse/exploration1.mp3'
     },
     {
-      path='Music/MS/cell/6thHouse/exploration2.mp3',
-      length=252
+      path='Music/MS/cell/6thHouse/exploration2.mp3'
     },
     {
-      path='Music/MS/cell/6thHouse/exploration3.mp3',
-      length=224
+      path='Music/MS/cell/6thHouse/exploration3.mp3'
     },
     {
-      path='Music/MS/cell/6thHouse/exploration4.mp3',
-      length=194
+      path='Music/MS/cell/6thHouse/exploration4.mp3'
     },
     {
-      path='Music/MS/cell/6thHouse/exploration5.mp3',
-      length=132
+      path='Music/MS/cell/6thHouse/exploration5.mp3'
     }
   }
 }

@@ -10,12 +10,10 @@ local soundBank =      {
   },
   tracks = {
     {
-      path='Music/MS/interior/TR dwemer/Dwemer ruins.mp3',
-      length=235
+      path='Music/MS/interior/TR dwemer/Dwemer ruins.mp3'
     },
     {
-      path='Music/MS/interior/TR dwemer/Resonance.mp3',
-      length=222
+      path='Music/MS/interior/TR dwemer/Resonance.mp3'
     }
   }
 }

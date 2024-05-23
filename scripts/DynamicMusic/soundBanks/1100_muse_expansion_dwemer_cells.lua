@@ -31,24 +31,19 @@ local soundBank =    {
   },
   tracks={
     {
-      path="Music/MS/cell/Dwemer/exploration1.mp3",
-      length=209
+      path="Music/MS/cell/Dwemer/exploration1.mp3"
     },
     {
-      path="Music/MS/cell/Dwemer/exploration2.mp3",
-      length=163
+      path="Music/MS/cell/Dwemer/exploration2.mp3"
     },
     {
-      path="Music/MS/cell/Dwemer/exploration3.mp3",
-      length=213
+      path="Music/MS/cell/Dwemer/exploration3.mp3"
     },
     {
-      path="Music/MS/cell/Dwemer/exploration4.mp3",
-      length=260
+      path="Music/MS/cell/Dwemer/exploration4.mp3"
     },
     {
-      path="Music/MS/cell/Dwemer/exploration5.mp3",
-      length=158
+      path="Music/MS/cell/Dwemer/exploration5.mp3"
     }
   }
 }

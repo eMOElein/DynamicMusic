@@ -6,8 +6,7 @@ local soundBank =      {
   },
   tracks = {
     {
-      path="Music/MS/region/Velothis Upper/Through The Mountains.mp3",
-      length=150
+      path="Music/MS/region/Velothis Upper/Through The Mountains.mp3"
     }
   }
 }

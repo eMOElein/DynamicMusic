@@ -53,20 +53,16 @@ local soundBank =      {
   },
   combatTracks = {
     {
-      path="Music/MS/combat/Dagoth/combat1.mp3",
-      length=56
+      path="Music/MS/combat/Dagoth/combat1.mp3"
     },
     {
-      path="Music/MS/combat/Dagoth/combat2.mp3",
-      length=58
+      path="Music/MS/combat/Dagoth/combat2.mp3"
     },
     {
-      path="Music/MS/combat/Dagoth/combat3.mp3",
-      length=58
+      path="Music/MS/combat/Dagoth/combat3.mp3"
     },
     {
-      path="Music/MS/combat/Dagoth/combat4.mp3",
-      length=74
+      path="Music/MS/combat/Dagoth/combat4.mp3"
     }
   }
 }

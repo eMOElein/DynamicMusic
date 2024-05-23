@@ -19,8 +19,7 @@ local soundBank =      {
   },
   tracks = {
     {
-      path='Music/MS/cell/TelCity/Telvanni settlement.mp3',
-      length=231
+      path='Music/MS/cell/TelCity/Telvanni settlement.mp3'
     }
   }
 }

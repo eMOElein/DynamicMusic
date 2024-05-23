@@ -31,16 +31,13 @@ local soundBank =      {
   },
   combatTracks = {
     {
-      path="Music/MS/combat/Empire/combat1.mp3",
-      length=79
+      path="Music/MS/combat/Empire/combat1.mp3"
     },
     {
-      path="Music/MS/combat/Empire/combat2.mp3",
-      length=68
+      path="Music/MS/combat/Empire/combat2.mp3"
     },
     {
-      path="Music/MS/combat/Empire/combat3.mp3",
-      length=89
+      path="Music/MS/combat/Empire/combat3.mp3"
     }
   }
 }

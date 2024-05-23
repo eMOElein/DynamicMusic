@@ -48,24 +48,19 @@ local soundBank =      {
   },
   tracks = {
     {
-      path='Music/MS/cell/Daedric/exploration1.mp3',
-      length=236
+      path='Music/MS/cell/Daedric/exploration1.mp3'
     },
     {
-      path='Music/MS/cell/Daedric/exploration2.mp3',
-      length=243
+      path='Music/MS/cell/Daedric/exploration2.mp3'
     },
     {
-      path='Music/MS/cell/Daedric/exploration3.mp3',
-      length=258
+      path='Music/MS/cell/Daedric/exploration3.mp3'
     },
     {
-      path='Music/MS/cell/Daedric/exploration4.mp3',
-      length=312
+      path='Music/MS/cell/Daedric/exploration4.mp3'
     },
     {
-      path='Music/MS/cell/Daedric/exploration5.mp3',
-      length=244
+      path='Music/MS/cell/Daedric/exploration5.mp3'
     }
   }
 }
