@@ -3,12 +3,15 @@ local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local IndexBox = require('scripts.DynamicMusic.core.IndexBox')
 local SoundBank = require('scripts.DynamicMusic.core.SoundBank')
+local Music = require('openmw.interfaces').Music
 
 local DynamicMusic = {}
 
 DynamicMusic.initialized = false
 DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
+
+local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
 
 function DynamicMusic.Create()
     local dynamic_music = {}
@@ -129,6 +132,7 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         return false
     end
 
+    -- not needed but still leave this here in case of old DEFAULT soundbank is still present for some users
     if soundBank.id == "DEFAULT" then
         return false
     end
@@ -200,6 +204,51 @@ function DynamicMusic.isSoundBankAllowedForRegionName(regionName, soundBank)
     end
 
     return false
+end
+
+local function fetchSoundbank()
+    local soundbank = nil
+
+    for index = #DynamicMusic.soundBanks, 1, -1 do
+        if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
+            soundbank = DynamicMusic.soundBanks[index]
+            break
+        end
+    end
+
+    if not soundbank then
+        soundbank = DEFAULT_SOUNDBANK
+    end
+
+    return soundbank
+end
+
+function DynamicMusic.newMusic()
+    print("new music requested")
+
+    local soundBank = fetchSoundbank()
+    local newPlaylist = nil
+
+    if GameState.playerState.current == PlayerStates.explore and soundBank.explorePlaylist then
+        newPlaylist = soundBank.explorePlaylist
+    end
+
+    if GameState.playerState.current == PlayerStates.combat and soundBank.combatPlaylist then
+        newPlaylist = soundBank.combatPlaylist
+    end
+
+    if newPlaylist then
+        if GameState.playlist.current then
+            Music.setPlaylistActive(GameState.playlist.current.id, false)
+        end
+
+        print("activating playlist: " .. newPlaylist.id)
+
+        Music.setPlaylistActive(newPlaylist.id, true)
+        GameState.soundBank.current = soundBank
+        GameState.playlist.current = newPlaylist
+        return
+    end
 end
 
 return DynamicMusic

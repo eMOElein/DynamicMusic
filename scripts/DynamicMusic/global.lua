@@ -1,4 +1,7 @@
+local core = require('openmw.core')
 local world = require('openmw.world')
+
+local Globals = require('scripts.DynamicMusic.core.Globals')
 
 local initialized = false
 local players = {}
@@ -35,6 +38,11 @@ local function onUpdate()
       players[player.id] = true
     end
   end
+end
+
+if core.API_REVISION < Globals.MIN_API_REVISION then
+  error(string.format("api revision < %s detected: %s ", Globals.MIN_API_REVISION, core.API_REVISION), 2)
+  return {}
 end
 
 return {

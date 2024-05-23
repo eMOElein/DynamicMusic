@@ -2,14 +2,13 @@ local core = require('openmw.core')
 local self = require('openmw.self')
 local storage = require('openmw.storage')
 local types = require('openmw.types')
-local Music = require('openmw.interfaces').Music
 
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 
-local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
+local Globals = require('scripts.DynamicMusic.core.Globals')
 
 local initialized = false
 local hostileActors = {}
@@ -45,51 +44,6 @@ local function getPlayerState()
   end
 
   return PlayerStates.explore
-end
-
-local function fetchSoundbank()
-  local soundbank = nil
-
-  for index = #DynamicMusic.soundBanks, 1, -1 do
-    if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
-      soundbank = DynamicMusic.soundBanks[index]
-      break
-    end
-  end
-
-  if not soundbank then
-    soundbank = DEFAULT_SOUNDBANK
-  end
-
-  return soundbank
-end
-
-local function newMusic()
-  print("new music requested")
-
-  local soundBank = fetchSoundbank()
-  local newPlaylist = nil
-
-  if GameState.playerState.current == PlayerStates.explore and soundBank.explorePlaylist then
-    newPlaylist = soundBank.explorePlaylist
-  end
-
-  if GameState.playerState.current == PlayerStates.combat and soundBank.combatPlaylist then
-    newPlaylist = soundBank.combatPlaylist
-  end
-
-  if newPlaylist then
-    if GameState.playlist.current then
-      Music.setPlaylistActive(GameState.playlist.current.id, false)
-    end
-
-    print("activating playlist: " .. newPlaylist.id)
-
-    Music.setPlaylistActive(newPlaylist.id, true)
-    GameState.soundBank.current = soundBank
-    GameState.playlist.current = newPlaylist
-    return
-  end
 end
 
 local function hasGameStateChanged()
@@ -136,7 +90,7 @@ local function onFrame(dt)
   GameState.playerState.current = getPlayerState()
 
   if hasGameStateChanged() then
-    newMusic()
+    DynamicMusic.newMusic()
   end
 
   GameState.exterior.previous = GameState.exterior.current
@@ -166,6 +120,15 @@ local function globalDataCollected(eventData)
   DynamicMusic.initialize(data.cellNames, data.regionNames, hostileActors)
 
   data = nil
+end
+
+if core.API_REVISION < 62 then
+  error(string.format("api revision < 62 detected:%s ", core.API_REVISION))
+  return {}
+end
+
+if core.API_REVISION < Globals.MIN_API_REVISION then
+  return {}
 end
 
 return {
