@@ -10,7 +10,6 @@ local Settings = require('scripts.DynamicMusic.core.Settings')
 
 local Globals = require('scripts.DynamicMusic.core.Globals')
 
-local initialized = false
 local hostileActors = {}
 
 local function isCombatState()
@@ -65,18 +64,8 @@ local function hasGameStateChanged()
   return false
 end
 
-local function initialize()
-  if not initialized then
-    initialized = true
-
-      print("changing built in openmw combat music setting to false")
-      storage.playerSection('SettingsOMWMusic'):set("CombatMusicEnabled", false)
-  end
-end
 
 local function onFrame(dt)
-  initialize()
-
   if not DynamicMusic.initialized then
     return
   end
@@ -119,8 +108,7 @@ local function globalDataCollected(eventData)
   data = nil
 end
 
-if core.API_REVISION < 62 then
-  error(string.format("api revision < 62 detected:%s ", core.API_REVISION))
+if core.API_REVISION < Globals.MIN_API_REVISION then
   return {}
 end
 
