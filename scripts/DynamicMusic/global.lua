@@ -41,7 +41,7 @@ local function onUpdate()
 end
 
 if core.API_REVISION < Globals.MIN_API_REVISION then
-  error(string.format("api revision < %s detected: %s ", Globals.MIN_API_REVISION, core.API_REVISION), 2)
+  error(string.format("lua api version < %s detected: %s ", Globals.MIN_API_REVISION, core.API_REVISION), 2)
   return {}
 end
 
