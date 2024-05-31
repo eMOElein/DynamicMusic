@@ -1,6 +1,7 @@
 local ambient = require('openmw.ambient')
 local self = require('openmw.self')
 local types = require('openmw.types')
+local storage = require('openmw.storage')
 
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
@@ -13,6 +14,7 @@ local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.soundBanks.DEFAULT')
 local hostileActors = {}
 local currentPlaybacktime = -1
 local currentTrackLength = -1
+local initialized = false
 
 local function isCombatState()
   if not Settings.getValue(Settings.KEYS.COMBAT_PLAY_COMBAT_MUSIC) then
@@ -170,9 +172,25 @@ local function hasGameStateChanged()
   return false
 end
 
+local function initialize()
+  if not initialized then
+    initialized = true
+
+    local omwMusicSettings = storage.playerSection('SettingsOMWMusic')
+    if omwMusicSettings then
+      print("changing built in openmw combat music setting to false")
+      omwMusicSettings:set("CombatMusicEnabled", false)
+    end
+  end
+end
+
 local function onFrame(dt)
   if not DynamicMusic.initialized then
     return
+  end
+
+  if not initialized then
+    initialize()
   end
 
   GameState.exterior.current = self.cell and self.cell.isExterior
@@ -202,7 +220,7 @@ local function engaging(eventData)
   if (not eventData.actor) then return end;
 
   hostileActors[eventData.actor.id] = eventData;
---  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
+  --  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
 end
 
 local function disengaging(eventData)
