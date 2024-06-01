@@ -25,6 +25,7 @@ local soundBank =    {
 -- Tamriel Rebuilt cells
     'Akuband',
     'Bthungtch',
+	'Hendor%-Stardumz',
 	'Nchal%-Marschend',
 	'Rthungzark',
 	'Bthalag%-Zturamz'
