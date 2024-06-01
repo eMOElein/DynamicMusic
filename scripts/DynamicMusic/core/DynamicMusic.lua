@@ -3,17 +3,21 @@ local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local IndexBox = require('scripts.DynamicMusic.core.IndexBox')
 local SoundBank = require('scripts.DynamicMusic.core.SoundBank')
+local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
+local Settings = require('scripts.DynamicMusic.core.Settings')
+local Property = require('scripts.DynamicMusic.core.Property')
+local ambient = require('openmw.ambient')
+
+
+local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
 
 local DynamicMusic = {}
 
+DynamicMusic.playlistProperty = Property.Create()
 DynamicMusic.initialized = false
 DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
 
-function DynamicMusic.Create()
-    local dynamic_music = {}
-    return dynamic_music
-end
 
 local function collectSoundBanks()
     print("collecting soundBanks from: " .. DynamicMusic.sondBanksPath)
@@ -23,11 +27,12 @@ local function collectSoundBanks()
         file = file.gsub(file, ".lua", "")
         print("requiring soundBank: " .. file)
         local soundBank = require(file)
-        soundBank = SoundBank.CreateFromTable(soundBank)
 
         if not soundBank.id then
             soundBank.id = file
         end
+
+        soundBank = SoundBank.CreateFromTable(soundBank)
 
         if soundBank:countAvailableTracks() > 0 then
             table.insert(soundBanks, soundBank)
@@ -72,6 +77,28 @@ function DynamicMusic._collectEnemyNames()
 
     return enemyNames
 end
+
+local function fetchSoundbank()
+    local soundbank = nil
+
+    for index = #DynamicMusic.soundBanks, 1, -1 do
+      if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
+        soundbank = DynamicMusic.soundBanks[index]
+        break
+      end
+    end
+
+    local useDefaultSoundbank = false
+    --useDefaultSoundbank = advancedSettings:get(Settings.USE_DEFAULT_SOUNDBANK)
+    useDefaultSoundbank = Settings.getValue(Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK)
+
+    if not soundbank and useDefaultSoundbank then
+      print("using DEFAULT soundbank")
+      soundbank = DEFAULT_SOUNDBANK
+    end
+
+    return soundbank
+  end
 
 function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     if DynamicMusic.initialized then
@@ -201,6 +228,48 @@ function DynamicMusic.isSoundBankAllowedForRegionName(regionName, soundBank)
     end
 
     return false
+end
+
+function DynamicMusic.newMusic()
+    print("new music requested")
+
+    local soundBank = fetchSoundbank()
+    local newPlaylist = nil
+
+    if not soundBank then
+        ambient.streamMusic('')
+        return
+    end
+
+    if GameState.playerState.current == PlayerStates.explore and soundBank.explorePlaylist then
+        newPlaylist = soundBank.explorePlaylist
+    end
+
+    if GameState.playerState.current == PlayerStates.combat and soundBank.combatPlaylist then
+        newPlaylist = soundBank.combatPlaylist
+    end
+
+    if newPlaylist == DynamicMusic.playlistProperty:getValue() then
+        return
+    end
+
+    if newPlaylist then
+        if GameState.playlist.current then
+            --     Music.setPlaylistActive(GameState.playlist.current.id, false)
+            MusicPlayer.playPlaylist(newPlaylist)
+        end
+
+        print("activating playlist: " .. newPlaylist.id)
+        MusicPlayer.playPlaylist(newPlaylist)
+        GameState.soundBank.current = soundBank
+        GameState.playlist.current = newPlaylist
+        DynamicMusic.playlistProperty:setValue(newPlaylist)
+        return
+    end
+end
+
+function DynamicMusic.update(deltaTime)
+    MusicPlayer.update(deltaTime)
 end
 
 return DynamicMusic

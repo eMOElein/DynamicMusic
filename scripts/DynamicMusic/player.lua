@@ -74,74 +74,74 @@ end
 ---Plays another track from an allowed soundbank
 -- Chooses a fitting soundbank and plays a track from it
 -- If no soundbank could be found a vanilla track is played
-local function newMusic()
-  print("new music requested")
+--local function newMusic()
+--  print("new music requested")
 
-  local soundBank = fetchSoundbank()
+--  local soundBank = fetchSoundbank()
 
-  -- force new music when streammusic was used in the ingame console
-  if not ambient.isMusicPlaying() then
-    GameState.soundBank.current = nil
-  end
+-- force new music when streammusic was used in the ingame console
+--  if not ambient.isMusicPlaying() then
+--    GameState.soundBank.current = nil
+--  end
 
-  --if no playerState change happened and the same soundbank should be played again then continue playback
-  if GameState.playerState.current == GameState.playerState.previous then
-    if GameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
-      print("skipping new track and continue with current")
-      return
-    end
-  end
+--if no playerState change happened and the same soundbank should be played again then continue playback
+--  if GameState.playerState.current == GameState.playerState.previous then
+--    if GameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
+--      print("skipping new track and continue with current")
+--      return
+--    end
+--  end
 
-  -- no matching soundbank available - switching to default music and return
-  if not soundBank then
-    print("no matching soundbank found")
+-- no matching soundbank available - switching to default music and return
+--  if not soundBank then
+--    print("no matching soundbank found")
 
-    if GameState.soundBank.current then
-      ambient.streamMusic('')
-    end
+--    if GameState.soundBank.current then
+--      ambient.streamMusic('')
+--    end
 
-    GameState.track.curent = nil
-    currentPlaybacktime = -1
-    GameState.soundBank.current = nil
-    GameState.track.current = nil
-    return
-  end
+--    GameState.track.curent = nil
+--    currentPlaybacktime = -1
+--    GameState.soundBank.current = nil
+--    GameState.track.current = nil
+--    return
+--  end
 
-  GameState.soundBank.current = soundBank
+--  GameState.soundBank.current = soundBank
 
-  print("fetch track from: " .. soundBank.id)
+--  print("fetch track from: " .. soundBank.id)
 
-  -- reusing previous track if trackpath is available
-  if GameState.track.previous and (GameState.soundBank.current ~= GameState.soundBank.previous or GameState.playerState.current ~= GameState.playerState.previous) then
-    local tempTrack = SB.trackForPath(
-      GameState.soundBank.current,
-      GameState.playerState.current,
-      GameState.track.previous.path
-    )
+-- reusing previous track if trackpath is available
+--  if GameState.track.previous and (GameState.soundBank.current ~= GameState.soundBank.previous or GameState.playerState.current ~= GameState.playerState.previous) then
+--    local tempTrack = SB.trackForPath(
+--      GameState.soundBank.current,
+--      GameState.playerState.current,
+--      GameState.track.previous.path
+--    )
 
-    if tempTrack then
-      print("resuming existing track from previous " .. GameState.track.previous.path)
-      GameState.track.current = tempTrack
-      return
-    end
-  end
+--    if tempTrack then
+--      print("resuming existing track from previous " .. GameState.track.previous.path)
+--      GameState.track.current = tempTrack
+--      return
+--    end
+--  end
 
-  local track = SB.fetchTrack(soundBank)
-  -- hopefully avoids default music being played on track end sometimes
-  if currentPlaybacktime >= currentTrackLength then
-    ambient.stopMusic()
-  end
+--  local track = SB.fetchTrack(soundBank)
+-- hopefully avoids default music being played on track end sometimes
+--  if currentPlaybacktime >= currentTrackLength then
+--    ambient.stopMusic()
+--  end
 
-  currentPlaybacktime = 0
+--  currentPlaybacktime = 0
 
-  GameState.track.current = track
-  if track.length then
-    currentTrackLength = track.length
-  end
+--  GameState.track.current = track
+--  if track.length then
+--    currentTrackLength = track.length
+--  end
 
-  print("playing track: " .. track.path)
-  ambient.streamMusic(track.path)
-end
+--  print("playing track: " .. track.path)
+--  ambient.streamMusic(track.path)
+--end
 
 local function hasGameStateChanged()
   if GameState.playerState.previous ~= GameState.playerState.current then
@@ -204,8 +204,10 @@ local function onFrame(dt)
   end
 
   if hasGameStateChanged() then
-    newMusic()
+    DynamicMusic.newMusic()
   end
+
+  DynamicMusic.update(dt)
 
   GameState.exterior.previous = GameState.exterior.current
   GameState.cellName.previous = GameState.cellName.current
