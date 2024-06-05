@@ -1,6 +1,5 @@
 local soundBank =      {
   id = 'muse_expansion_daedric',
-  interiorOnly = true,
   enemyNames = {
     "Flame Atronach",
     "Frost Atronach",

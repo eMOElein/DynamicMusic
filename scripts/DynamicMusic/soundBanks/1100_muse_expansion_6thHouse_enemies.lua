@@ -1,6 +1,5 @@
 local soundBank =      {
   id = 'muse_expansion_6thHouse',
-  interiorOnly = true,
   enemyNames = {
     "Ascended Sleeper",
     "Ash Ghoul",
