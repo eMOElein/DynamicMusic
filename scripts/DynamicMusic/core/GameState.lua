@@ -30,14 +30,4 @@ GameState.soundBank = {
     previous = nil
 }
 
-GameState.track = {
-    curent = nil,
-    previous = nil
-}
-
-GameState.playlist = {
-    curent = nil,
-    previous = nil
-}
-
 return GameState

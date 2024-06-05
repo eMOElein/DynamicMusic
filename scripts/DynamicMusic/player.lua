@@ -107,7 +107,6 @@ local function onFrame(dt)
   GameState.playerState.previous = GameState.playerState.current
   GameState.regionName.previous = GameState.regionName.current
   GameState.soundBank.previous = GameState.soundBank.current
-  GameState.track.previous = GameState.track.current
 end
 
 local function engaging(eventData)

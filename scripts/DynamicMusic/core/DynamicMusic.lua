@@ -32,7 +32,7 @@ local function collectSoundBanks()
     local soundBanks = {}
     for file in vfs.pathsWithPrefix(DynamicMusic.sondBanksPath) do
         file = file.gsub(file, ".lua", "")
-        print("requiring soundBank: " .. file)
+
         local soundBank = require(file)
 
         if not soundBank.id then
@@ -43,6 +43,7 @@ local function collectSoundBanks()
 
         if soundBank:countAvailableTracks() > 0 then
             table.insert(soundBanks, soundBank)
+            print("soundBank loaded: " ..file)
         else
             print('no tracks available: ' .. file)
         end
@@ -51,14 +52,6 @@ local function collectSoundBanks()
     return soundBanks
 end
 
-
-local function _count(table)
-    local cnt = 0
-    for _, e in pairs(table) do
-        cnt = cnt + 1
-    end
-    return cnt
-end
 
 local function _getFirstElement(table)
     for _, e in pairs(table) do
@@ -222,7 +215,6 @@ function DynamicMusic.newMusic()
         print("activating playlist: " .. newPlaylist.id)
         MusicPlayer.playPlaylist(newPlaylist)
         GameState.soundBank.current = soundBank
-        GameState.playlist.current = newPlaylist
         DynamicMusic.playlistProperty:setValue(newPlaylist)
         return
     end
