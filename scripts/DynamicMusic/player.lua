@@ -9,8 +9,6 @@ local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 
 local hostileActors = {}
-local currentPlaybacktime = -1
-local currentTrackLength = -1
 local initialized = false
 
 local function isCombatState()
@@ -57,11 +55,6 @@ local function hasGameStateChanged()
     return true
   end
 
-  if currentTrackLength > -1 and currentPlaybacktime > currentTrackLength then
-    -- print("change trackLength")
-    return true
-  end
-
   if GameState.regionName.current ~= GameState.regionName.previous then
     -- print("change regionName")
     return true
@@ -102,10 +95,6 @@ local function onFrame(dt)
   GameState.regionName.current = self.cell and self.cell.region or ""
   GameState.playerState.current = getPlayerState()
 
-  if currentPlaybacktime > -1 then
-    currentPlaybacktime = currentPlaybacktime + (GameState.playtime.current - GameState.playtime.previous)
-  end
-
   if hasGameStateChanged() then
     DynamicMusic.newMusic()
   end
@@ -122,7 +111,13 @@ local function onFrame(dt)
 end
 
 local function engaging(eventData)
-  if (not eventData.actor) then return end;
+  if (not eventData.actor) then
+    return
+  end
+
+  if not eventData.targetActor or eventData.targetActor.id ~= self.id then
+    return
+  end
 
   hostileActors[eventData.actor.id] = eventData;
   --  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
