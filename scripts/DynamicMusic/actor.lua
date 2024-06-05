@@ -17,12 +17,17 @@ local types = require('openmw.types')
 local combatState = false
 
 local function emitEvent(eventName)
+  local factions = {}
+  if self.type == types.NPC then
+    factions = NPC.getFactions(self)
+  end
+
   for _, actor in ipairs(nearby.actors) do
     if actor.type == types.Player then
       actor:sendEvent(eventName, {
         actor = self,
         name = self.type.record(self).name,
-        factions = NPC.getFactions(self),
+        factions = factions,
         id = self.type.record(self).id,
         level = types.Actor.stats.level(self).current,
         targetActor = AI.getActivePackage().target
