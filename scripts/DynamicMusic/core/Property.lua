@@ -22,10 +22,12 @@ function Property.getPreviousValue(self)
 end
 
 function Property.setValue(self, value)
-    if self.currentValue ~= value then
-        self.previousValue = self.currentValue
-        self.currentValue = value
+    if self.currentValue == value then
+        return
     end
+
+    self.previousValue = self.currentValue
+    self.currentValue = value
 end
 
 return Property

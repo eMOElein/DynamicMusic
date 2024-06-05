@@ -51,21 +51,38 @@ end
 
 function SoundBank.CreateFromTable(data)
     if not data.id then
-        error("id not specified",2)
+        error("id not specified", 2)
     end
 
     local soundBank = data
     soundBank.id = data.id
     soundBank.countAvailableTracks = SoundBank.countAvailableTracks
+    soundBank.isAllowedForEnemyName = SoundBank.isAllowedForEnemyName
+    soundBank.isAllowedForCellName = SoundBank.isAllowedForCellName
+    soundBank.isAllowedForRegionId = SoundBank.isAllowedForRegionId
 
     if soundBank.tracks then
         for _, t in ipairs(soundBank.tracks) do
+            if not t.path then
+                error("trackpat not specified", 2)
+            end
+
+            if not t.length then
+                error("tracklentgh not specified", 2)
+            end
             t.path = string.lower(t.path)
         end
     end
 
     if soundBank.combatTracks then
         for _, t in ipairs(soundBank.combatTracks) do
+            if not t.path then
+                error("trackpat not specified", 2)
+            end
+
+            if not t.length then
+                error("tracklentgh not specified", 2)
+            end
             t.path = string.lower(t.path)
         end
     end
@@ -73,13 +90,13 @@ function SoundBank.CreateFromTable(data)
     if soundBank.tracks and #soundBank.tracks > 0 then
         local explorePlaylist = buildPlaylist(soundBank.id .. "_explore", soundBank.tracks)
         soundBank.explorePlaylist = explorePlaylist
- --       Music.registerPlaylist(explorePlaylist)
+        --       Music.registerPlaylist(explorePlaylist)
     end
 
     if soundBank.combatTracks and #soundBank.combatTracks > 0 then
         local combatPlaylist = buildPlaylist(soundBank.id .. "_combat", soundBank.combatTracks)
         soundBank.combatPlaylist = combatPlaylist
- --       Music.registerPlaylist(combatPlaylist)
+        --       Music.registerPlaylist(combatPlaylist)
     end
 
     return soundBank
@@ -132,6 +149,62 @@ function SoundBank.fetchTrack(self)
     end
 
     return track
+end
+
+function SoundBank.isAllowedForEnemyName(self, enemyName)
+    if not self.enemyNames then
+        return false
+    end
+
+    for _, e in pairs(self.enemyNames) do
+        if e == enemyName then
+            return true
+        end
+    end
+
+    return false
+end
+
+function SoundBank.isAllowedForCellName(self, cellName)
+    if self.cellNamePatternsExclude then
+        for _, cellNameExcludePattern in ipairs(self.cellNamePatternsExclude) do
+            if string.find(cellName, cellNameExcludePattern) then
+                return false
+            end
+        end
+    end
+
+    if self.cellNames then
+        for _, allowedCellName in ipairs(self.cellNames) do
+            if cellName == allowedCellName then
+                return true
+            end
+        end
+    end
+
+    if self.cellNamePatterns then
+        for _, cellNamePattern in ipairs(self.cellNamePatterns) do
+            if string.find(cellName, cellNamePattern) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+function SoundBank.isAllowedForRegionId(self, regionId)
+    if not self.regionNames then
+        return false
+    end
+
+    for _, sbRegionId in ipairs(self.regionNames) do
+        if regionId == sbRegionId then
+            return true
+        end
+    end
+
+    return false
 end
 
 function SoundBank.trackForPath(self, playerState, trackPath)

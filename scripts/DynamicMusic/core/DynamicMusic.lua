@@ -1,7 +1,6 @@
 local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
-local IndexBox = require('scripts.DynamicMusic.core.IndexBox')
 local SoundBank = require('scripts.DynamicMusic.core.SoundBank')
 local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
 local Settings = require('scripts.DynamicMusic.core.Settings')
@@ -11,12 +10,20 @@ local ambient = require('openmw.ambient')
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
 
-local DynamicMusic = {}
+local SOUNDBANKDB_SECTIONS = {
+    ALLOWED_CELLS = "allowed_cells",
+    ALLOWED_REGIONIDS = "allowed_regionids",
+    ALLOWED_ENEMIES = "allowed_enemies"
+}
 
+local DynamicMusic = {}
+DynamicMusic.sounbankdb = {}
 DynamicMusic.playlistProperty = Property.Create()
 DynamicMusic.initialized = false
 DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
+
+local _hostileActors = {}
 
 
 local function collectSoundBanks()
@@ -44,10 +51,6 @@ local function collectSoundBanks()
     return soundBanks
 end
 
-local _cellNameIndex = nil
-local _regionNameIndex = nil
-local _enemyRecordIdIndex = nil
-local _hostileActors = {}
 
 local function _count(table)
     local cnt = 0
@@ -82,23 +85,22 @@ local function fetchSoundbank()
     local soundbank = nil
 
     for index = #DynamicMusic.soundBanks, 1, -1 do
-      if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
-        soundbank = DynamicMusic.soundBanks[index]
-        break
-      end
+        if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
+            soundbank = DynamicMusic.soundBanks[index]
+            break
+        end
     end
 
     local useDefaultSoundbank = false
-    --useDefaultSoundbank = advancedSettings:get(Settings.USE_DEFAULT_SOUNDBANK)
     useDefaultSoundbank = Settings.getValue(Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK)
 
     if not soundbank and useDefaultSoundbank then
-      print("using DEFAULT soundbank")
-      soundbank = DEFAULT_SOUNDBANK
+        print("using DEFAULT soundbank")
+        soundbank = DEFAULT_SOUNDBANK
     end
 
     return soundbank
-  end
+end
 
 function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     if DynamicMusic.initialized then
@@ -109,13 +111,41 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     DynamicMusic.soundBanks = collectSoundBanks()
     local enemyNames = DynamicMusic._collectEnemyNames()
 
-    _cellNameIndex = IndexBox.Create(cellNames, DynamicMusic.soundBanks, DynamicMusic.isSoundBankAllowedForCellName)
-    _regionNameIndex = IndexBox.Create(regionNames, DynamicMusic.soundBanks, DynamicMusic
-        .isSoundBankAllowedForRegionName)
-    _enemyRecordIdIndex = IndexBox.Create(enemyNames, DynamicMusic.soundBanks,
-        DynamicMusic.isSoundBankAllowedForEnemyName)
+    DynamicMusic.buildSoundbankDb(DynamicMusic.soundBanks, cellNames, regionNames, enemyNames)
 
     DynamicMusic.initialized = true
+end
+
+function DynamicMusic.buildSoundbankDb(soundbanks, cellNames, regionNames, enemyNames)
+    for _, soundbank in pairs(soundbanks) do
+        local allowedCells = {}
+        for _, cellName in pairs(cellNames) do
+            if soundbank:isAllowedForCellName(cellName) then
+                allowedCells[cellName] = true
+            end
+        end
+
+        local allowedRegionIds = {}
+        for _, regionId in pairs(regionNames) do
+            if soundbank:isAllowedForRegionId(regionId) then
+                allowedRegionIds[regionId] = true
+            end
+        end
+
+        local allowedEnemies = {}
+        for _, enemyName in pairs(enemyNames) do
+            if soundbank:isAllowedForEnemyName(enemyName) then
+                allowedEnemies[enemyName] = true
+            end
+        end
+
+        local dbEntry = {}
+        dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES] = allowedEnemies
+        dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS] = allowedCells
+        dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONIDS] = allowedRegionIds
+
+        DynamicMusic.sounbankdb[soundbank] = dbEntry
+    end
 end
 
 function DynamicMusic.isSoundBankAllowed(soundBank)
@@ -141,19 +171,20 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         if not soundBank.combatTracks or #soundBank.combatTracks == 0 then
             return false
         end
-
-        local firstHostile = _getFirstElement(_hostileActors)
-
-        if soundBank.enemyNames and not DynamicMusic.isSoundBankAllowedForEnemyName(firstHostile.name, soundBank) then
-            return false
-        end
     end
 
-    if (soundBank.cellNames or soundBank.cellNamePatterns) and not DynamicMusic.isSoundBankAllowedForCellName(GameState.cellName.current, soundBank) then
+    local firstHostile = _getFirstElement(_hostileActors)
+
+    local dbEntry = DynamicMusic.sounbankdb[soundBank]
+    if soundBank.regionNames and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONIDS][GameState.regionName.current] then
         return false
     end
 
-    if soundBank.regionNames and not DynamicMusic.isSoundBankAllowedForRegionName(GameState.regionName.current, soundBank) then
+    if (soundBank.cellNames or soundBank.cellNamePatterns) and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][GameState.cellName.current] then
+        return false
+    end
+
+    if soundBank.enemyNames and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then --DynamicMusic.isSoundBankAllowedForEnemyName(firstHostile.name, soundBank) then
         return false
     end
 
@@ -162,72 +193,6 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
     end
 
     return true
-end
-
-function DynamicMusic.isSoundBankAllowedForEnemyName(enemyName, soundBank)
-    if _enemyRecordIdIndex then
-        return _enemyRecordIdIndex:contains(enemyName, soundBank)
-    end
-
-    if not soundBank.enemyNames then
-        return false
-    end
-
-    for _, e in pairs(soundBank.enemyNames) do
-        if e == enemyName then
-            return true
-        end
-    end
-
-    return false
-end
-
-function DynamicMusic.isSoundBankAllowedForCellName(cellName, soundBank)
-    if _cellNameIndex then
-        return _cellNameIndex:contains(cellName, soundBank)
-    end
-
-    if soundBank.cellNamePatternsExclude then
-        for _, cellNameExcludePattern in ipairs(soundBank.cellNamePatternsExclude) do
-            if string.find(cellName, cellNameExcludePattern) then
-                return false
-            end
-        end
-    end
-
-    if soundBank.cellNames then
-        for _, allowedCellName in ipairs(soundBank.cellNames) do
-            if cellName == allowedCellName then
-                return true
-            end
-        end
-    end
-
-    if soundBank.cellNamePatterns then
-        for _, cellNamePattern in ipairs(soundBank.cellNamePatterns) do
-            if string.find(cellName, cellNamePattern) then
-                return true
-            end
-        end
-    end
-end
-
-function DynamicMusic.isSoundBankAllowedForRegionName(regionName, soundBank)
-    if not soundBank.regionNames then
-        return false
-    end
-
-    if _regionNameIndex then
-        return _regionNameIndex:contains(regionName, soundBank) -- [regionName] and _regionNameIndex[regionName][soundBank]
-    end
-
-    for _, allowedRegionName in ipairs(soundBank.regionNames) do
-        if regionName == allowedRegionName then
-            return true
-        end
-    end
-
-    return false
 end
 
 function DynamicMusic.newMusic()
@@ -254,11 +219,6 @@ function DynamicMusic.newMusic()
     end
 
     if newPlaylist then
-        if GameState.playlist.current then
-            --     Music.setPlaylistActive(GameState.playlist.current.id, false)
-            MusicPlayer.playPlaylist(newPlaylist)
-        end
-
         print("activating playlist: " .. newPlaylist.id)
         MusicPlayer.playPlaylist(newPlaylist)
         GameState.soundBank.current = soundBank

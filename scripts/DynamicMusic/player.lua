@@ -6,10 +6,7 @@ local storage = require('openmw.storage')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
-local SB = require('scripts.DynamicMusic.core.SoundBank')
 local Settings = require('scripts.DynamicMusic.core.Settings')
-
-local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.soundBanks.DEFAULT')
 
 local hostileActors = {}
 local currentPlaybacktime = -1
@@ -48,100 +45,6 @@ local function getPlayerState()
 
   return PlayerStates.explore
 end
-
-local function fetchSoundbank()
-  local soundbank = nil
-
-  for index = #DynamicMusic.soundBanks, 1, -1 do
-    if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
-      soundbank = DynamicMusic.soundBanks[index]
-      break
-    end
-  end
-
-  local useDefaultSoundbank = false
-  --useDefaultSoundbank = advancedSettings:get(Settings.USE_DEFAULT_SOUNDBANK)
-  useDefaultSoundbank = Settings.getValue(Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK)
-
-  if not soundbank and useDefaultSoundbank then
-    print("using DEFAULT soundbank")
-    soundbank = DEFAULT_SOUNDBANK
-  end
-
-  return soundbank
-end
-
----Plays another track from an allowed soundbank
--- Chooses a fitting soundbank and plays a track from it
--- If no soundbank could be found a vanilla track is played
---local function newMusic()
---  print("new music requested")
-
---  local soundBank = fetchSoundbank()
-
--- force new music when streammusic was used in the ingame console
---  if not ambient.isMusicPlaying() then
---    GameState.soundBank.current = nil
---  end
-
---if no playerState change happened and the same soundbank should be played again then continue playback
---  if GameState.playerState.current == GameState.playerState.previous then
---    if GameState.soundBank.current == soundBank and currentPlaybacktime < currentTrackLength then
---      print("skipping new track and continue with current")
---      return
---    end
---  end
-
--- no matching soundbank available - switching to default music and return
---  if not soundBank then
---    print("no matching soundbank found")
-
---    if GameState.soundBank.current then
---      ambient.streamMusic('')
---    end
-
---    GameState.track.curent = nil
---    currentPlaybacktime = -1
---    GameState.soundBank.current = nil
---    GameState.track.current = nil
---    return
---  end
-
---  GameState.soundBank.current = soundBank
-
---  print("fetch track from: " .. soundBank.id)
-
--- reusing previous track if trackpath is available
---  if GameState.track.previous and (GameState.soundBank.current ~= GameState.soundBank.previous or GameState.playerState.current ~= GameState.playerState.previous) then
---    local tempTrack = SB.trackForPath(
---      GameState.soundBank.current,
---      GameState.playerState.current,
---      GameState.track.previous.path
---    )
-
---    if tempTrack then
---      print("resuming existing track from previous " .. GameState.track.previous.path)
---      GameState.track.current = tempTrack
---      return
---    end
---  end
-
---  local track = SB.fetchTrack(soundBank)
--- hopefully avoids default music being played on track end sometimes
---  if currentPlaybacktime >= currentTrackLength then
---    ambient.stopMusic()
---  end
-
---  currentPlaybacktime = 0
-
---  GameState.track.current = track
---  if track.length then
---    currentTrackLength = track.length
---  end
-
---  print("playing track: " .. track.path)
---  ambient.streamMusic(track.path)
---end
 
 local function hasGameStateChanged()
   if GameState.playerState.previous ~= GameState.playerState.current then

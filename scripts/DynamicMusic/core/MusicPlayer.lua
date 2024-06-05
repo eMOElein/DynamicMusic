@@ -15,8 +15,11 @@ local playbackTimeProperty = {
 local availableTracks = {}
 
 function MusicPlayer.playPlaylist(playlist)
-    playlistProperty:setValue(playlist)
+    if playlistProperty:getValue() == playlist then
+        error("playlist already playing",2)
+    end
 
+    playlistProperty:setValue(playlist)
     MusicPlayer._fillTracks()
 
     -- if the new playlists contains a track with the same path as the track currently playing then playback continues
@@ -49,20 +52,22 @@ function MusicPlayer._fillTracks()
 end
 
 function MusicPlayer._removeAvailableTrack(track)
-    for i = 1, #availableTracks, 1 do
-        if availableTracks[i] == track then
-            table.remove(availableTracks, i)
+    local index = 0
+    for _, t in pairs(availableTracks) do
+        index = index +1
+        if t == track then
+            table.remove(availableTracks, index)
             return
         end
     end
 end
 
 function MusicPlayer._playNewTrack()
-    local track = MusicPlayer._fetchRandomTrack()
-
     if #availableTracks == 0 then
         MusicPlayer._fillTracks()
     end
+
+    local track = MusicPlayer._fetchRandomTrack()
 
     if track then
         trackProperty:setValue(track)
@@ -93,9 +98,11 @@ function MusicPlayer.update(deltaTime)
             return
         end
 
-        if playbackTimeProperty.current > -1 and playbackTimeProperty.current >= trackProperty:getValue().length then
-            MusicPlayer._playNewTrack()
-            return
+        if trackProperty:getValue().length then
+            if playbackTimeProperty.current > -1 and playbackTimeProperty.current >= trackProperty:getValue().length then
+                MusicPlayer._playNewTrack()
+                return
+            end
         end
     end
 end
