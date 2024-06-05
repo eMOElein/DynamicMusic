@@ -11,7 +11,8 @@ local function emitEvent(eventName)
       actor:sendEvent(eventName, {
         actor = self,
         name = self.type.record(self).name,
-        level = types.Actor.stats.level(self).current
+        level = types.Actor.stats.level(self).current,
+        targetActor = AI.getActivePackage().target
       });
     end
   end

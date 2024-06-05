@@ -122,7 +122,13 @@ local function onFrame(dt)
 end
 
 local function engaging(eventData)
-  if (not eventData.actor) then return end;
+  if (not eventData.actor) then
+    return
+  end
+
+  if not eventData.targetActor or eventData.targetActor.id ~= self.id then
+    return
+  end
 
   hostileActors[eventData.actor.id] = eventData;
   --  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
