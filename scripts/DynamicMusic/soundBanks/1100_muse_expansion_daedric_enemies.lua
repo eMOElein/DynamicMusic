@@ -2,7 +2,7 @@ local soundBank =      {
   id = 'muse_expansion_daedric',
   enemyNames = {
     "Flame Atronach",
-    "Frost Atronach",
+    "Frost  Atronach",
     "Nomeg Gwai",
     "Storm Atronach",
     "Clannfear",

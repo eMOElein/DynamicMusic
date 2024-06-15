@@ -14,8 +14,10 @@ local playbackTimeProperty = {
 
 local availableTracks = {}
 
-function MusicPlayer.playPlaylist(playlist)
-    if playlistProperty:getValue() == playlist then
+function MusicPlayer.playPlaylist(playlist, options)
+    local force = options and options.force
+
+    if not force and playlistProperty:getValue() == playlist then
         error("playlist already playing",2)
     end
 
@@ -27,7 +29,7 @@ function MusicPlayer.playPlaylist(playlist)
     if currentTrack then
         local currentTrackLength = currentTrack.length
         local sametrack = playlist:trackForPath(currentTrack.path)
-        if sametrack and playbackTimeProperty.current < currentTrackLength then
+        if not force and sametrack and playbackTimeProperty.current < currentTrackLength then
             trackProperty:setValue(sametrack)
             return
         end
@@ -94,6 +96,7 @@ function MusicPlayer.update(deltaTime)
         end
 
         if not ambient.isMusicPlaying() then
+            print("no music playing: play new track from playlist")
             MusicPlayer._playNewTrack()
             return
         end

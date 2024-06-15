@@ -188,13 +188,15 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
     return true
 end
 
-function DynamicMusic.newMusic()
+function DynamicMusic.newMusic(options)
     print("new music requested")
 
+    local force = options and options.force or not ambient.isMusicPlaying()
     local soundBank = fetchSoundbank()
     local newPlaylist = nil
 
     if not soundBank then
+        print("no matching soundbank found")
         ambient.streamMusic('')
         return
     end
@@ -207,13 +209,14 @@ function DynamicMusic.newMusic()
         newPlaylist = soundBank.combatPlaylist
     end
 
-    if newPlaylist == DynamicMusic.playlistProperty:getValue() then
+    if not force and newPlaylist == DynamicMusic.playlistProperty:getValue() then
+        print("playlist already playing so continue with current")
         return
     end
 
     if newPlaylist then
         print("activating playlist: " .. newPlaylist.id)
-        MusicPlayer.playPlaylist(newPlaylist)
+        MusicPlayer.playPlaylist(newPlaylist, {force = force})
         GameState.soundBank.current = soundBank
         DynamicMusic.playlistProperty:setValue(newPlaylist)
         return

@@ -51,7 +51,6 @@ local function hasGameStateChanged()
   end
 
   if not ambient.isMusicPlaying() then
-    -- print("change music not playing")
     return true
   end
 
