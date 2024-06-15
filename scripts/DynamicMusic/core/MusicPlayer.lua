@@ -73,6 +73,7 @@ function MusicPlayer._playNewTrack()
 
     if track then
         trackProperty:setValue(track)
+        print("playing track: " ..track.path)
         ambient.streamMusic(track.path)
         playbackTimeProperty.current = 0
         MusicPlayer._removeAvailableTrack(track)
