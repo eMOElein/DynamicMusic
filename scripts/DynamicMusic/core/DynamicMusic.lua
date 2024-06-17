@@ -22,9 +22,17 @@ DynamicMusic.playlistProperty = Property.Create()
 DynamicMusic.initialized = false
 DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
+DynamicMusic.ignoreEnemies = {}
 
 local _hostileActors = {}
 
+local function split(string, separator)
+    local t = {}
+    for str in string.gmatch(string, "([^" .. separator .. "]+)") do
+        table.insert(t, str)
+    end
+    return t
+end
 
 local function collectSoundBanks()
     print("collecting soundBanks from: " .. DynamicMusic.sondBanksPath)
@@ -43,7 +51,7 @@ local function collectSoundBanks()
 
         if soundBank:countAvailableTracks() > 0 then
             table.insert(soundBanks, soundBank)
-            print("soundBank loaded: " ..file)
+            print("soundBank loaded: " .. file)
         else
             print('no tracks available: ' .. file)
         end
@@ -105,6 +113,11 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     local enemyNames = DynamicMusic._collectEnemyNames()
 
     DynamicMusic.buildSoundbankDb(DynamicMusic.soundBanks, cellNames, regionNames, enemyNames)
+
+    local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
+    for _, enemyId in pairs(split(ignoredEnemies, ",")) do
+        DynamicMusic.ignoreEnemies[enemyId] = enemyId
+    end
 
     DynamicMusic.initialized = true
 end
@@ -216,7 +229,7 @@ function DynamicMusic.newMusic(options)
 
     if newPlaylist then
         print("activating playlist: " .. newPlaylist.id)
-        MusicPlayer.playPlaylist(newPlaylist, {force = force})
+        MusicPlayer.playPlaylist(newPlaylist, { force = force })
         GameState.soundBank.current = soundBank
         DynamicMusic.playlistProperty:setValue(newPlaylist)
         return

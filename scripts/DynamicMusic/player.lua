@@ -19,6 +19,7 @@ local function isCombatState()
   local playerLevel = types.Actor.stats.level(self).current
   local minLevelEnemy = Settings.getValue(Settings.KEYS.COMBAT_MIN_ENEMY_LEVEL)
   local minLevelDifference = Settings.getValue(Settings.KEYS.COMBAT_MIN_LEVEL_DIFFERENCE)
+  local respectMinLevelDifference = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE)
 
   for _, hostile in pairs(hostileActors) do
     local actor = hostile.actor
@@ -26,6 +27,16 @@ local function isCombatState()
       local hostileLevel = types.Actor.stats.level(actor).current
       local inProcessingRange = types.Actor.isInActorsProcessingRange(actor)
       local playerLevelAdvantage = playerLevel - hostileLevel
+
+      if DynamicMusic.ignoreEnemies[hostile.refId] then
+        if not respectMinLevelDifference then
+          return false
+        end
+
+        if playerLevelAdvantage > minLevelDifference then
+          return false
+        end
+      end
 
       if inProcessingRange and (hostileLevel >= minLevelEnemy or playerLevelAdvantage < minLevelDifference) then
         return true
