@@ -23,6 +23,7 @@ DynamicMusic.initialized = false
 DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
 DynamicMusic.ignoreEnemies = {}
+DynamicMusic.includeEnemies= {}
 
 local _hostileActors = {}
 
@@ -117,6 +118,11 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
     for _, enemyId in pairs(split(ignoredEnemies, ",")) do
         DynamicMusic.ignoreEnemies[enemyId] = enemyId
+    end
+
+    local includedEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_INCLUDE)
+    for _, enemyId in pairs(split(includedEnemies, ",")) do
+        DynamicMusic.includeEnemies[enemyId] = enemyId
     end
 
     DynamicMusic.initialized = true

@@ -11,6 +11,7 @@ Settings.KEYS = {
     COMBAT_ENEMIES_IGNORE = 'COMBAT_ENEMIES_IGNORE',
     COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE = 'COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE',
     COMBAT_ENEMIES_ALWAYS = 'COMBAT_ENEMIES_ALWAYS',
+    COMBAT_ENEMIES_INCLUDE = 'COMBAT_ENEMIES_INCLUDE',
     GENERAL_PLAY_EXPLORATION_MUSIC = 'GENERAL_PLAY_EXPLORATION_MUSIC',
     GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK'
 }
@@ -83,6 +84,14 @@ Settings.SETTINGS = {
         name = '4.1 Ignore Enemies - Respect Min. Level Difference',
         description = 'Only ignore the enemies if min. level difference is met',
         default = true,
+    },
+    {
+        key = Settings.KEYS.COMBAT_ENEMIES_INCLUDE,
+        group = Settings.GROUPS.COMBAT,
+        renderer = 'textLine',
+        name = '5. Include Enemies',
+        description = 'Include these enemies and always play combat music (comma separated actor Id\'s). Use this option if you have specific low level enemies that normally would not play combat music.',
+        default = ''
     },
     {
         key = Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK,

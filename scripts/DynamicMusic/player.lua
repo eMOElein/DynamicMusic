@@ -31,6 +31,10 @@ local function isCombatState()
       break
     end
 
+    if DynamicMusic.includeEnemies[hostile.refId] then
+      return true
+    end
+
     if DynamicMusic.ignoreEnemies[hostile.refId] then
       if respectMinLevelDifference and playerLevelAdvantage < minLevelDifference then
         return true
