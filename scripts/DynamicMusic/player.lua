@@ -85,7 +85,7 @@ local function hasGameStateChanged()
   end
 
   if GameState.hourOfDay.current ~= GameState.hourOfDay.previous then
-    print(string.format("hour of day changed from %i to %i", GameState.hourOfDay.previous, GameState.hourOfDay.current))
+--    print(string.format("hour of day changed from %i to %i", GameState.hourOfDay.previous, GameState.hourOfDay.current))
     return true
   end
 
