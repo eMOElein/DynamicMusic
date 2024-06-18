@@ -23,24 +23,28 @@ local function isCombatState()
 
   for _, hostile in pairs(hostileActors) do
     local actor = hostile.actor
-    if types.Actor.isInActorsProcessingRange(actor) then
-      local hostileLevel = types.Actor.stats.level(actor).current
-      local inProcessingRange = types.Actor.isInActorsProcessingRange(actor)
-      local playerLevelAdvantage = playerLevel - hostileLevel
+    local hostileLevel = types.Actor.stats.level(actor).current
+    local playerLevelAdvantage = playerLevel - hostileLevel
+    local inProcessingRange = types.Actor.isInActorsProcessingRange(actor)
 
-      if DynamicMusic.ignoreEnemies[hostile.refId] then
-        if not respectMinLevelDifference then
-          return false
-        end
+    if not inProcessingRange then
+      break
+    end
 
-        if playerLevelAdvantage > minLevelDifference then
-          return false
-        end
-      end
-
-      if inProcessingRange and (hostileLevel >= minLevelEnemy or playerLevelAdvantage < minLevelDifference) then
+    if DynamicMusic.ignoreEnemies[hostile.refId] then
+      if respectMinLevelDifference and playerLevelAdvantage < minLevelDifference then
         return true
       end
+
+      break
+    end
+
+    if playerLevelAdvantage < minLevelDifference then
+      return true
+    end
+
+    if hostileLevel >= minLevelEnemy then
+      return true
     end
   end
 
