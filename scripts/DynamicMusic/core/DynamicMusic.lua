@@ -7,7 +7,6 @@ local Settings = require('scripts.DynamicMusic.core.Settings')
 local Property = require('scripts.DynamicMusic.core.Property')
 local ambient = require('openmw.ambient')
 
-
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
 
 local SOUNDBANKDB_SECTIONS = {
@@ -23,7 +22,7 @@ DynamicMusic.initialized = false
 DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
 DynamicMusic.ignoreEnemies = {}
-DynamicMusic.includeEnemies= {}
+DynamicMusic.includeEnemies = {}
 
 local _hostileActors = {}
 
@@ -162,6 +161,10 @@ end
 
 function DynamicMusic.isSoundBankAllowed(soundBank)
     if not soundBank then
+        return false
+    end
+
+    if not soundBank:isAllowedForHourOfDay(GameState.hourOfDay.current) then
         return false
     end
 

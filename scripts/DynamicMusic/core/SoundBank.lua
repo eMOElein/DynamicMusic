@@ -59,6 +59,7 @@ function SoundBank.CreateFromTable(data)
     soundBank.isAllowedForEnemyName = SoundBank.isAllowedForEnemyName
     soundBank.isAllowedForCellName = SoundBank.isAllowedForCellName
     soundBank.isAllowedForRegionId = SoundBank.isAllowedForRegionId
+    soundBank.isAllowedForHourOfDay = SoundBank.isAllowedForHourOfDay
 
     if soundBank.tracks then
         _initializeTracks(soundBank.tracks)
@@ -76,6 +77,12 @@ function SoundBank.CreateFromTable(data)
     if soundBank.combatTracks and #soundBank.combatTracks > 0 then
         soundBank.combatPlaylist = buildPlaylist(soundBank.id .. "_combat", soundBank.combatTracks)
         --       Music.registerPlaylist(combatPlaylist)
+    end
+
+    if soundBank.hourOfDay then
+        for _, hour in pairs(soundBank.hourOfDay) do
+            soundBank.hourOfDay[hour] = hour
+        end
     end
 
     return soundBank
@@ -128,6 +135,10 @@ function SoundBank.isAllowedForCellName(self, cellName)
     end
 
     return false
+end
+
+function SoundBank.isAllowedForHourOfDay(self, hourOfDay)
+    return not self.hourOfDay or self.hourOfDay[hourOfDay]
 end
 
 function SoundBank.isAllowedForRegionId(self, regionId)

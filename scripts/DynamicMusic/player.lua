@@ -2,6 +2,7 @@ local ambient = require('openmw.ambient')
 local self = require('openmw.self')
 local types = require('openmw.types')
 local storage = require('openmw.storage')
+local core = require('openmw.core')
 
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
@@ -83,6 +84,11 @@ local function hasGameStateChanged()
     return true
   end
 
+  if GameState.hourOfDay.current ~= GameState.hourOfDay.previous then
+    print(string.format("hour of day changed from %i to %i", GameState.hourOfDay.previous, GameState.hourOfDay.current))
+    return true
+  end
+
   return false
 end
 
@@ -107,11 +113,14 @@ local function onFrame(dt)
     initialize()
   end
 
+  local hourOfDay = math.floor((core.getGameTime() / 3600) % 24)
+
   GameState.exterior.current = self.cell and self.cell.isExterior
   GameState.cellName.current = self.cell and self.cell.name or ""
   GameState.playtime.current = os.time()
   GameState.regionName.current = self.cell and self.cell.region or ""
   GameState.playerState.current = getPlayerState()
+  GameState.hourOfDay.current = hourOfDay
 
   if hasGameStateChanged() then
     DynamicMusic.newMusic()
@@ -125,6 +134,7 @@ local function onFrame(dt)
   GameState.playerState.previous = GameState.playerState.current
   GameState.regionName.previous = GameState.regionName.current
   GameState.soundBank.previous = GameState.soundBank.current
+  GameState.hourOfDay.previous = GameState.hourOfDay.current
 end
 
 local function engaging(eventData)

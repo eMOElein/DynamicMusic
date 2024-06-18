@@ -1,5 +1,9 @@
 local GameState = {}
 
+GameState.hourOfDay = {
+    current = nil,
+    previous = nil
+}
 GameState.exterior = {
     current = nil,
     previous = nil
