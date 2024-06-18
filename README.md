@@ -5,10 +5,9 @@ https://www.nexusmods.com/morrowind/mods/53568
 
 # Script Settings
 ## General Settings
-### Playlist priority
-The priority that is used to generate the playlists.
-This value should be below OpenMW Music's priority for combat playlists which is 10.
-Otherwise the dynamic combat music will be overruled by OpenMW's vanilla combat music.
+### Use Default Soundbank
+This uses the DEFAULT soundbank from **scripts/DynamicMusic/soundBanks/DEFAULT.lua** for all situations that are not covered by any other soundbank. This needs to be active for most of the dynamic combat music settings to work properly.
+If you had custom music tracks in your vanilla music folder you need to add them to the DEFAULT soundbank manually as it only contains the vanilla Morrowind tracks.
 
 ## Combat Settings
 ### Play combat music
@@ -33,3 +32,81 @@ A soundbank contains a list of exploration and/or combat tracks and a set of fil
 ### Soundbank Priority
 Soundbanks are prioritized by their name.\
 If two or more soundbanks are allowed to play for the current ingame situation the one that come's **last** in alphabetical order (by filename) will be played.
+
+### Example Soundbank
+
+```lua
+local soundBank = {
+    -- The soundbank is only allowed to play if the current cell's name contains one of the strings listed in this filter
+    -- Be careful with special characters as they need to work properly with Lua's string.gmatch function which is used
+    -- to determine if the cell's name contains the pattern.
+    -- If this filter is not provided it will be ignored.
+    cellNamePatterns = {
+        'Balmora',
+        'Mage\'s Guild'
+    },
+    -- The soundbank is only allowed to play it the current cell's exactly matches with one of the strings listed in this filter.
+    -- If this filter is not provided it will be ignored.
+    cellNames = {
+        'Balmora',
+        'Balmora, Guild of Mages'
+    },
+    -- This is a bit misleading at the moment since region id's are expected here instead of region names.
+    -- The soundbank is only allowed to play it the current cell's region id matches one of the region Id's listed in this filter.
+    -- It this filter is not provided it will be ignored.
+    regionNames = {
+        'armun ashlands region',
+        'ashlands region'
+    },
+    -- If this filter is set to true the soundbank is only allowed to play if the current cell is an interior cell.
+    -- If this filter is not provided it will be ignored.
+    interiorOnly = true,
+    -- If this filter is set to true the soundbank is only allowed to play if the current cell is an exterior cell.
+    -- If this filter is not provided it will be ignored.
+    exteriorOnly = true,
+    -- If this filter is set the soundbank is only allowed during the ingame hours in the list.
+    -- In the example the soundbank is allowed from 18:00pm until 21:00pm
+    -- It this filter is not provided it will be ignored.
+    hourOfDay = {18,19,20}
+    -- This filter is only checked it the game is currently in "combat" state.
+    -- Combat tracks are only played if the enemy's name matches with one of the strings listed in this filter.
+    -- If this filter is not provided it will be ignored.
+    enemyNames = {
+        "Ascended Sleeper",
+        "Ash Ghoul",
+        "Ash Slave",
+    },
+    -- Tracks that should play if the game is in "exploration" state
+    tracks = {
+        {
+            -- Path to a track.
+            path = 'Music/dm_personal/dfu_magic_2.mp3',
+            -- The track's length in seconds.
+            length = 88
+        },
+        {
+            -- Path to another track.
+            path = 'Music/dm_personal/dfu_magic_3.mp3',
+            -- The track's length in seconds.
+            length = 62
+        }
+    },
+    -- Tracks that should play if the game is in "combat" state.
+    combatTracks = {
+        {
+            -- Path to a track.
+            path = "Music/MS/combat/Dagoth/combat1.mp3",
+            -- The track's length in seconds.
+            length = 56
+        },
+        {
+            -- Path to a another track.
+            path = "Music/MS/combat/Dagoth/combat2.mp3",
+            -- The track's length in seconds.
+            length = 58
+        }
+    }
+}
+
+return soundBank
+```
