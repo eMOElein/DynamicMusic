@@ -16,7 +16,6 @@ os.makedirs(buildPath)
 os.makedirs(projectPath)
 
 shutil.copyfile("DynamicMusic.omwscripts", projectPath +"/DynamicMusic.omwscripts")
-shutil.copyfile("README.md", projectPath +"/DynamicMusic_Readme.md")
 shutil.copyfile(".dev.mohidden/readme.url", projectPath +"/DynamicMusic_Readme.url")
 shutil.copytree("scripts", projectPath +"/scripts")
 shutil.make_archive(buildPath +"/" +buildName, 'zip', projectPath)
