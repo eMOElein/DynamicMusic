@@ -37,15 +37,16 @@ If two or more soundbanks are allowed to play for the current ingame situation t
 
 ```lua
 local soundBank = {
-    -- The soundbank is only allowed to play if the current cell's name contains one of the strings listed in this filter
+    -- The soundbank is only allowed to play if the current cell's name contains one or more of the strings listed in this filter
     -- Be careful with special characters as they need to work properly with Lua's string.gmatch function which is used
     -- to determine if the cell's name contains the pattern.
+    -- Escape special characters properly.
     -- If this filter is not provided it will be ignored.
     cellNamePatterns = {
         'Balmora',
         'Mage\'s Guild'
     },
-    -- The soundbank is only allowed to play it the current cell's exactly matches with one of the strings listed in this filter.
+    -- The soundbank is only allowed to play if the current cell's name exactly matches with one or more of the strings listed in this filter.
     -- If this filter is not provided it will be ignored.
     cellNames = {
         'Balmora',
@@ -53,7 +54,7 @@ local soundBank = {
     },
     -- This is a bit misleading at the moment since region id's are expected here instead of region names.
     -- The soundbank is only allowed to play it the current cell's region id matches one of the region Id's listed in this filter.
-    -- It this filter is not provided it will be ignored.
+    -- If this filter is not provided it will be ignored.
     regionNames = {
         'armun ashlands region',
         'ashlands region'
@@ -65,10 +66,10 @@ local soundBank = {
     -- If this filter is not provided it will be ignored.
     exteriorOnly = true,
     -- If this filter is set the soundbank is only allowed during the ingame hours in the list.
-    -- In the example the soundbank is allowed from 18:00pm until 21:00pm
+    -- In this example the soundbank is allowed to play from 18:00pm until 21:00pm
     -- It this filter is not provided it will be ignored.
     hourOfDay = {18,19,20}
-    -- This filter is only checked it the game is currently in "combat" state.
+    -- This filter is only checked if the game is currently in "combat" state.
     -- Combat tracks are only played if the enemy's name matches with one of the strings listed in this filter.
     -- If this filter is not provided it will be ignored.
     enemyNames = {
