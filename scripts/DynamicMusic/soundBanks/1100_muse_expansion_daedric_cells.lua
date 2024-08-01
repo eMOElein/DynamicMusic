@@ -15,7 +15,7 @@ local soundBank =      {
 	"Ashalmimilkala",
 	"Assarnatamat",
 	"Assernerairan",
-	"Assurnabitashpi ",
+	"Assurnabitashpi",
 	"Ebernanit",
 	"Ularradallaku",
 	"Yasammidan",
