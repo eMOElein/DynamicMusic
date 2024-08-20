@@ -68,7 +68,7 @@ local soundBank = {
     -- If this filter is set the soundbank is only allowed during the ingame hours in the list.
     -- In this example the soundbank is allowed to play from 18:00pm until 21:00pm
     -- It this filter is not provided it will be ignored.
-    hourOfDay = {18,19,20}
+    hourOfDay = {18,19,20},
     -- This filter is only checked if the game is currently in "combat" state.
     -- Combat tracks are only played if the enemy's name matches with one of the strings listed in this filter.
     -- If this filter is not provided it will be ignored.
