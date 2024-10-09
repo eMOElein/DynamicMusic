@@ -4,6 +4,7 @@ local types = require('openmw.types')
 local storage = require('openmw.storage')
 local core = require('openmw.core')
 
+local Globals = require('scripts.DynamicMusic.core.Globals')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
@@ -162,6 +163,10 @@ local function globalDataCollected(eventData)
   DynamicMusic.initialize(data.cellNames, data.regionNames, hostileActors)
 
   data = nil
+end
+
+if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
+  return {}
 end
 
 return {
