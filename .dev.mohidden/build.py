@@ -15,7 +15,7 @@ if os.path.isdir(buildPath):
 os.makedirs(buildPath)
 os.makedirs(projectPath)
 
-shutil.copyfile("DynamicMusic.omwscripts", projectPath +"/DynamicMusic.omwscripts")
-shutil.copyfile(".dev.mohidden/readme.url", projectPath +"/DynamicMusic_Readme.url")
-shutil.copytree("scripts", projectPath +"/scripts")
-shutil.make_archive(buildPath +"/" +buildName, 'zip', projectPath)
+shutil.copyfile("DynamicMusic.omwscripts", f"{projectPath}/DynamicMusic.omwscripts")
+shutil.copyfile(".dev.mohidden/readme.url", f"{projectPath}/DynamicMusic_Readme.url")
+shutil.copytree("scripts", f"{projectPath}/scripts")
+shutil.make_archive(f"{buildPath}/{buildName}", 'zip', projectPath)
