@@ -54,7 +54,10 @@ function SoundBank.CreateFromTable(data)
     end
 
     local soundBank = data
+    soundBank._hourOfDayDB = nil
+
     soundBank.id = data.id
+
     soundBank.countAvailableTracks = SoundBank.countAvailableTracks
     soundBank.isAllowedForEnemyName = SoundBank.isAllowedForEnemyName
     soundBank.isAllowedForCellName = SoundBank.isAllowedForCellName
@@ -80,12 +83,10 @@ function SoundBank.CreateFromTable(data)
     end
 
     if soundBank.hourOfDay then
-        local hourOfDayDB = {}
+        soundBank._hourOfDayDB = {}
         for _, hour in pairs(soundBank.hourOfDay) do
-            hourOfDayDB[hour] = true
+            soundBank._hourOfDayDB[hour] = true
         end
-
-        soundBank.hourOfDay = hourOfDayDB
     end
 
     return soundBank
@@ -141,7 +142,7 @@ function SoundBank.isAllowedForCellName(self, cellName)
 end
 
 function SoundBank.isAllowedForHourOfDay(self, hourOfDay)
-    local bool =  not self.hourOfDay or self.hourOfDay[hourOfDay]
+    local bool =  not self._hourOfDayDB or self._hourOfDayDB[hourOfDay]
     return bool
 end
 
