@@ -80,9 +80,12 @@ function SoundBank.CreateFromTable(data)
     end
 
     if soundBank.hourOfDay then
+        local hourOfDayDB = {}
         for _, hour in pairs(soundBank.hourOfDay) do
-            soundBank.hourOfDay[hour] = hour
+            hourOfDayDB[hour] = true
         end
+
+        soundBank.hourOfDay = hourOfDayDB
     end
 
     return soundBank
@@ -138,7 +141,9 @@ function SoundBank.isAllowedForCellName(self, cellName)
 end
 
 function SoundBank.isAllowedForHourOfDay(self, hourOfDay)
-    return not self.hourOfDay or self.hourOfDay[hourOfDay]
+    local bool =  not self.hourOfDay or self.hourOfDay[hourOfDay]
+    print("check hod: " ..tostring(self.id) .." - " ..tostring(hourOfDay) .." - "..tostring(bool))
+    return bool
 end
 
 function SoundBank.isAllowedForRegionId(self, regionId)
