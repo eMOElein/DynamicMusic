@@ -142,7 +142,6 @@ end
 
 function SoundBank.isAllowedForHourOfDay(self, hourOfDay)
     local bool =  not self.hourOfDay or self.hourOfDay[hourOfDay]
-    print("check hod: " ..tostring(self.id) .." - " ..tostring(hourOfDay) .." - "..tostring(bool))
     return bool
 end
 
