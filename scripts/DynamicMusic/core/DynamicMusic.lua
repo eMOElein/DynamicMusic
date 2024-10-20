@@ -1,10 +1,11 @@
 local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
-local SoundBank = require('scripts.DynamicMusic.core.SoundBank')
+local SoundBank = require('scripts.DynamicMusic.models.SoundBank')
 local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 local Property = require('scripts.DynamicMusic.core.Property')
+local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 local ambient = require('openmw.ambient')
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
@@ -41,30 +42,27 @@ local function collectSoundBanks()
     for file in vfs.pathsWithPrefix(DynamicMusic.sondBanksPath) do
         file = file.gsub(file, ".lua", "")
 
+
         local soundBank = require(file)
 
-        if not soundBank.id then
-            soundBank.id = file
-        end
+        if not soundBank.id or soundBank.id ~= "DEFAULT" then
+            soundBank.id = file.gsub(file, DynamicMusic.sondBanksPath, "")
 
-        soundBank = SoundBank.CreateFromTable(soundBank)
+            --soundBank = SoundBank.CreateFromTable(soundBank)
+            soundBank = SoundBank.Decoder.fromTable(soundBank)
 
-        if soundBank:countAvailableTracks() > 0 then
-            table.insert(soundBanks, soundBank)
-            print("soundBank loaded: " .. file)
-        else
-            print('no tracks available: ' .. file)
+            if soundBank:countAvailableTracks() > 0 then
+                table.insert(soundBanks, soundBank)
+                print("soundBank loaded: " .. file)
+                --print("tracks: " ..tostring(#soundBank.tracks))
+                --print("combatTracks: " ..tostring(#soundBank.combatTracks))
+            else
+                print('no tracks available: ' .. file)
+            end
         end
     end
 
     return soundBanks
-end
-
-
-local function _getFirstElement(table)
-    for _, e in pairs(table) do
-        return e
-    end
 end
 
 function DynamicMusic._collectEnemyNames()
@@ -188,7 +186,7 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         end
     end
 
-    local firstHostile = _getFirstElement(_hostileActors)
+    local firstHostile = TableUtils.getFirstElement(_hostileActors)
 
     local dbEntry = DynamicMusic.sounbankdb[soundBank]
     if soundBank.regionNames and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONIDS][GameState.regionName.current] then
@@ -242,6 +240,22 @@ function DynamicMusic.newMusic(options)
         GameState.soundBank.current = soundBank
         DynamicMusic.playlistProperty:setValue(newPlaylist)
         return
+    end
+end
+
+function DynamicMusic.info()
+    local soundbanks = 0
+    if DynamicMusic.soundBanks then
+        soundbanks = #DynamicMusic.soundBanks
+    end
+
+    print("=== DynamicMusic Info ===")
+    print("soundbanks: " .. soundbanks)
+    for _, sb in ipairs(DynamicMusic.soundBanks) do
+        print("sb: " ..tostring(sb.id))
+        if sb.combatTracks then
+            print("combat tracks: " ..#sb.combatTracks)
+        end
     end
 end
 
