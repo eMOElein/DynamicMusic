@@ -46,7 +46,11 @@ function SoundBank.Create(id)
     soundBank._hourOfDayDB = nil
     soundBank.cellNames = {}
     soundBank.cellNamePatterns = {}
+    soundBank.enemyNames = {}
+    soundBank.hourOfDay = {}
     soundBank.regionNames = {}
+    soundBank.tracks = {}
+    soundBank.combatTracks = {}
 
     soundBank.countAvailableTracks = SoundBank.countAvailableTracks
     soundBank.isAllowedForEnemyName = SoundBank.isAllowedForEnemyName
@@ -72,7 +76,7 @@ function SoundBank.countAvailableTracks(self)
 end
 
 function SoundBank.isAllowedForEnemyName(self, enemyName)
-    if not self.enemyNames then
+    if #self.enemyNames == 0 then
         return false
     end
 
@@ -133,46 +137,33 @@ function SoundBank.isAllowedForRegionId(self, regionId)
 end
 
 function SoundBank.setTracks(self, tracks)
-    self.tracks = tracks
+    TableUtils.setAll(self.tracks, tracks)
     self.explorePlaylist = buildPlaylist(self.id .. "_explore", self.tracks)
 end
 
 function SoundBank.setCombatTracks(self, tracks)
-    self.combatTracks = tracks
+    TableUtils.setAll(self.combatTracks, tracks)
     self.combatPlaylist = buildPlaylist(self.id .. "_combat", self.combatTracks)
 end
 
 function SoundBank.setCellNames(self, cellNames)
-    self.cellNames = {}
-    for _, cn in ipairs(cellNames) do
-        table.insert(self.cellNames, cn)
-    end
+    TableUtils.setAll(self.cellNames, cellNames)
 end
 
 function SoundBank.setCellNamePatterns(self, cellNamePatterns)
-    self.cellNamePatterns = {}
-    for _, cn in ipairs(cellNamePatterns) do
-        table.insert(self.cellNamePatterns, cn)
-    end
+    TableUtils.setAll(self.cellNamePatterns, cellNamePatterns)
 end
 
 function SoundBank.setEnemyNames(self, enemyNames)
-    self.enemyNames = {}
-    for _, en in ipairs(enemyNames) do
-        table.insert(self.enemyNames, en)
-    end
+    TableUtils.setAll(self.enemyNames, enemyNames)
 end
 
 function SoundBank.setHours(self, hours)
-    self.hourOfDay = {}
+    TableUtils.setAll(self.hourOfDay, hours)
     self._hourOfDayDB = nil
 
-    if not hours or TableUtils.countKeys(hours) == 0 then
+    if #self.hourOfDay ==0 then
         return
-    end
-
-    for _, h in ipairs(hours) do
-        table.insert(self.hourOfDay, h)
     end
 
     self._hourOfDayDB = {}
@@ -182,8 +173,7 @@ function SoundBank.setHours(self, hours)
 end
 
 function SoundBank.setReionNames(self, regionNames)
-    TableUtils.clear(self.regionNames)
-    TableUtils.addAll(self.regionNames, regionNames)
+    TableUtils.setAll(self.regionNames, regionNames)
 end
 
 SoundBank.Decoder = {

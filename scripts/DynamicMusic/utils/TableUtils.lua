@@ -38,4 +38,9 @@ function TableUtils.countKeys(tab)
     return counter
 end
 
+function TableUtils.setAll(tab, newElements)
+    TableUtils.clear(tab)
+    TableUtils.addAll(tab, newElements)
+end
+
 return TableUtils
