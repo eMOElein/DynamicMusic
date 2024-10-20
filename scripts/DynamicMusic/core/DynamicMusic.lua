@@ -6,6 +6,7 @@ local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 local Property = require('scripts.DynamicMusic.core.Property')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
+local SoundbankManager = require('scripts.DynamicMusic.core.SoundbankManager')
 local ambient = require('openmw.ambient')
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
@@ -111,6 +112,7 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     local enemyNames = DynamicMusic._collectEnemyNames()
 
     DynamicMusic.buildSoundbankDb(DynamicMusic.soundBanks, cellNames, regionNames, enemyNames)
+    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundBanks, cellNames, regionNames, enemyNames,  hostileActors)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
     for _, enemyId in pairs(split(ignoredEnemies, ",")) do
@@ -158,6 +160,10 @@ function DynamicMusic.buildSoundbankDb(soundbanks, cellNames, regionNames, enemy
 end
 
 function DynamicMusic.isSoundBankAllowed(soundBank)
+    if DynamicMusic.soundbankManager then
+        return DynamicMusic.soundbankManager:isSoundbankAllowed(soundBank)
+    end
+
     if not soundBank then
         return false
     end
