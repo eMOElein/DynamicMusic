@@ -10,6 +10,7 @@ function Track.Create(path)
     local track = {}
     track.length = -1
 
+    track.exists = Track.exists
     track.setLength = Track.setLength
     track.setPath = Track.setPath
 
@@ -18,7 +19,7 @@ function Track.Create(path)
     return track
 end
 
-function Track.isValid(self)
+function Track.exists(self)
     return vfs.fileExists(self.path)
 end
 

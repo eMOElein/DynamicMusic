@@ -22,13 +22,9 @@ local function buildPlaylist(id, tracks)
 end
 
 local function _countExistingTracks(tracks)
-    if not tracks then
-        return 0
-    end
-
     local existingTracks = 0
     for _, track in pairs(tracks) do
-        if vfs.fileExists(track.path) then
+        if track:exists() then
             existingTracks = existingTracks + 1
         end
     end
@@ -47,7 +43,9 @@ function SoundBank.Create(id)
     soundBank.cellNames = {}
     soundBank.cellNamePatterns = {}
     soundBank.enemyNames = {}
+    soundBank.exteriorOnly = false
     soundBank.hourOfDay = {}
+    soundBank.interiorOnly = false
     soundBank.regionNames = {}
     soundBank.tracks = {}
     soundBank.combatTracks = {}
@@ -60,8 +58,10 @@ function SoundBank.Create(id)
     soundBank.setCellNames = SoundBank.setCellNames
     soundBank.setCellNamePatterns = SoundBank.setCellNamePatterns
     soundBank.setEnemyNames = SoundBank.setEnemyNames
+    soundBank.setExteriorOnly = SoundBank.setExteriorOnly
     soundBank.setCombatTracks = SoundBank.setCombatTracks
     soundBank.setHours = SoundBank.setHours
+    soundBank.setInteriorOnly = SoundBank.setInteriorOnly
     soundBank.setRegionNames = SoundBank.setReionNames
     soundBank.setTracks = SoundBank.setTracks
 
@@ -158,6 +158,10 @@ function SoundBank.setEnemyNames(self, enemyNames)
     TableUtils.setAll(self.enemyNames, enemyNames)
 end
 
+function SoundBank.setExteriorOnly(self, exteriorOnly)
+    self.exteriorOnly = exteriorOnly
+end
+
 function SoundBank.setHours(self, hours)
     TableUtils.setAll(self.hourOfDay, hours)
     self._hourOfDayDB = nil
@@ -172,6 +176,10 @@ function SoundBank.setHours(self, hours)
     end
 end
 
+function SoundBank.setInteriorOnly(self, interiorOnly)
+    self.interiorOnly = interiorOnly
+end
+
 function SoundBank.setReionNames(self, regionNames)
     TableUtils.setAll(self.regionNames, regionNames)
 end
@@ -181,10 +189,12 @@ SoundBank.Decoder = {
         local soundbank = SoundBank.Create(soundbankData.id)
         soundbank:setTracks(TableUtils.map(soundbankData.tracks or {}, Track.Decoder.fromTable))
         soundbank:setCombatTracks(TableUtils.map(soundbankData.combatTracks or {}, Track.Decoder.fromTable))
+        soundbank:setExteriorOnly(soundbankData.exteriorOnly or false)
         soundbank:setCellNames(soundbankData.cellNames or {})
         soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
         soundbank:setEnemyNames(soundbankData.enemyNames or {})
         soundbank:setHours(soundbankData.hourOfDay or {})
+        soundbank:setInteriorOnly(soundbankData.interiorOnly or false)
         soundbank:setRegionNames(soundbankData.regionNames or {})
         return soundbank
     end
