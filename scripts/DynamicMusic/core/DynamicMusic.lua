@@ -197,7 +197,7 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         return false
     end
 
-    if soundBank.enemyNames and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then --DynamicMusic.isSoundBankAllowedForEnemyName(firstHostile.name, soundBank) then
+    if soundBank.enemyNames and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then --DynamicMusic.isSoundBankAllowedForEnemyName(firstHostile.name, soundBank) then
         return false
     end
 
