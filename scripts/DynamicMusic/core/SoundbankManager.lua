@@ -57,7 +57,6 @@ function SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, 
         database[soundbank] = dbEntry
     end
 
-    print("managerdb created: " ..tostring(database))
     return database
 end
 
