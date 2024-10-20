@@ -1,6 +1,7 @@
 local vfs = require('openmw.vfs')
 local Playlist = require('scripts.DynamicMusic.core.Playlist')
 local Track = require('scripts.DynamicMusic.models.Track')
+local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 
 local SoundBank = {}
 
@@ -98,7 +99,7 @@ function SoundBank.isAllowedForCellName(self, cellName)
         end
     end
 
-    if self.cellNamePatterns then
+    if self.cellNamePatterns and TableUtils.countKeys(self.cellNamePatterns) > 0 then
         for _, cellNamePattern in ipairs(self.cellNamePatterns) do
             if string.find(cellName, cellNamePattern) then
                 return true
@@ -115,8 +116,8 @@ function SoundBank.isAllowedForHourOfDay(self, hourOfDay)
 end
 
 function SoundBank.isAllowedForRegionId(self, regionId)
-    if not self.regionNames then
-        return false
+    if not self.regionNames or TableUtils.countKeys(self.regionNames) == 0 then
+        return true
     end
 
     for _, sbRegionId in ipairs(self.regionNames) do
@@ -211,7 +212,7 @@ SoundBank.Decoder = {
         end
 
         if soundbankData.cellNamePatterns then
-            soundbank:setCellNamePatterns(soundbankData.cellNamePatterns)
+            soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
         end
 
         if soundbankData.enemyNames then
@@ -222,9 +223,7 @@ SoundBank.Decoder = {
             soundbank:setHours(soundbankData.hourOfDay)
         end
 
-        if soundbankData.regionNames then
-            soundbank:setRegionNames(soundbankData.regionNames)
-        end
+        soundbank:setRegionNames(soundbankData.regionNames or {})
 
         return soundbank
     end

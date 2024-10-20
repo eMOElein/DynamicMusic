@@ -252,9 +252,13 @@ function DynamicMusic.info()
     print("=== DynamicMusic Info ===")
     print("soundbanks: " .. soundbanks)
     for _, sb in ipairs(DynamicMusic.soundBanks) do
-        print("sb: " ..tostring(sb.id))
+        print("sb: " .. tostring(sb.id))
         if sb.combatTracks then
-            print("combat tracks: " ..#sb.combatTracks)
+            print("combat tracks: " .. #sb.combatTracks)
+        end
+
+        if (sb.cellNamePatterns) then
+            print("cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
         end
     end
 end
