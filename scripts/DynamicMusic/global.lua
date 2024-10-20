@@ -43,7 +43,7 @@ end
 if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
   print("Unable to load Dynamic Music")
   print(string.format("At least Lua api revision %s is required. Current Lua api revision is %s", Globals.LUA_API_REVISION_MIN, core.API_REVISION))
-  return {}
+  return nil
 end
 
 return {

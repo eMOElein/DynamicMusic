@@ -167,7 +167,7 @@ local function globalDataCollected(eventData)
 end
 
 if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
-  return {}
+  return nil
 end
 
 return {
