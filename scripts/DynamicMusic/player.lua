@@ -162,7 +162,7 @@ local function globalDataCollected(eventData)
 
   DynamicMusic.initialize(data.cellNames, data.regionNames, hostileActors)
 
-  DynamicMusic.info()
+--  DynamicMusic.info()
   data = nil
 end
 
