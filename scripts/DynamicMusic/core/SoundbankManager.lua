@@ -10,16 +10,16 @@ local SOUNDBANKDB_SECTIONS = {
 
 local SoundbankManager = {}
 
-function SoundbankManager.Create(soundbanks, cellNames, regionNames, enemyNames, hostileActors)
+function SoundbankManager.Create(soundbanks, cellNames, regionNames, hostileActors)
     local soundbankManager = {}
     soundbankManager.isSoundbankAllowed = SoundbankManager.isSoundbankAllowed
 
     soundbankManager.soundbanks = soundbanks
     soundbankManager.cellNames = cellNames
-    soundbankManager.enemyNames = enemyNames
+    soundbankManager.enemyNames = SoundbankManager._collectEnemyNames(soundbankManager)
     soundbankManager.regionNames = regionNames
     soundbankManager.hostileActors = hostileActors
-    soundbankManager.sounbankdb = SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, enemyNames)
+    soundbankManager.sounbankdb = SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, soundbankManager.enemyNames)
 
     return soundbankManager
 end
@@ -61,7 +61,6 @@ function SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, 
 end
 
 function SoundbankManager.isSoundbankAllowed(self, soundbank)
-    print("check: " ..soundbank.id)
     if not soundbank then
         return false
     end
@@ -110,6 +109,21 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
     end
 
     return true
+end
+
+function SoundbankManager._collectEnemyNames(self)
+    local enemyNames = {}
+    for _, sb in pairs(self.soundbanks) do
+        if sb.enemyNames and #sb.enemyNames > 0 then
+            for _, e in pairs(sb.enemyNames) do
+                if not enemyNames[e] then
+                    enemyNames[e] = e
+                end
+            end
+        end
+    end
+
+    return enemyNames
 end
 
 return SoundbankManager

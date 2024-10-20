@@ -41,14 +41,11 @@ local function collectSoundBanks()
         if not soundBank.id or soundBank.id ~= "DEFAULT" then
             soundBank.id = file.gsub(file, DynamicMusic.sondBanksPath, "")
 
-            --soundBank = SoundBank.CreateFromTable(soundBank)
             soundBank = SoundBank.Decoder.fromTable(soundBank)
 
             if soundBank:countAvailableTracks() > 0 then
                 table.insert(soundBanks, soundBank)
                 print("soundBank loaded: " .. file)
-                --print("tracks: " ..tostring(#soundBank.tracks))
-                --print("combatTracks: " ..tostring(#soundBank.combatTracks))
             else
                 print('no tracks available: ' .. file)
             end
@@ -56,21 +53,6 @@ local function collectSoundBanks()
     end
 
     return soundBanks
-end
-
-function DynamicMusic._collectEnemyNames()
-    local enemyNames = {}
-    for _, sb in pairs(DynamicMusic.soundBanks) do
-        if sb.enemyNames and #sb.enemyNames > 0 then
-            for _, e in pairs(sb.enemyNames) do
-                if not enemyNames[e] then
-                    enemyNames[e] = e
-                end
-            end
-        end
-    end
-
-    return enemyNames
 end
 
 local function fetchSoundbank()
@@ -100,9 +82,7 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     end
 
     DynamicMusic.soundBanks = collectSoundBanks()
-    local enemyNames = DynamicMusic._collectEnemyNames()
-
-    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundBanks, cellNames, regionNames, enemyNames,  hostileActors)
+    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundBanks, cellNames, regionNames,  hostileActors)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
     for _, enemyId in pairs(split(ignoredEnemies, ",")) do
