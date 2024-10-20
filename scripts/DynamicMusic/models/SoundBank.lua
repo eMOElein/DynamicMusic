@@ -44,6 +44,9 @@ function SoundBank.Create(id)
     local soundBank = {}
     soundBank.id = id
     soundBank._hourOfDayDB = nil
+    soundBank.cellNames = {}
+    soundBank.cellNamePatterns = {}
+    soundBank.regionNames = {}
 
     soundBank.countAvailableTracks = SoundBank.countAvailableTracks
     soundBank.isAllowedForEnemyName = SoundBank.isAllowedForEnemyName
@@ -179,47 +182,20 @@ function SoundBank.setHours(self, hours)
 end
 
 function SoundBank.setReionNames(self, regionNames)
-    self.regionNames = {}
-    for _, rn in ipairs(regionNames) do
-        table.insert(self.regionNames, rn)
-    end
+    TableUtils.clear(self.regionNames)
+    TableUtils.addAll(self.regionNames, regionNames)
 end
 
 SoundBank.Decoder = {
     fromTable = function(soundbankData)
-        local exploreTracks = {}
-        if soundbankData.tracks then
-            for _, trackData in ipairs(soundbankData.tracks) do
-                local track = Track.Decoder.fromTable(trackData)
-                table.insert(exploreTracks, track)
-            end
-        end
-
-        local combatTracks = {}
-        if soundbankData.combatTracks then
-            for _, trackData in ipairs(soundbankData.combatTracks) do
-                local track = Track.Decoder.fromTable(trackData)
-                table.insert(combatTracks, track)
-            end
-        end
-
         local soundbank = SoundBank.Create(soundbankData.id)
-
-        soundbank:setTracks(exploreTracks)
-        soundbank:setCombatTracks(combatTracks)
-
-        if soundbankData.cellNames then
-            soundbank:setCellNames(soundbankData.cellNames)
-        end
-
-        if soundbankData.cellNamePatterns then
-            soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
-        end
-
+        soundbank:setTracks(TableUtils.map(soundbankData.tracks or {}, Track.Decoder.fromTable))
+        soundbank:setCombatTracks(TableUtils.map(soundbankData.combatTracks or {}, Track.Decoder.fromTable))
+        soundbank:setCellNames(soundbankData.cellNames or {})
+        soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
         soundbank:setEnemyNames(soundbankData.enemyNames or {})
         soundbank:setHours(soundbankData.hourOfDay or {})
         soundbank:setRegionNames(soundbankData.regionNames or {})
-
         return soundbank
     end
 }

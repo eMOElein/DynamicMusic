@@ -193,11 +193,11 @@ function DynamicMusic.isSoundBankAllowed(soundBank)
         return false
     end
 
-    if (soundBank.cellNames or soundBank.cellNamePatterns) and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][GameState.cellName.current] then
+    if (#soundBank.cellNames > 0 or #soundBank.cellNamePatterns > 0) and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][GameState.cellName.current] then
         return false
     end
 
-    if soundBank.enemyNames and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then --DynamicMusic.isSoundBankAllowedForEnemyName(firstHostile.name, soundBank) then
+    if soundBank.enemyNames and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then
         return false
     end
 
