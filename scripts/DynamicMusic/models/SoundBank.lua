@@ -205,13 +205,8 @@ SoundBank.Decoder = {
 
         local soundbank = SoundBank.Create(soundbankData.id)
 
-        if exploreTracks then
-            soundbank:setTracks(exploreTracks)
-        end
-
-        if combatTracks then
-            soundbank:setCombatTracks(combatTracks)
-        end
+        soundbank:setTracks(exploreTracks)
+        soundbank:setCombatTracks(combatTracks)
 
         if soundbankData.cellNames then
             soundbank:setCellNames(soundbankData.cellNames)
@@ -221,10 +216,7 @@ SoundBank.Decoder = {
             soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
         end
 
-        if soundbankData.enemyNames then
-            soundbank:setEnemyNames(soundbankData.enemyNames)
-        end
-
+        soundbank:setEnemyNames(soundbankData.enemyNames or {})
         soundbank:setHours(soundbankData.hourOfDay or {})
         soundbank:setRegionNames(soundbankData.regionNames or {})
 
