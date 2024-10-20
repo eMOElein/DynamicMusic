@@ -21,8 +21,6 @@ function SoundbankManager.Create(soundbanks, cellNames, regionNames, enemyNames,
     soundbankManager.hostileActors = hostileActors
     soundbankManager.sounbankdb = SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, enemyNames)
 
-
-
     return soundbankManager
 end
 
@@ -59,10 +57,12 @@ function SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, 
         database[soundbank] = dbEntry
     end
 
+    print("managerdb created: " ..tostring(database))
     return database
 end
 
 function SoundbankManager.isSoundbankAllowed(self, soundbank)
+    print("check: " ..soundbank.id)
     if not soundbank then
         return false
     end
