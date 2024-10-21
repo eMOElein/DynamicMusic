@@ -62,7 +62,7 @@ function SoundBank.Create(id)
     soundBank.setCombatTracks = SoundBank.setCombatTracks
     soundBank.setHours = SoundBank.setHours
     soundBank.setInteriorOnly = SoundBank.setInteriorOnly
-    soundBank.setRegionNames = SoundBank.setReionNames
+    soundBank.setRegionNames = SoundBank.setRegionNames
     soundBank.setTracks = SoundBank.setTracks
 
     return soundBank
@@ -180,7 +180,7 @@ function SoundBank.setInteriorOnly(self, interiorOnly)
     self.interiorOnly = interiorOnly
 end
 
-function SoundBank.setReionNames(self, regionNames)
+function SoundBank.setRegionNames(self, regionNames)
     TableUtils.setAll(self.regionNames, regionNames)
 end
 
