@@ -74,7 +74,7 @@ Settings.SETTINGS = {
         group = Settings.GROUPS.COMBAT,
         renderer = 'textLine',
         name = '4. Ignore Enemies',
-        description = 'Ignore these enemies and don\'t play combat music (comma separated actor Id\'s)',
+        description = 'Ignore these enemies and don\'t play combat music (comma separated actor Ids)',
         default = ''
     },
     {
@@ -90,7 +90,7 @@ Settings.SETTINGS = {
         group = Settings.GROUPS.COMBAT,
         renderer = 'textLine',
         name = '5. Include Enemies',
-        description = 'Include these enemies and always play combat music (comma separated actor Id\'s). Use this option if you have specific low level enemies that normally would not play combat music.',
+        description = 'Enemies that should always play combat music (comma separated actor Ids).',
         default = ''
     },
     {
