@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_lan_orethan",
   regionNames = {
     'lan orethan region',
     'nedothril region'

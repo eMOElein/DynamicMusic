@@ -1,5 +1,4 @@
 local soundBank =    {
-  id = "muse_expansion_dwemer",
   enemyNames = {
     "Centurion Sphere",
     "Centurion Spider",

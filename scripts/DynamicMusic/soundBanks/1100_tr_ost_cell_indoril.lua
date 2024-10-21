@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_cell_indoril",
   cellNamePatterns = {
 		'Ammar',
         'Akamora',

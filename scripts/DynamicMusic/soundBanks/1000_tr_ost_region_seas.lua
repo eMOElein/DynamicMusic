@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_seas",
   regionNames = {
 		'sea of ghosts region',
 		'padomaic ocean region'

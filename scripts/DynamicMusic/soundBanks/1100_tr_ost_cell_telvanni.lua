@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = 'tr_ost_cell_telvanni',
   cellNamePatterns = {
         'Tel Ouada',
 		'Gah Sadrith',

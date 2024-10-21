@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = 'muse_expansion_tombs',
   cellNamePatterns = {
 	'Ancestral Tomb',
 	'Gedna Relvel\'s Tomb',

@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_cell_port_telvannis",
   cellNamePatterns = {
         'Port Telvannis'
   },

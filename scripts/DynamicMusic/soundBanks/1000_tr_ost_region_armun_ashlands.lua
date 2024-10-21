@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_armun_ashlands",
   regionNames = {
         'armun ashlands region'
   },

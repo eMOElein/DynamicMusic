@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_aanthirin",
   regionNames = {
         'aanthirin region',
         'thirr valley region',

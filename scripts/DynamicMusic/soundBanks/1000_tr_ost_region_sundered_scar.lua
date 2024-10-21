@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_sundered_scar",
   regionNames = {
         'sundered scar region'
   },

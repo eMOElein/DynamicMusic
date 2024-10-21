@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_velothis_upper",
   regionNames = {
         'uld vraech region',
         'velothi mountains region'

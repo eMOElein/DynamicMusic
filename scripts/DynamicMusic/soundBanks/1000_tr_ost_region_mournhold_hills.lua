@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_mournhold_hills",
   regionNames = {
         'helnim fields region',
         'mephalan vales region',

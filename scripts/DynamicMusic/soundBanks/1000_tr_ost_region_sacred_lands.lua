@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = "tr_ost_region_sacred_lands",
   regionNames = {
         'sacred lands region'
   },

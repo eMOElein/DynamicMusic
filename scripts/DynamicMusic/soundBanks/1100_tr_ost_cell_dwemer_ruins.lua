@@ -1,5 +1,4 @@
 local soundBank =      {
-  id = 'tr_ost_cell_dwemer_ruins',
   cellNamePatterns = {
         'Bthzundcheft',
 		'Rthungzark'
