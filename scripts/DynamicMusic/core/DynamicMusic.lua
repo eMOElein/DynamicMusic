@@ -6,6 +6,7 @@ local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 local Property = require('scripts.DynamicMusic.core.Property')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
+local StringUtils = require('scripts.DynamicMusic.utils.StringUtils')
 local SoundbankManager = require('scripts.DynamicMusic.core.SoundbankManager')
 local ambient = require('openmw.ambient')
 
@@ -19,14 +20,6 @@ DynamicMusic.soundBanks = {}
 DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
 DynamicMusic.ignoreEnemies = {}
 DynamicMusic.includeEnemies = {}
-
-local function split(string, separator)
-    local t = {}
-    for str in string.gmatch(string, "([^" .. separator .. "]+)") do
-        table.insert(t, str)
-    end
-    return t
-end
 
 local function collectSoundBanks()
     print("collecting soundBanks from: " .. DynamicMusic.sondBanksPath)
@@ -85,12 +78,12 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundBanks, cellNames, regionNames,  hostileActors)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
-    for _, enemyId in pairs(split(ignoredEnemies, ",")) do
+    for _, enemyId in pairs(StringUtils.split(ignoredEnemies, ",")) do
         DynamicMusic.ignoreEnemies[enemyId] = enemyId
     end
 
     local includedEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_INCLUDE)
-    for _, enemyId in pairs(split(includedEnemies, ",")) do
+    for _, enemyId in pairs(StringUtils.split(includedEnemies, ",")) do
         DynamicMusic.includeEnemies[enemyId] = enemyId
     end
 
@@ -145,13 +138,13 @@ function DynamicMusic.info()
     print("=== DynamicMusic Info ===")
     print("soundbanks: " .. soundbanks)
     for _, sb in ipairs(DynamicMusic.soundBanks) do
-        print("sb: " .. tostring(sb.id))
+        print("soundbank.id: " .. tostring(sb.id))
         if sb.combatTracks then
-            print("combat tracks: " .. #sb.combatTracks)
+            print("soundbank.combatTracks: " .. #sb.combatTracks)
         end
 
         if (sb.cellNamePatterns) then
-            print("cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
+            print("sondbank.cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
         end
     end
 end

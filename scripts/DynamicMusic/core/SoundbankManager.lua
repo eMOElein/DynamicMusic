@@ -19,7 +19,8 @@ function SoundbankManager.Create(soundbanks, cellNames, regionNames, hostileActo
     soundbankManager.enemyNames = SoundbankManager._collectEnemyNames(soundbankManager)
     soundbankManager.regionNames = regionNames
     soundbankManager.hostileActors = hostileActors
-    soundbankManager.sounbankdb = SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, soundbankManager.enemyNames)
+    soundbankManager.sounbankdb = SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames,
+        soundbankManager.enemyNames)
 
     return soundbankManager
 end
@@ -78,7 +79,7 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
     end
 
     if GameState.playerState.current == PlayerStates.explore then
-        if not soundbank.tracks or #soundbank.tracks == 0 then
+        if #soundbank.tracks == 0 then
             return false
         end
     end
@@ -100,7 +101,8 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         return false
     end
 
-    if soundbank.enemyNames and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then
+    if #soundbank.enemyNames > 0 and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then
+        print("no because enemy: " ..soundbank.id)
         return false
     end
 
