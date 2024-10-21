@@ -134,7 +134,7 @@ local function onFrame(dt)
   GameState.playtime.previous = GameState.playtime.current
   GameState.playerState.previous = GameState.playerState.current
   GameState.regionName.previous = GameState.regionName.current
-  GameState.soundBank.previous = GameState.soundBank.current
+  GameState.soundbank.previous = GameState.soundbank.current
   GameState.hourOfDay.previous = GameState.hourOfDay.current
 end
 

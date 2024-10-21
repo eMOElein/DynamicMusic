@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   id = "DEFAULT",
   tracks = {
     {
@@ -70,4 +70,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

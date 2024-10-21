@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   regionNames = {
         'helnim fields region',
         'mephalan vales region',
@@ -24,4 +24,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

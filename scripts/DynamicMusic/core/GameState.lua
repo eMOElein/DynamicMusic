@@ -29,7 +29,7 @@ GameState.regionName = {
     previous = nil
 }
 
-GameState.soundBank = {
+GameState.soundbank = {
     current = nil,
     previous = nil
 }

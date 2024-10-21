@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   cellNamePatterns = {
         'Port Telvannis'
   },
@@ -14,4 +14,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

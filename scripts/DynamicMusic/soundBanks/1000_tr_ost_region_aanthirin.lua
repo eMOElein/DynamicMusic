@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   regionNames = {
         'aanthirin region',
         'thirr valley region',
@@ -28,4 +28,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

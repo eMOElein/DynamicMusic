@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   regionNames = {
         'uld vraech region',
         'velothi mountains region'
@@ -11,4 +11,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

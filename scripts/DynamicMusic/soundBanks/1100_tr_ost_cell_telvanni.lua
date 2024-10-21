@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   cellNamePatterns = {
         'Tel Ouada',
 		'Gah Sadrith',
@@ -24,4 +24,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

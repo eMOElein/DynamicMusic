@@ -1,4 +1,4 @@
-local soundBank =    {
+local soundbank =    {
   enemyNames = {
     "Centurion Sphere",
     "Centurion Spider",
@@ -33,4 +33,4 @@ local soundBank =    {
   }
 }
 
-return soundBank
+return soundbank

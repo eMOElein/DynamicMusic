@@ -1,7 +1,7 @@
 local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
-local SoundBank = require('scripts.DynamicMusic.models.SoundBank')
+local Soundbank = require('scripts.DynamicMusic.models.Soundbank')
 local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 local Property = require('scripts.DynamicMusic.core.Property')
@@ -10,50 +10,50 @@ local StringUtils = require('scripts.DynamicMusic.utils.StringUtils')
 local SoundbankManager = require('scripts.DynamicMusic.core.SoundbankManager')
 local ambient = require('openmw.ambient')
 
-local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundBank')
+local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundbank')
 
 local DynamicMusic = {}
 DynamicMusic.sounbankdb = {}
 DynamicMusic.playlistProperty = Property.Create()
 DynamicMusic.initialized = false
-DynamicMusic.soundBanks = {}
-DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundBanks"
+DynamicMusic.soundbanks = {}
+DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundbanks"
 DynamicMusic.ignoreEnemies = {}
 DynamicMusic.includeEnemies = {}
 
-local function collectSoundBanks()
-    print("collecting soundBanks from: " .. DynamicMusic.sondBanksPath)
+local function collectSoundbanks()
+    print("collecting soundbanks from: " .. DynamicMusic.sondBanksPath)
 
-    local soundBanks = {}
+    local soundbanks = {}
     for file in vfs.pathsWithPrefix(DynamicMusic.sondBanksPath) do
         file = file.gsub(file, ".lua", "")
 
 
-        local soundBank = require(file)
+        local soundbank = require(file)
 
-        if not soundBank.id or soundBank.id ~= "DEFAULT" then
-            soundBank.id = file.gsub(file, DynamicMusic.sondBanksPath, "")
+        if not soundbank.id or soundbank.id ~= "DEFAULT" then
+            soundbank.id = file.gsub(file, DynamicMusic.sondBanksPath, "")
 
-            soundBank = SoundBank.Decoder.fromTable(soundBank)
+            soundbank = Soundbank.Decoder.fromTable(soundbank)
 
-            if soundBank:countAvailableTracks() > 0 then
-                table.insert(soundBanks, soundBank)
-                print("soundBank loaded: " .. file)
+            if soundbank:countAvailableTracks() > 0 then
+                table.insert(soundbanks, soundbank)
+                print("soundbank loaded: " .. file)
             else
                 print('no tracks available: ' .. file)
             end
         end
     end
 
-    return soundBanks
+    return soundbanks
 end
 
 local function fetchSoundbank()
     local soundbank = nil
 
-    for index = #DynamicMusic.soundBanks, 1, -1 do
-        if DynamicMusic.isSoundBankAllowed(DynamicMusic.soundBanks[index]) then
-            soundbank = DynamicMusic.soundBanks[index]
+    for index = #DynamicMusic.soundbanks, 1, -1 do
+        if DynamicMusic.isSoundbankAllowed(DynamicMusic.soundbanks[index]) then
+            soundbank = DynamicMusic.soundbanks[index]
             break
         end
     end
@@ -74,8 +74,8 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
         return
     end
 
-    DynamicMusic.soundBanks = collectSoundBanks()
-    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundBanks, cellNames, regionNames,  hostileActors)
+    DynamicMusic.soundbanks = collectSoundbanks()
+    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundbanks, cellNames, regionNames,  hostileActors)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
     for _, enemyId in pairs(StringUtils.split(ignoredEnemies, ",")) do
@@ -90,29 +90,29 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     DynamicMusic.initialized = true
 end
 
-function DynamicMusic.isSoundBankAllowed(soundBank)
-    return DynamicMusic.soundbankManager:isSoundbankAllowed(soundBank)
+function DynamicMusic.isSoundbankAllowed(soundbank)
+    return DynamicMusic.soundbankManager:isSoundbankAllowed(soundbank)
 end
 
 function DynamicMusic.newMusic(options)
     print("new music requested")
 
     local force = options and options.force or not ambient.isMusicPlaying()
-    local soundBank = fetchSoundbank()
+    local soundbank = fetchSoundbank()
     local newPlaylist = nil
 
-    if not soundBank then
+    if not soundbank then
         print("no matching soundbank found")
         ambient.streamMusic('')
         return
     end
 
-    if GameState.playerState.current == PlayerStates.explore and soundBank.explorePlaylist then
-        newPlaylist = soundBank.explorePlaylist
+    if GameState.playerState.current == PlayerStates.explore and soundbank.explorePlaylist then
+        newPlaylist = soundbank.explorePlaylist
     end
 
-    if GameState.playerState.current == PlayerStates.combat and soundBank.combatPlaylist then
-        newPlaylist = soundBank.combatPlaylist
+    if GameState.playerState.current == PlayerStates.combat and soundbank.combatPlaylist then
+        newPlaylist = soundbank.combatPlaylist
     end
 
     if not force and newPlaylist == DynamicMusic.playlistProperty:getValue() then
@@ -123,7 +123,7 @@ function DynamicMusic.newMusic(options)
     if newPlaylist then
         print("activating playlist: " .. newPlaylist.id)
         MusicPlayer.playPlaylist(newPlaylist, { force = force })
-        GameState.soundBank.current = soundBank
+        GameState.soundbank.current = soundbank
         DynamicMusic.playlistProperty:setValue(newPlaylist)
         return
     end
@@ -131,13 +131,13 @@ end
 
 function DynamicMusic.info()
     local soundbanks = 0
-    if DynamicMusic.soundBanks then
-        soundbanks = #DynamicMusic.soundBanks
+    if DynamicMusic.soundbanks then
+        soundbanks = #DynamicMusic.soundbanks
     end
 
     print("=== DynamicMusic Info ===")
     print("soundbanks: " .. soundbanks)
-    for _, sb in ipairs(DynamicMusic.soundBanks) do
+    for _, sb in ipairs(DynamicMusic.soundbanks) do
         print("soundbank.id: " .. tostring(sb.id))
         if sb.combatTracks then
             print("soundbank.combatTracks: " .. #sb.combatTracks)

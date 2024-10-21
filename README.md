@@ -6,7 +6,7 @@ https://www.nexusmods.com/morrowind/mods/53568
 # Script Settings
 ## General Settings
 ### Use Default Soundbank
-This uses the DEFAULT soundbank from **scripts/DynamicMusic/soundBanks/DEFAULT.lua** for all situations that are not covered by any other soundbank. This needs to be active for most of the dynamic combat music settings to work properly.
+This uses the DEFAULT soundbank from **scripts/DynamicMusic/soundbanks/DEFAULT.lua** for all situations that are not covered by any other soundbank. This needs to be active for most of the dynamic combat music settings to work properly.
 If you had custom music tracks in your vanilla music folder you need to add them to the DEFAULT soundbank manually as it only contains the vanilla Morrowind tracks.
 
 ## Combat Settings
@@ -25,7 +25,7 @@ Set this option to 0 if you don't like this behaviour.
 
 # Soundbanks
 Soundbanks are Lua tables that are used to tell Dynamic Music what tracks to play and when.\
-All soundbanks need to be stored in **scripts/DynamicMusic/soundBanks** in your Morrowind installation's **Data Files** folder.\
+All soundbanks need to be stored in **scripts/DynamicMusic/soundbanks** in your Morrowind installation's **Data Files** folder.\
  \
 A soundbank contains a list of exploration and/or combat tracks and a set of filters that are used to determine in which situation the tracks should be played.
 
@@ -36,7 +36,7 @@ If two or more soundbanks are allowed to play for the current ingame situation t
 ### Example Soundbank
 
 ```lua
-local soundBank = {
+local soundbank = {
     -- The soundbank is only allowed to play if the current cell's name contains one or more of the strings listed in this filter
     -- Be careful with special characters as they need to work properly with Lua's string.gmatch function which is used
     -- to determine if the cell's name contains the pattern.
@@ -109,5 +109,5 @@ local soundBank = {
     }
 }
 
-return soundBank
+return soundbank
 ```

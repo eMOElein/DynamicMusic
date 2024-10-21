@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   regionNames = {
 		'sea of ghosts region',
 		'padomaic ocean region'
@@ -15,4 +15,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

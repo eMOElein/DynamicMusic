@@ -3,7 +3,7 @@ local Playlist = require('scripts.DynamicMusic.core.Playlist')
 local Track = require('scripts.DynamicMusic.models.Track')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 
-local SoundBank = {}
+local Soundbank = {}
 
 local function buildPlaylist(id, tracks)
     local playlistTracks = {}
@@ -32,50 +32,50 @@ local function _countExistingTracks(tracks)
     return existingTracks
 end
 
-function SoundBank.Create(id)
+function Soundbank.Create(id)
     if not id then
         error("id not specified", 2)
     end
 
-    local soundBank = {}
-    soundBank.id = id
-    soundBank._hourOfDayDB = nil
-    soundBank.cellNames = {}
-    soundBank.cellNamePatterns = {}
-    soundBank.enemyNames = {}
-    soundBank.exteriorOnly = false
-    soundBank.hourOfDay = {}
-    soundBank.interiorOnly = false
-    soundBank.regionNames = {}
-    soundBank.tracks = {}
-    soundBank.combatTracks = {}
+    local soundbank = {}
+    soundbank.id = id
+    soundbank._hourOfDayDB = nil
+    soundbank.cellNames = {}
+    soundbank.cellNamePatterns = {}
+    soundbank.enemyNames = {}
+    soundbank.exteriorOnly = false
+    soundbank.hourOfDay = {}
+    soundbank.interiorOnly = false
+    soundbank.regionNames = {}
+    soundbank.tracks = {}
+    soundbank.combatTracks = {}
 
-    soundBank.countAvailableTracks = SoundBank.countAvailableTracks
-    soundBank.isAllowedForEnemyName = SoundBank.isAllowedForEnemyName
-    soundBank.isAllowedForCellName = SoundBank.isAllowedForCellName
-    soundBank.isAllowedForRegionId = SoundBank.isAllowedForRegionId
-    soundBank.isAllowedForHourOfDay = SoundBank.isAllowedForHourOfDay
-    soundBank.setCellNames = SoundBank.setCellNames
-    soundBank.setCellNamePatterns = SoundBank.setCellNamePatterns
-    soundBank.setEnemyNames = SoundBank.setEnemyNames
-    soundBank.setExteriorOnly = SoundBank.setExteriorOnly
-    soundBank.setCombatTracks = SoundBank.setCombatTracks
-    soundBank.setHours = SoundBank.setHours
-    soundBank.setInteriorOnly = SoundBank.setInteriorOnly
-    soundBank.setRegionNames = SoundBank.setRegionNames
-    soundBank.setTracks = SoundBank.setTracks
+    soundbank.countAvailableTracks = Soundbank.countAvailableTracks
+    soundbank.isAllowedForEnemyName = Soundbank.isAllowedForEnemyName
+    soundbank.isAllowedForCellName = Soundbank.isAllowedForCellName
+    soundbank.isAllowedForRegionId = Soundbank.isAllowedForRegionId
+    soundbank.isAllowedForHourOfDay = Soundbank.isAllowedForHourOfDay
+    soundbank.setCellNames = Soundbank.setCellNames
+    soundbank.setCellNamePatterns = Soundbank.setCellNamePatterns
+    soundbank.setEnemyNames = Soundbank.setEnemyNames
+    soundbank.setExteriorOnly = Soundbank.setExteriorOnly
+    soundbank.setCombatTracks = Soundbank.setCombatTracks
+    soundbank.setHours = Soundbank.setHours
+    soundbank.setInteriorOnly = Soundbank.setInteriorOnly
+    soundbank.setRegionNames = Soundbank.setRegionNames
+    soundbank.setTracks = Soundbank.setTracks
 
-    return soundBank
+    return soundbank
 end
 
-function SoundBank.countAvailableTracks(self)
+function Soundbank.countAvailableTracks(self)
     local availableTracks = 0
     availableTracks = availableTracks + _countExistingTracks(self.tracks)
     availableTracks = availableTracks + _countExistingTracks(self.combatTracks)
     return availableTracks
 end
 
-function SoundBank.isAllowedForEnemyName(self, enemyName)
+function Soundbank.isAllowedForEnemyName(self, enemyName)
     if #self.enemyNames == 0 then
         return false
     end
@@ -89,7 +89,7 @@ function SoundBank.isAllowedForEnemyName(self, enemyName)
     return false
 end
 
-function SoundBank.isAllowedForCellName(self, cellName)
+function Soundbank.isAllowedForCellName(self, cellName)
     if self.cellNamePatternsExclude then
         for _, cellNameExcludePattern in ipairs(self.cellNamePatternsExclude) do
             if string.find(cellName, cellNameExcludePattern) then
@@ -117,12 +117,12 @@ function SoundBank.isAllowedForCellName(self, cellName)
     return false
 end
 
-function SoundBank.isAllowedForHourOfDay(self, hourOfDay)
+function Soundbank.isAllowedForHourOfDay(self, hourOfDay)
     local bool = not self._hourOfDayDB or self._hourOfDayDB[hourOfDay]
     return bool
 end
 
-function SoundBank.isAllowedForRegionId(self, regionId)
+function Soundbank.isAllowedForRegionId(self, regionId)
     if not self.regionNames or TableUtils.countKeys(self.regionNames) == 0 then
         return true
     end
@@ -136,33 +136,33 @@ function SoundBank.isAllowedForRegionId(self, regionId)
     return false
 end
 
-function SoundBank.setTracks(self, tracks)
+function Soundbank.setTracks(self, tracks)
     TableUtils.setAll(self.tracks, tracks)
     self.explorePlaylist = buildPlaylist(self.id .. "_explore", self.tracks)
 end
 
-function SoundBank.setCombatTracks(self, tracks)
+function Soundbank.setCombatTracks(self, tracks)
     TableUtils.setAll(self.combatTracks, tracks)
     self.combatPlaylist = buildPlaylist(self.id .. "_combat", self.combatTracks)
 end
 
-function SoundBank.setCellNames(self, cellNames)
+function Soundbank.setCellNames(self, cellNames)
     TableUtils.setAll(self.cellNames, cellNames)
 end
 
-function SoundBank.setCellNamePatterns(self, cellNamePatterns)
+function Soundbank.setCellNamePatterns(self, cellNamePatterns)
     TableUtils.setAll(self.cellNamePatterns, cellNamePatterns)
 end
 
-function SoundBank.setEnemyNames(self, enemyNames)
+function Soundbank.setEnemyNames(self, enemyNames)
     TableUtils.setAll(self.enemyNames, enemyNames)
 end
 
-function SoundBank.setExteriorOnly(self, exteriorOnly)
+function Soundbank.setExteriorOnly(self, exteriorOnly)
     self.exteriorOnly = exteriorOnly
 end
 
-function SoundBank.setHours(self, hours)
+function Soundbank.setHours(self, hours)
     TableUtils.setAll(self.hourOfDay, hours)
     self._hourOfDayDB = nil
 
@@ -176,17 +176,17 @@ function SoundBank.setHours(self, hours)
     end
 end
 
-function SoundBank.setInteriorOnly(self, interiorOnly)
+function Soundbank.setInteriorOnly(self, interiorOnly)
     self.interiorOnly = interiorOnly
 end
 
-function SoundBank.setRegionNames(self, regionNames)
+function Soundbank.setRegionNames(self, regionNames)
     TableUtils.setAll(self.regionNames, regionNames)
 end
 
-SoundBank.Decoder = {
+Soundbank.Decoder = {
     fromTable = function(soundbankData)
-        local soundbank = SoundBank.Create(soundbankData.id)
+        local soundbank = Soundbank.Create(soundbankData.id)
         soundbank:setTracks(TableUtils.map(soundbankData.tracks or {}, Track.Decoder.fromTable))
         soundbank:setCombatTracks(TableUtils.map(soundbankData.combatTracks or {}, Track.Decoder.fromTable))
         soundbank:setExteriorOnly(soundbankData.exteriorOnly or false)
@@ -200,4 +200,4 @@ SoundBank.Decoder = {
     end
 }
 
-return SoundBank
+return Soundbank

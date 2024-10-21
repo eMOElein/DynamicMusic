@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   cellNamePatterns = {
     'Firewatch',
     'Helnim'
@@ -16,4 +16,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

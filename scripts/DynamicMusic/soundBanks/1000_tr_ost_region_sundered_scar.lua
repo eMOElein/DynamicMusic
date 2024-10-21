@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   regionNames = {
         'sundered scar region'
   },
@@ -18,4 +18,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

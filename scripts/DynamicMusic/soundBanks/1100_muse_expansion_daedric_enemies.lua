@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   enemyNames = {
     "Flame Atronach",
     "Frost  Atronach",
@@ -44,4 +44,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

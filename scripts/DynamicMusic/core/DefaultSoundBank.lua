@@ -1,4 +1,4 @@
-local SoundBank = require('scripts.DynamicMusic.models.SoundBank')
+local Soundbank = require('scripts.DynamicMusic.models.Soundbank')
 local vfs = require('openmw.vfs')
 
 -- local data = {}
@@ -16,7 +16,7 @@ local vfs = require('openmw.vfs')
 -- end
 
 -- using old default soundbank till native playlists make a return
-local data = require("scripts.DynamicMusic.soundBanks.DEFAULT")
+local data = require("scripts.DynamicMusic.soundbanks.DEFAULT")
 data.id = "DEFAULT"
 
-return SoundBank.Decoder.fromTable(data)
+return Soundbank.Decoder.fromTable(data)

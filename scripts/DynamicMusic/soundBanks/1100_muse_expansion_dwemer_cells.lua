@@ -1,4 +1,4 @@
-local soundBank =    {
+local soundbank =    {
   interiorOnly = true,
   cellNamePatterns = {
     'Aleft',
@@ -53,4 +53,4 @@ local soundBank =    {
   }
 }
 
-return soundBank
+return soundbank

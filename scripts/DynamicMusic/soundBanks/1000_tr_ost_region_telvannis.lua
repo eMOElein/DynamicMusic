@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   regionNames = {
         'molagreahd region',
 		'sunad mora region',
@@ -22,4 +22,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

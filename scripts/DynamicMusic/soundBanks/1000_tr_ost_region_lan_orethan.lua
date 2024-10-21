@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   regionNames = {
     'lan orethan region',
     'nedothril region'
@@ -19,4 +19,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank

@@ -1,4 +1,4 @@
-local soundBank =      {
+local soundbank =      {
   enemyNames = {
 	"Ancestor Ghost", 
 	"Ancestor Guardian", 
@@ -54,4 +54,4 @@ local soundBank =      {
   }
 }
 
-return soundBank
+return soundbank
