@@ -57,7 +57,7 @@ Settings.SETTINGS = {
         renderer = 'number',
         name = '2. Min. Enemy Level',
         description =
-        'Minimum enemy level needed to play combat music. Set to 0 to deactivate this setting. Needs activated DEFAULT soundbank to work in situations where no soundbank matches',
+        'Don\'t play combat music for enemies below this level.  Set to 0 to deactivate this setting. Needs activated DEFAULT soundbank to work in situations where no soundbank matches',
         default = 5,
     },
     {
@@ -66,7 +66,7 @@ Settings.SETTINGS = {
         renderer = 'number',
         name = '3. Min. Level Difference',
         description =
-        'Play combat music if the player is not X levels above the enemy\'s level.',
+        'Player must be at least x levels above the enemy. Otherwise combat music is still being played.',
         default = 2,
     },
     {
