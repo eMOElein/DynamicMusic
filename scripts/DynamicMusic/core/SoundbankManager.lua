@@ -102,7 +102,6 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
     end
 
     if #soundbank.enemyNames > 0 and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then
-        print("no because enemy: " ..soundbank.id)
         return false
     end
 
