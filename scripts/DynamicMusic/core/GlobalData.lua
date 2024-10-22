@@ -1,7 +1,8 @@
 local GlobalData = {
     cellNames = {},
     regionNames = {},
-    enemyNames = {}
+    enemyNames = {},
+    hostileActors = {}
 }
 
 return GlobalData

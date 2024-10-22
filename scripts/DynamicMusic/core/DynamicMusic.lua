@@ -69,13 +69,13 @@ local function fetchSoundbank()
     return soundbank
 end
 
-function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
+function DynamicMusic.initialize()
     if DynamicMusic.initialized then
         return
     end
 
     DynamicMusic.soundbanks = collectSoundbanks()
-    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundbanks, hostileActors)
+    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundbanks)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
     for _, enemyId in pairs(StringUtils.split(ignoredEnemies, ",")) do

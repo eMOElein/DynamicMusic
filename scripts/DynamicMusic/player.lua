@@ -11,7 +11,6 @@ local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 
-local hostileActors = {}
 local initialized = false
 
 local function isCombatState()
@@ -24,7 +23,7 @@ local function isCombatState()
   local minLevelDifference = Settings.getValue(Settings.KEYS.COMBAT_MIN_LEVEL_DIFFERENCE)
   local respectMinLevelDifference = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE)
 
-  for _, hostile in pairs(hostileActors) do
+  for _, hostile in pairs(GlobalData.hostileActors) do
     local actor = hostile.actor
     local hostileLevel = types.Actor.stats.level(actor).current
     local playerLevelAdvantage = playerLevel - hostileLevel
@@ -148,14 +147,14 @@ local function engaging(eventData)
     return
   end
 
-  hostileActors[eventData.actor.id] = eventData;
+  GlobalData.hostileActors[eventData.actor.id] = eventData;
   --  print("engaging: " ..eventData.actor.id .." - " ..eventData.actor.recordId ..eventData.name)
 end
 
 local function disengaging(eventData)
   if (not eventData.actor) then return end;
 
-  hostileActors[eventData.actor.id] = nil;
+  GlobalData.hostileActors[eventData.actor.id] = nil;
 end
 
 local function globalDataCollected(eventData)
@@ -164,8 +163,7 @@ local function globalDataCollected(eventData)
   GlobalData.cellNames = data.cellNames
   GlobalData.regionNames = data.regionNames
 
-
-  DynamicMusic.initialize(data.cellNames, data.regionNames, hostileActors)
+  DynamicMusic.initialize()
   --  DynamicMusic.info()
   data = nil
 end

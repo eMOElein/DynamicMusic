@@ -11,16 +11,13 @@ local SOUNDBANKDB_SECTIONS = {
 
 local SoundbankManager = {}
 
-function SoundbankManager.Create(soundbanks, hostileActors)
+function SoundbankManager.Create(soundbanks)
     local soundbankManager = {}
     soundbankManager.addSoundbank = SoundbankManager.addSoundbank
     soundbankManager.isSoundbankAllowed = SoundbankManager.isSoundbankAllowed
 
     soundbankManager.soundbanks = soundbanks
-    soundbankManager.cellNames = cellNames
     soundbankManager.enemyNames = SoundbankManager._collectEnemyNames(soundbankManager)
-    soundbankManager.regionNames = regionNames
-    soundbankManager.hostileActors = hostileActors
     soundbankManager.soundbankDatabase = {}
 
     for _, soundbank in pairs(soundbanks) do
@@ -89,7 +86,7 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         end
     end
 
-    local firstHostile = TableUtils.getFirstElement(self.hostileActors)
+    local firstHostile = TableUtils.getFirstElement(GlobalData.hostileActors)
 
     local dbEntry = self.soundbankDatabase[soundbank]
     if soundbank.regionNames and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONIDS][GameState.regionName.current] then
