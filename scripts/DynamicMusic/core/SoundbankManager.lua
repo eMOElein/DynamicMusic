@@ -1,4 +1,5 @@
 local GameState = require('scripts.DynamicMusic.core.GameState')
+local GlobalData = require('scripts.DynamicMusic.core.GlobalData')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 
@@ -10,8 +11,9 @@ local SOUNDBANKDB_SECTIONS = {
 
 local SoundbankManager = {}
 
-function SoundbankManager.Create(soundbanks, cellNames, regionNames, hostileActors)
+function SoundbankManager.Create(soundbanks, hostileActors)
     local soundbankManager = {}
+    soundbankManager.addSoundbank = SoundbankManager.addSoundbank
     soundbankManager.isSoundbankAllowed = SoundbankManager.isSoundbankAllowed
 
     soundbankManager.soundbanks = soundbanks
@@ -19,46 +21,43 @@ function SoundbankManager.Create(soundbanks, cellNames, regionNames, hostileActo
     soundbankManager.enemyNames = SoundbankManager._collectEnemyNames(soundbankManager)
     soundbankManager.regionNames = regionNames
     soundbankManager.hostileActors = hostileActors
-    soundbankManager.sounbankdb = SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames,
-        soundbankManager.enemyNames)
+    soundbankManager.soundbankDatabase = {}
+
+    for _, soundbank in pairs(soundbanks) do
+        soundbankManager:addSoundbank(soundbank)
+    end
 
     return soundbankManager
 end
 
-function SoundbankManager.createSoundbankDb(soundbanks, cellNames, regionNames, enemyNames)
-    local database = {}
-
-    for _, soundbank in pairs(soundbanks) do
-        local allowedCells = {}
-        for _, cellName in pairs(cellNames) do
-            if soundbank:isAllowedForCellName(cellName) then
-                allowedCells[cellName] = true
-            end
+function SoundbankManager.addSoundbank(self, soundbank)
+    local allowedCells = {}
+    for _, cellName in pairs(GlobalData.cellNames) do
+        if soundbank:isAllowedForCellName(cellName) then
+            allowedCells[cellName] = true
         end
-
-        local allowedRegionIds = {}
-        for _, regionId in pairs(regionNames) do
-            if soundbank:isAllowedForRegionId(regionId) then
-                allowedRegionIds[regionId] = true
-            end
-        end
-
-        local allowedEnemies = {}
-        for _, enemyName in pairs(enemyNames) do
-            if soundbank:isAllowedForEnemyName(enemyName) then
-                allowedEnemies[enemyName] = true
-            end
-        end
-
-        local dbEntry = {}
-        dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES] = allowedEnemies
-        dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS] = allowedCells
-        dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONIDS] = allowedRegionIds
-
-        database[soundbank] = dbEntry
     end
 
-    return database
+    local allowedRegionIds = {}
+    for _, regionId in pairs(GlobalData.regionNames) do
+        if soundbank:isAllowedForRegionId(regionId) then
+            allowedRegionIds[regionId] = true
+        end
+    end
+
+    local allowedEnemies = {}
+    for _, enemyName in pairs(GlobalData.enemyNames) do
+        if soundbank:isAllowedForEnemyName(enemyName) then
+            allowedEnemies[enemyName] = true
+        end
+    end
+
+    local dbEntry = {}
+    dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES] = allowedEnemies
+    dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS] = allowedCells
+    dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONIDS] = allowedRegionIds
+
+    self.soundbankDatabase[soundbank] = dbEntry
 end
 
 function SoundbankManager.isSoundbankAllowed(self, soundbank)
@@ -92,7 +91,7 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
 
     local firstHostile = TableUtils.getFirstElement(self.hostileActors)
 
-    local dbEntry = self.sounbankdb[soundbank]
+    local dbEntry = self.soundbankDatabase[soundbank]
     if soundbank.regionNames and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONIDS][GameState.regionName.current] then
         return false
     end

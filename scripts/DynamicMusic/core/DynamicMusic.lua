@@ -75,7 +75,7 @@ function DynamicMusic.initialize(cellNames, regionNames, hostileActors)
     end
 
     DynamicMusic.soundbanks = collectSoundbanks()
-    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundbanks, cellNames, regionNames,  hostileActors)
+    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundbanks, hostileActors)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
     for _, enemyId in pairs(StringUtils.split(ignoredEnemies, ",")) do
