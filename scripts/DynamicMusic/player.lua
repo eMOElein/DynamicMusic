@@ -5,6 +5,7 @@ local storage = require('openmw.storage')
 local core = require('openmw.core')
 
 local Globals = require('scripts.DynamicMusic.core.Globals')
+local GlobalData = require('scripts.DynamicMusic.core.GlobalData')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
@@ -86,7 +87,7 @@ local function hasGameStateChanged()
   end
 
   if GameState.hourOfDay.current ~= GameState.hourOfDay.previous then
---    print(string.format("hour of day changed from %i to %i", GameState.hourOfDay.previous, GameState.hourOfDay.current))
+    --    print(string.format("hour of day changed from %i to %i", GameState.hourOfDay.previous, GameState.hourOfDay.current))
     return true
   end
 
@@ -160,9 +161,12 @@ end
 local function globalDataCollected(eventData)
   local data = eventData.data
 
-  DynamicMusic.initialize(data.cellNames, data.regionNames, hostileActors)
+  GlobalData.cellNames = data.cellNames
+  GlobalData.regionNames = data.regionNames
 
---  DynamicMusic.info()
+
+  DynamicMusic.initialize(data.cellNames, data.regionNames, hostileActors)
+  --  DynamicMusic.info()
   data = nil
 end
 
