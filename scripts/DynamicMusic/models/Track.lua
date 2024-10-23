@@ -1,5 +1,9 @@
 local vfs = require('openmw.vfs')
 
+---@class Track
+---@field path string Path to the audiofile
+---@field pathLower string Path in lowercase
+---@field length? integer Expected lenght of the track in seconds
 local Track = {}
 
 function Track.Create(path)
@@ -27,6 +31,9 @@ function Track.setLength(self, length)
     self.length = length
 end
 
+---comment
+---@param self Track
+---@param path string
 function Track.setPath(self, path)
     self.path = path
     self.pathLower = string.lower(path)

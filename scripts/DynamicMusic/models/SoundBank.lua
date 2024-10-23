@@ -3,6 +3,21 @@ local Playlist = require('scripts.DynamicMusic.core.Playlist')
 local Track = require('scripts.DynamicMusic.models.Track')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 
+---@class Soundbank
+---@field cellNames [string]
+---@field cellNamePatterns [string]
+---@field cellNamePatternsExclude [string]
+---@field combatTracks [Track]
+---@field combatPlaylist any
+---@field enemyNames [string]
+---@field exteriorOnly boolean
+---@field explorePlaylist any
+---@field hourOfDay [integer]
+---@field id string
+---@field interiorOnly boolean
+---@field tracks [Track]
+---@field regionNames [string]
+---@field _hourOfDayDB table<integer,boolean>
 local Soundbank = {}
 
 local function buildPlaylist(id, tracks)
