@@ -24,7 +24,7 @@ function SoundbankManager.Create(soundbanks)
 
     soundbankManager.soundbanks = soundbanks
     soundbankManager.enemyNames = SoundbankManager._collectEnemyNames(soundbankManager)
-    soundbankManager.soundbankDatabase = {}
+    soundbankManager._soundbankDatabase = {}
 
     for _, soundbank in pairs(soundbanks) do
         soundbankManager:addSoundbank(soundbank)
