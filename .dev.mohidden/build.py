@@ -7,8 +7,6 @@ projectPath = ".build.mohidden/project"
 buildTime = time.time()
 buildName = "DynamicMusic-" +str(int(buildTime))
 
-os.chdir("..")
-
 if os.path.isdir(buildPath):
   shutil.rmtree(buildPath)
 
