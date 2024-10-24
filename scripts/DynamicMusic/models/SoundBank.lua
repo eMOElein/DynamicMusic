@@ -83,6 +83,10 @@ function Soundbank.Create(id)
     return soundbank
 end
 
+---Returns the number of tracks of this soundbank that are actually playable.
+---This means they must be reachable through the virtual filesystem..
+---@param self Soundbank
+---@return integer integer Number of available tracks.
 function Soundbank.countAvailableTracks(self)
     local availableTracks = 0
     availableTracks = availableTracks + _countExistingTracks(self.tracks)
@@ -90,6 +94,10 @@ function Soundbank.countAvailableTracks(self)
     return availableTracks
 end
 
+---Returns if this soundbank is allowed to play for the given enemyname when in combat mode.
+---@param self Soundbank
+---@param enemyName string The enemyname that should be checked.
+---@return boolean bool
 function Soundbank.isAllowedForEnemyName(self, enemyName)
     if #self.enemyNames == 0 then
         return false
@@ -104,6 +112,10 @@ function Soundbank.isAllowedForEnemyName(self, enemyName)
     return false
 end
 
+---Returns if this soundbank is allowed to play for the given cellname.
+---@param self Soundbank
+---@param cellName string The cellname that should be checked.
+---@return boolean bool
 function Soundbank.isAllowedForCellName(self, cellName)
     if self.cellNamePatternsExclude then
         for _, cellNameExcludePattern in ipairs(self.cellNamePatternsExclude) do
@@ -132,11 +144,19 @@ function Soundbank.isAllowedForCellName(self, cellName)
     return false
 end
 
+---Returns if this soundbank is allowed during the given ingame hour of day.
+---@param self Soundbank
+---@param hourOfDay integer The hour of the day (0-23) that should be checked.
+---@return boolean bool
 function Soundbank.isAllowedForHourOfDay(self, hourOfDay)
     local bool = not self._hourOfDayDB or self._hourOfDayDB[hourOfDay]
     return bool
 end
 
+---Returns if this soundbank is allowed to for a specific region
+---@param self Soundbank
+---@param regionId string The region ID that should be checked.
+---@return boolean bool
 function Soundbank.isAllowedForRegionId(self, regionId)
     if not self.regionNames or TableUtils.countKeys(self.regionNames) == 0 then
         return true
@@ -151,32 +171,53 @@ function Soundbank.isAllowedForRegionId(self, regionId)
     return false
 end
 
+---Sets the available exploration tracks for this soundbank.
+---@param self Soundbank
+---@param tracks table<Track> A list of tracks.
 function Soundbank.setTracks(self, tracks)
     TableUtils.setAll(self.tracks, tracks)
     self.explorePlaylist = buildPlaylist(self.id .. "_explore", self.tracks)
 end
 
+---Sets the available combat tracks for this soundbank.
+---@param self Soundbank
+---@param tracks table<Track> A list of tracks.
 function Soundbank.setCombatTracks(self, tracks)
     TableUtils.setAll(self.combatTracks, tracks)
     self.combatPlaylist = buildPlaylist(self.id .. "_combat", self.combatTracks)
 end
 
+---Sets the cellnames in which this soundbank is allowed to play.
+---@param self Soundbank
+---@param cellNames table<string> A list of cellnames.
 function Soundbank.setCellNames(self, cellNames)
     TableUtils.setAll(self.cellNames, cellNames)
 end
 
+---Sets the cellname patterns in which this soundbank is allowed to play.
+---@param self Soundbank
+---@param cellNamePatterns table<string> A list of cellname patterns.
 function Soundbank.setCellNamePatterns(self, cellNamePatterns)
     TableUtils.setAll(self.cellNamePatterns, cellNamePatterns)
 end
 
+---Sets the enemynames for which this soundbank is allowed to play when in combat state.
+---@param self Soundbank
+---@param enemyNames table<string> A list of enemynames.
 function Soundbank.setEnemyNames(self, enemyNames)
     TableUtils.setAll(self.enemyNames, enemyNames)
 end
 
+---Sets if this soundbank is only allowed to play in exterior cells.
+---@param self Soundbank
+---@param exteriorOnly boolean
 function Soundbank.setExteriorOnly(self, exteriorOnly)
     self.exteriorOnly = exteriorOnly
 end
 
+---Sets the ingame hours of day when this soundbank is allowed to play..
+---@param self Soundbank
+---@param hours table<integer> Allowed hours of day (0-23).
 function Soundbank.setHours(self, hours)
     TableUtils.setAll(self.hourOfDay, hours)
     self._hourOfDayDB = nil
@@ -191,10 +232,16 @@ function Soundbank.setHours(self, hours)
     end
 end
 
+---Sets if this soundbank is only allowed to play in interior cells.
+---@param self Soundbank
+---@param interiorOnly boolean
 function Soundbank.setInteriorOnly(self, interiorOnly)
     self.interiorOnly = interiorOnly
 end
 
+---Sets the regions where this soundbank is allowed to play.
+---@param self Soundbank
+---@param regionNames table<string> A list of region IDs patterns.
 function Soundbank.setRegionNames(self, regionNames)
     TableUtils.setAll(self.regionNames, regionNames)
 end
