@@ -1,5 +1,5 @@
 local soundbank =      {
-  regionNames = {
+  regions = {
         'uld vraech region',
         'velothi mountains region'
   },

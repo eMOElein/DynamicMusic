@@ -1,5 +1,5 @@
 local soundbank =      {
-  regionNames = {
+  regions = {
         'sundered scar region'
   },
   tracks = {

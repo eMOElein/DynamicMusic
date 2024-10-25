@@ -1,5 +1,5 @@
 local soundbank =      {
-  regionNames = {
+  regions = {
 		'sea of ghosts region',
 		'padomaic ocean region'
   },

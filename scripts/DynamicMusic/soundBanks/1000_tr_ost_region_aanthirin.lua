@@ -1,5 +1,5 @@
 local soundbank =      {
-  regionNames = {
+  regions = {
         'aanthirin region',
         'thirr valley region',
         'othreleth woods region'

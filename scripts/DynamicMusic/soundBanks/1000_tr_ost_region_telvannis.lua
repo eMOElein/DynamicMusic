@@ -1,5 +1,5 @@
 local soundbank =      {
-  regionNames = {
+  regions = {
         'molagreahd region',
 		'sunad mora region',
         'boethiah\'s spine region',
