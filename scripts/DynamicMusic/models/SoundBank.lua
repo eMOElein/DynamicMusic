@@ -222,7 +222,7 @@ function Soundbank.setHours(self, hours)
     TableUtils.setAll(self.hourOfDay, hours)
     self._hourOfDayDB = nil
 
-    if #self.hourOfDay ==0 then
+    if #self.hourOfDay == 0 then
         return
     end
 
@@ -248,7 +248,23 @@ end
 
 Soundbank.Decoder = {
     fromTable = function(soundbankData)
-        local soundbank = Soundbank.Create(soundbankData.id)
+        local id = soundbankData.id
+        local start = string.find(id, "/[^/]*$")
+
+        if start then
+            id = string.sub(id, start + 1)
+        end
+
+        local regions = {}
+        if soundbankData.regionNames then
+            TableUtils.addAll(regions, soundbankData.regionNames)
+        end
+
+        if soundbankData.regions then
+            TableUtils.addAll(regions, soundbankData.regions)
+        end
+
+        local soundbank = Soundbank.Create(id)
         soundbank:setTracks(TableUtils.map(soundbankData.tracks or {}, Track.Decoder.fromTable))
         soundbank:setCombatTracks(TableUtils.map(soundbankData.combatTracks or {}, Track.Decoder.fromTable))
         soundbank:setExteriorOnly(soundbankData.exteriorOnly or false)
@@ -257,7 +273,7 @@ Soundbank.Decoder = {
         soundbank:setEnemyNames(soundbankData.enemyNames or {})
         soundbank:setHours(soundbankData.hourOfDay or {})
         soundbank:setInteriorOnly(soundbankData.interiorOnly or false)
-        soundbank:setRegions(soundbankData.regionNames or {})
+        soundbank:setRegions(regions)
         return soundbank
     end
 }
