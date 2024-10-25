@@ -16,7 +16,7 @@ local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 ---@field id string
 ---@field interiorOnly boolean
 ---@field tracks [Track]
----@field regionNames [string]
+---@field regions [string]
 ---@field _hourOfDayDB table<integer,boolean>
 local Soundbank = {}
 
@@ -61,14 +61,14 @@ function Soundbank.Create(id)
     soundbank.exteriorOnly = false
     soundbank.hourOfDay = {}
     soundbank.interiorOnly = false
-    soundbank.regionNames = {}
+    soundbank.regions = {}
     soundbank.tracks = {}
     soundbank.combatTracks = {}
 
     soundbank.countAvailableTracks = Soundbank.countAvailableTracks
     soundbank.isAllowedForEnemyName = Soundbank.isAllowedForEnemyName
     soundbank.isAllowedForCellName = Soundbank.isAllowedForCellName
-    soundbank.isAllowedForRegionId = Soundbank.isAllowedForRegionId
+    soundbank.isAllowedForRegion = Soundbank.isAllowedForRegion
     soundbank.isAllowedForHourOfDay = Soundbank.isAllowedForHourOfDay
     soundbank.setCellNames = Soundbank.setCellNames
     soundbank.setCellNamePatterns = Soundbank.setCellNamePatterns
@@ -77,7 +77,7 @@ function Soundbank.Create(id)
     soundbank.setCombatTracks = Soundbank.setCombatTracks
     soundbank.setHours = Soundbank.setHours
     soundbank.setInteriorOnly = Soundbank.setInteriorOnly
-    soundbank.setRegionNames = Soundbank.setRegionNames
+    soundbank.setRegions = Soundbank.setRegions
     soundbank.setTracks = Soundbank.setTracks
 
     return soundbank
@@ -155,15 +155,15 @@ end
 
 ---Returns if this soundbank is allowed to for a specific region
 ---@param self Soundbank
----@param regionId string The region ID that should be checked.
+---@param region string The region ID that should be checked.
 ---@return boolean bool
-function Soundbank.isAllowedForRegionId(self, regionId)
-    if not self.regionNames or TableUtils.countKeys(self.regionNames) == 0 then
+function Soundbank.isAllowedForRegion(self, region)
+    if not self.regions or TableUtils.countKeys(self.regions) == 0 then
         return true
     end
 
-    for _, sbRegionId in ipairs(self.regionNames) do
-        if regionId == sbRegionId then
+    for _, sbRegion in ipairs(self.regions) do
+        if region == sbRegion then
             return true
         end
     end
@@ -241,9 +241,9 @@ end
 
 ---Sets the regions where this soundbank is allowed to play.
 ---@param self Soundbank
----@param regionNames table<string> A list of region IDs patterns.
-function Soundbank.setRegionNames(self, regionNames)
-    TableUtils.setAll(self.regionNames, regionNames)
+---@param regions table<string> A list of region IDs patterns.
+function Soundbank.setRegions(self, regions)
+    TableUtils.setAll(self.regions, regions)
 end
 
 Soundbank.Decoder = {
@@ -257,7 +257,7 @@ Soundbank.Decoder = {
         soundbank:setEnemyNames(soundbankData.enemyNames or {})
         soundbank:setHours(soundbankData.hourOfDay or {})
         soundbank:setInteriorOnly(soundbankData.interiorOnly or false)
-        soundbank:setRegionNames(soundbankData.regionNames or {})
+        soundbank:setRegions(soundbankData.regionNames or {})
         return soundbank
     end
 }

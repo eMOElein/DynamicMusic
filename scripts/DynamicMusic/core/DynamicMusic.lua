@@ -12,6 +12,8 @@ local ambient = require('openmw.ambient')
 
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundbank')
 
+---@class DynamicMusic
+---@field soundbanks table<Soundbank>
 local DynamicMusic = {}
 DynamicMusic.sounbankdb = {}
 DynamicMusic.playlistProperty = Property.Create()
@@ -139,13 +141,9 @@ function DynamicMusic.info()
     print("soundbanks: " .. soundbanks)
     for _, sb in ipairs(DynamicMusic.soundbanks) do
         print("soundbank.id: " .. tostring(sb.id))
-        if sb.combatTracks then
-            print("soundbank.combatTracks: " .. #sb.combatTracks)
-        end
-
-        if (sb.cellNamePatterns) then
-            print("sondbank.cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
-        end
+        print("soundbank.combatTracks: " .. #sb.combatTracks)
+        print("sondbank.cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
+        print("soundbank,regions: " ..TableUtils.countKeys(sb.regions))
     end
 end
 
