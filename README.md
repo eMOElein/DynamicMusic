@@ -53,8 +53,8 @@ local soundbank = {
         'Balmora',
         'Balmora, Guild of Mages'
     },
-    -- This is a bit misleading at the moment since region id's are expected here instead of region names.
-    -- The soundbank is only allowed to play it the current cell's region id matches one of the region Id's listed in this filter.
+    -- This is a bit misleading at the moment since region Ids are expected here instead of region names.
+    -- The soundbank is only allowed to play it the current cell's region id matches one of the region Ids listed in this filter.
     -- If this filter is not provided it will be ignored.
     regionNames = {
         'armun ashlands region',
