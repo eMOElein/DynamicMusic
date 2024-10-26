@@ -15,7 +15,7 @@ local SOUNDBANKDB_SECTIONS = {
 local SoundbankManager = {}
 
 ---Creates a new SoundbankManager.
----@param soundbanks [Soundbank]
+---@param soundbanks table<Soundbank>
 ---@return SoundbankManager
 function SoundbankManager.Create(soundbanks)
     local soundbankManager = {}
@@ -23,7 +23,6 @@ function SoundbankManager.Create(soundbanks)
     soundbankManager.isSoundbankAllowed = SoundbankManager.isSoundbankAllowed
 
     soundbankManager.soundbanks = soundbanks
-    soundbankManager.enemyNames = SoundbankManager._collectEnemyNames(soundbankManager)
     soundbankManager._soundbankDatabase = {}
 
     for _, soundbank in pairs(soundbanks) do
@@ -51,10 +50,8 @@ function SoundbankManager.addSoundbank(self, soundbank)
     end
 
     local allowedEnemies = {}
-    for _, enemyName in pairs(GlobalData.enemyNames) do
-        if soundbank:isAllowedForEnemyName(enemyName) then
-            allowedEnemies[enemyName] = true
-        end
+    for _, enemyName in pairs(soundbank.enemyNames) do
+        allowedEnemies[enemyName] = true
     end
 
     local dbEntry = {}
@@ -65,6 +62,10 @@ function SoundbankManager.addSoundbank(self, soundbank)
     self._soundbankDatabase[soundbank] = dbEntry
 end
 
+---Checks if the soundbank is allowed to play for the current gamestate.
+---@param self SoundbankManager
+---@param soundbank Soundbank
+---@return boolean
 function SoundbankManager.isSoundbankAllowed(self, soundbank)
     if not soundbank then
         return false
@@ -94,10 +95,8 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         end
     end
 
-    local firstHostile = TableUtils.getFirstElement(GlobalData.hostileActors)
-
     local dbEntry = self._soundbankDatabase[soundbank]
-    if soundbank.regions and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONS][GameState.regionName.current] then
+    if #soundbank.regions > 0 and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONS][GameState.regionName.current] then
         return false
     end
 
@@ -105,6 +104,7 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         return false
     end
 
+    local firstHostile = TableUtils.getFirstElement(GlobalData.hostileActors)
     if #soundbank.enemyNames > 0 and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then
         return false
     end
@@ -114,21 +114,6 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
     end
 
     return true
-end
-
-function SoundbankManager._collectEnemyNames(self)
-    local enemyNames = {}
-    for _, sb in pairs(self.soundbanks) do
-        if sb.enemyNames and #sb.enemyNames > 0 then
-            for _, e in pairs(sb.enemyNames) do
-                if not enemyNames[e] then
-                    enemyNames[e] = e
-                end
-            end
-        end
-    end
-
-    return enemyNames
 end
 
 return SoundbankManager

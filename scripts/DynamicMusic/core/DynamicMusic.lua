@@ -23,6 +23,8 @@ DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundbanks"
 DynamicMusic.ignoreEnemies = {}
 DynamicMusic.includeEnemies = {}
 
+--Collects the soundbanks from the soundbanks folder.
+---@return table<Soundbank> soundbanks The colelcted soundbanks.
 local function collectSoundbanks()
     print("collecting soundbanks from: " .. DynamicMusic.sondBanksPath)
 

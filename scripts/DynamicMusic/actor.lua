@@ -14,7 +14,7 @@ local function emitEvent(eventName)
       actor:sendEvent(eventName, {
         actor = self,
         name = self.type.record(self).name,
-        refId = self.type.record(self).id,
+        id = self.type.record(self).id,
         level = types.Actor.stats.level(self).current,
         targetActor = AI.getActivePackage().target
       });
