@@ -50,8 +50,8 @@ function SoundbankManager.addSoundbank(self, soundbank)
     end
 
     local allowedEnemies = {}
-    for _, enemyName in pairs(soundbank:getEnemies()) do
-        allowedEnemies[enemyName] = true
+    for _, enemy in pairs(soundbank:getEnemies()) do
+        allowedEnemies[enemy] = true
     end
 
     local dbEntry = {}
@@ -105,7 +105,7 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
     end
 
     local firstHostile = TableUtils.getFirstElement(GlobalData.hostileActors)
-    if #soundbank.enemies > 0 and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] then
+    if #soundbank.enemies > 0 and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.id]then
         return false
     end
 
