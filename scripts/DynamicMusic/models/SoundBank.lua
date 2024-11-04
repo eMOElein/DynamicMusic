@@ -9,7 +9,7 @@ local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 ---@field cellNamePatternsExclude [string]
 ---@field combatTracks [Track]
 ---@field combatPlaylist any
----@field enemyNames [string]
+---@field enemies [string]
 ---@field exteriorOnly boolean
 ---@field explorePlaylist any
 ---@field hourOfDay [integer]
@@ -18,6 +18,7 @@ local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 ---@field tracks [Track]
 ---@field regions [string]
 ---@field _hourOfDayDB table<integer,boolean>
+---@
 local Soundbank = {}
 
 local function buildPlaylist(id, tracks)
@@ -57,7 +58,7 @@ function Soundbank.Create(id)
     soundbank._hourOfDayDB = nil
     soundbank.cellNames = {}
     soundbank.cellNamePatterns = {}
-    soundbank.enemyNames = {}
+    soundbank.enemies = {}
     soundbank.exteriorOnly = false
     soundbank.hourOfDay = {}
     soundbank.interiorOnly = false
@@ -66,13 +67,14 @@ function Soundbank.Create(id)
     soundbank.combatTracks = {}
 
     soundbank.countAvailableTracks = Soundbank.countAvailableTracks
-    soundbank.isAllowedForEnemyName = Soundbank.isAllowedForEnemyName
+    soundbank.getEnemies = Soundbank.getEnemies
+    soundbank.isAllowedForEnemyName = Soundbank.isAllowedForEnemy
     soundbank.isAllowedForCellName = Soundbank.isAllowedForCellName
     soundbank.isAllowedForRegion = Soundbank.isAllowedForRegion
     soundbank.isAllowedForHourOfDay = Soundbank.isAllowedForHourOfDay
     soundbank.setCellNames = Soundbank.setCellNames
     soundbank.setCellNamePatterns = Soundbank.setCellNamePatterns
-    soundbank.setEnemyNames = Soundbank.setEnemyNames
+    soundbank.setEnemies = Soundbank.setEnemies
     soundbank.setExteriorOnly = Soundbank.setExteriorOnly
     soundbank.setCombatTracks = Soundbank.setCombatTracks
     soundbank.setHours = Soundbank.setHours
@@ -94,17 +96,24 @@ function Soundbank.countAvailableTracks(self)
     return availableTracks
 end
 
+---Returns the enemy names and/or Ids for which the soundbank is allowed.
+---@param self Soundbank
+---@return [string] allowed enemy names/IDs.
+function Soundbank.getEnemies(self)
+    return self.enemies
+end
+
 ---Returns if this soundbank is allowed to play for the given enemyname when in combat mode.
 ---@param self Soundbank
----@param enemyName string The enemyname that should be checked.
+---@param enemy string The enemyname that should be checked.
 ---@return boolean bool
-function Soundbank.isAllowedForEnemyName(self, enemyName)
-    if #self.enemyNames == 0 then
+function Soundbank.isAllowedForEnemy(self, enemy)
+    if #self.enemies == 0 then
         return false
     end
 
-    for _, e in pairs(self.enemyNames) do
-        if e == enemyName then
+    for _, e in pairs(self.enemies) do
+        if e == enemy then
             return true
         end
     end
@@ -203,9 +212,9 @@ end
 
 ---Sets the enemynames for which this soundbank is allowed to play when in combat state.
 ---@param self Soundbank
----@param enemyNames table<string> A list of enemynames.
-function Soundbank.setEnemyNames(self, enemyNames)
-    TableUtils.setAll(self.enemyNames, enemyNames)
+---@param enemies table<string> A list of enemynames.
+function Soundbank.setEnemies(self, enemies)
+    TableUtils.setAll(self.enemies, enemies)
 end
 
 ---Sets if this soundbank is only allowed to play in exterior cells.
@@ -259,9 +268,16 @@ Soundbank.Decoder = {
         if soundbankData.regionNames then
             TableUtils.addAll(regions, soundbankData.regionNames)
         end
-
         if soundbankData.regions then
             TableUtils.addAll(regions, soundbankData.regions)
+        end
+
+        local enemies = {}
+        if soundbankData.enemyNames then
+            TableUtils.addAll(enemies, soundbankData.enemyNames)
+        end
+        if soundbankData.enemies then
+            TableUtils.addAll(enemies, soundbankData.enemies)
         end
 
         local soundbank = Soundbank.Create(id)
@@ -270,7 +286,7 @@ Soundbank.Decoder = {
         soundbank:setExteriorOnly(soundbankData.exteriorOnly or false)
         soundbank:setCellNames(soundbankData.cellNames or {})
         soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
-        soundbank:setEnemyNames(soundbankData.enemyNames or {})
+        soundbank:setEnemies(enemies)
         soundbank:setHours(soundbankData.hourOfDay or {})
         soundbank:setInteriorOnly(soundbankData.interiorOnly or false)
         soundbank:setRegions(regions)
