@@ -1,10 +1,16 @@
+local Globals = require('scripts.DynamicMusic.core.Globals')
 local core = require('openmw.core')
+
+if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
+  return nil
+end
+
 local nearby = require('openmw.nearby')
 local self = require('openmw.self')
 local AI = require('openmw.interfaces').AI
 local types = require('openmw.types')
 
-local Globals = require('scripts.DynamicMusic.core.Globals')
+
 
 local combatState = false
 
@@ -47,10 +53,6 @@ local function onUpdate(dt)
     combatState = false
     emitEvent('disengaging');
   end
-end
-
-if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
-  return nil
 end
 
 return {

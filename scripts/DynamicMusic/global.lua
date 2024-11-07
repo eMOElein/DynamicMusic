@@ -1,8 +1,13 @@
-local core = require('openmw.core')
-local world = require('openmw.world')
-
 local Globals = require('scripts.DynamicMusic.core.Globals')
+local core = require('openmw.core')
 
+if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
+  print("Unable to load Dynamic Music")
+  print(string.format("At least Lua api revision %s is required. Current Lua api revision is %s", Globals.LUA_API_REVISION_MIN, core.API_REVISION))
+  return nil
+end
+
+local world = require('openmw.world')
 local initialized = false
 local players = {}
 
@@ -38,12 +43,6 @@ local function onUpdate()
       players[player.id] = true
     end
   end
-end
-
-if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
-  print("Unable to load Dynamic Music")
-  print(string.format("At least Lua api revision %s is required. Current Lua api revision is %s", Globals.LUA_API_REVISION_MIN, core.API_REVISION))
-  return nil
 end
 
 return {

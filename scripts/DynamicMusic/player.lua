@@ -1,10 +1,15 @@
+local Globals = require('scripts.DynamicMusic.core.Globals')
+local core = require('openmw.core')
+
+if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
+  return nil
+end
+
 local ambient = require('openmw.ambient')
 local self = require('openmw.self')
 local types = require('openmw.types')
 local storage = require('openmw.storage')
-local core = require('openmw.core')
 
-local Globals = require('scripts.DynamicMusic.core.Globals')
 local GlobalData = require('scripts.DynamicMusic.core.GlobalData')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
@@ -166,10 +171,6 @@ local function globalDataCollected(eventData)
   DynamicMusic.initialize()
   --  DynamicMusic.info()
   data = nil
-end
-
-if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
-  return nil
 end
 
 return {
