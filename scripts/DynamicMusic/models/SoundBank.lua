@@ -58,6 +58,7 @@ function Soundbank.Create(id)
     soundbank._hourOfDayDB = nil
     soundbank.cellNames = {}
     soundbank.cellNamePatterns = {}
+    soundbank.cellNamePatternsExclude = {}
     soundbank.enemies = {}
     soundbank.exteriorOnly = false
     soundbank.hourOfDay = {}
@@ -74,6 +75,7 @@ function Soundbank.Create(id)
     soundbank.isAllowedForHourOfDay = Soundbank.isAllowedForHourOfDay
     soundbank.setCellNames = Soundbank.setCellNames
     soundbank.setCellNamePatterns = Soundbank.setCellNamePatterns
+    soundbank.setCellNamePatternsExclude = Soundbank.setCellNamePatternsExclude
     soundbank.setEnemies = Soundbank.setEnemies
     soundbank.setExteriorOnly = Soundbank.setExteriorOnly
     soundbank.setCombatTracks = Soundbank.setCombatTracks
@@ -210,6 +212,13 @@ function Soundbank.setCellNamePatterns(self, cellNamePatterns)
     TableUtils.setAll(self.cellNamePatterns, cellNamePatterns)
 end
 
+---Sets the cellname patterns for which this soundbank should be excluded.
+---@param self Soundbank
+---@param cellNamePatternsExclude table<string> A list of cellname patterns.
+function Soundbank.setCellNamePatternsExclude(self, cellNamePatternsExclude)
+    TableUtils.setAll(self.cellNamePatternsExclude, cellNamePatternsExclude)
+end
+
 ---Sets the enemynames for which this soundbank is allowed to play when in combat state.
 ---@param self Soundbank
 ---@param enemies table<string> A list of enemynames.
@@ -286,6 +295,7 @@ Soundbank.Decoder = {
         soundbank:setExteriorOnly(soundbankData.exteriorOnly or false)
         soundbank:setCellNames(soundbankData.cellNames or {})
         soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
+        soundbank:setCellNamePatternsExclude(soundbankData.cellNamePatternsExclude or {})
         soundbank:setEnemies(enemies)
         soundbank:setHours(soundbankData.hourOfDay or {})
         soundbank:setInteriorOnly(soundbankData.interiorOnly or false)
