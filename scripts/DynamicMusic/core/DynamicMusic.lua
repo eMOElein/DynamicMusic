@@ -30,8 +30,12 @@ local function collectSoundbanks()
 
     local soundbanks = {}
     for file in vfs.pathsWithPrefix(DynamicMusic.sondBanksPath) do
-        file = file.gsub(file, ".lua", "")
+        if not string.match(file, "%.lua$") then
+            print("skipping non lua file " ..file)
+            goto continue
+        end
 
+        file = string.gsub(file, ".lua", "")
 
         local soundbank = require(file)
 
@@ -47,6 +51,8 @@ local function collectSoundbanks()
                 print('no tracks available: ' .. file)
             end
         end
+
+        ::continue::
     end
 
     return soundbanks
