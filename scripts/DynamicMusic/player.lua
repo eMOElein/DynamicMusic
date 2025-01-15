@@ -70,6 +70,15 @@ local function getPlayerState()
   return PlayerStates.explore
 end
 
+local PlayerMovedTimer
+
+local function PlayerMoved()
+  if GameState.soundbank.current ~= GameState.soundbank.previous then
+    PlayerMovedTimer = 4
+  end
+end
+
+
 local function hasGameStateChanged()
   if GameState.playerState.previous ~= GameState.playerState.current then
     -- print("change playerState: " ..gameState.playerState.current)
@@ -82,11 +91,16 @@ local function hasGameStateChanged()
 
   if GameState.regionName.current ~= GameState.regionName.previous then
     -- print("change regionName")
-    return true
+    PlayerMoved()
   end
 
   if GameState.cellName.current ~= GameState.cellName.previous then
     -- print("change celName")
+    PlayerMoved()
+  end
+
+  if PlayerMovedTimer and PlayerMovedTimer <= 0 then
+    PlayerMovedTimer = nil
     return true
   end
 
@@ -120,6 +134,9 @@ local function onFrame(dt)
   end
 
   local hourOfDay = math.floor((core.getGameTime() / 3600) % 24)
+  if PlayerMovedTimer and PlayerMovedTimer > 0 then
+    PlayerMovedTimer = PlayerMovedTimer - dt
+  end
 
   GameState.exterior.current = self.cell and self.cell.isExterior
   GameState.cellName.current = self.cell and self.cell.name or ""
