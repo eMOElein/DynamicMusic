@@ -16,7 +16,9 @@ local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 
+local DEFAULT_DELAY_TIME = 4
 local initialized = false
+local musicDelayTimer = nil
 
 local function isCombatState()
   if not Settings.getValue(Settings.KEYS.COMBAT_PLAY_COMBAT_MUSIC) then
@@ -81,12 +83,28 @@ local function hasGameStateChanged()
   end
 
   if GameState.regionName.current ~= GameState.regionName.previous then
-    -- print("change regionName")
-    return true
+    --print("change regionName ")
+    if GameState.exterior.current and GameState.exterior.previous then
+      musicDelayTimer = DEFAULT_DELAY_TIME
+      return false
+    else
+      return true
+    end
   end
 
   if GameState.cellName.current ~= GameState.cellName.previous then
-    -- print("change celName")
+    --print("change celName")
+    if GameState.exterior.current and GameState.exterior.previous then
+      musicDelayTimer = DEFAULT_DELAY_TIME
+      return false
+    else
+      return true
+    end
+  end
+
+  if musicDelayTimer and musicDelayTimer <= 0 then
+    --print("change delayTimer")
+    musicDelayTimer = nil
     return true
   end
 
@@ -120,6 +138,9 @@ local function onFrame(dt)
   end
 
   local hourOfDay = math.floor((core.getGameTime() / 3600) % 24)
+  if musicDelayTimer and musicDelayTimer > 0 then
+    musicDelayTimer = musicDelayTimer - dt
+  end
 
   GameState.exterior.current = self.cell and self.cell.isExterior
   GameState.cellName.current = self.cell and self.cell.name or ""
@@ -129,6 +150,7 @@ local function onFrame(dt)
   GameState.hourOfDay.current = hourOfDay
 
   if hasGameStateChanged() then
+    musicDelayTimer = nil
     DynamicMusic.newMusic()
   end
 
