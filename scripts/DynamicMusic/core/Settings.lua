@@ -10,10 +10,9 @@ Settings.KEYS = {
     COMBAT_PLAY_COMBAT_MUSIC = 'COMBAT_PLAY_COMBAT_MUSIC',
     COMBAT_ENEMIES_IGNORE = 'COMBAT_ENEMIES_IGNORE',
     COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE = 'COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE',
-    COMBAT_ENEMIES_ALWAYS = 'COMBAT_ENEMIES_ALWAYS',
     COMBAT_ENEMIES_INCLUDE = 'COMBAT_ENEMIES_INCLUDE',
-    GENERAL_PLAY_EXPLORATION_MUSIC = 'GENERAL_PLAY_EXPLORATION_MUSIC',
-    GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK'
+    GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK',
+    GENERAL_GENERAL_EXTERIOR_DELAY = 'GENERAL_EXTERIOR_DELAY'
 }
 
 Settings.PAGE = {
@@ -99,8 +98,17 @@ Settings.SETTINGS = {
         renderer = 'checkbox',
         name = 'Use DEFAULT Soundbank',
         description =
-        'Uses the DEFAULT soundbank if no other soundbank matches. If you have custom tracks in your vanilla playlist they will be ignored and need to be added to the DEFAULT soundbank manually.',
+        'Uses the DEFAULT soundbank if no other soundbank matches. LEAVE THIS SET TO TRUE.',
         default = false,
+    },
+    {
+        key = Settings.KEYS.GENERAL_GENERAL_EXTERIOR_DELAY,
+        group = Settings.GROUPS.GENERAL,
+        renderer = 'number',
+        name = 'Delay exterior music switch',
+        description =
+        'Delays the music switch when changing between exterior cells for X seconds.',
+        default = 0,
     }
 }
 

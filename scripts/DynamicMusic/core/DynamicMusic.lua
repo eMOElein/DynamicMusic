@@ -10,7 +10,10 @@ local StringUtils = require('scripts.DynamicMusic.utils.StringUtils')
 local SoundbankManager = require('scripts.DynamicMusic.core.SoundbankManager')
 local ambient = require('openmw.ambient')
 
+print("loading DEFAULT soundbank")
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundbank')
+print(string.format("DEFAULT soundbank has %s available tracks", DEFAULT_SOUNDBANK:countAvailableTracks()))
+
 
 ---@class DynamicMusic
 ---@field soundbanks table<Soundbank>
@@ -82,6 +85,11 @@ end
 function DynamicMusic.initialize()
     if DynamicMusic.initialized then
         return
+    end
+
+    print("DynamicMusic Settings")
+    for _,v in pairs(Settings.KEYS) do
+        print(v ..": " ..tostring(Settings.getValue(v)))
     end
 
     DynamicMusic.soundbanks = collectSoundbanks()
