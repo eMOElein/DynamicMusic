@@ -16,7 +16,6 @@ local GameState = require('scripts.DynamicMusic.core.GameState')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 
-local DEFAULT_DELAY_TIME = 4
 local initialized = false
 local musicDelayTimer = nil
 
@@ -85,7 +84,7 @@ local function hasGameStateChanged()
   if GameState.regionName.current ~= GameState.regionName.previous then
     --print("change regionName ")
     if GameState.exterior.current and GameState.exterior.previous then
-      musicDelayTimer = DEFAULT_DELAY_TIME
+      musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_GENERAL_EXTERIOR_DELAY)
       return false
     else
       return true
@@ -95,7 +94,7 @@ local function hasGameStateChanged()
   if GameState.cellName.current ~= GameState.cellName.previous then
     --print("change celName")
     if GameState.exterior.current and GameState.exterior.previous then
-      musicDelayTimer = DEFAULT_DELAY_TIME
+      musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_GENERAL_EXTERIOR_DELAY)
       return false
     else
       return true
