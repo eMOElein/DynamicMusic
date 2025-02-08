@@ -4,32 +4,44 @@ local LogLevel = require('scripts.DynamicMusic.core.LogLevel')
 --- @field _printerDB [LogLevel, function]
 local Logging = {}
 
-local _printerDB = {}
-_printerDB[LogLevel.DEBUG] = Logging.debug
-_printerDB[LogLevel.INFO] = Logging.info
-_printerDB[LogLevel.ERROR] = Logging.info
-_printerDB[LogLevel.WARN] = Logging.info
+Logging._logLevel = LogLevel.INFO
 
 --- @param message string
 --- @param logLevel LogLevel
 function Logging.log(message, logLevel)
-    _printerDB[logLevel](message)
+    if(logLevel.severity >= Logging._logLevel.severity)then
+        print(message)
+    end
 end
 
+-- Prints an info message.
+---@param message string The message to print.
 function Logging.info(message)
-    print(message)
+    Logging.log(message, LogLevel.INFO)
 end
 
+-- Prints an debug message.
+---@param message string The message to print.
 function Logging.debug(message)
-    print(message)
+    Logging.log(message, LogLevel.DEBUG)
 end
 
+-- Prints an warning message.
+---@param message string The message to print.
 function Logging.warn(message)
-    print(message)
+    Logging.log(message, LogLevel.WARN)
 end
 
+-- Prints an error message.
+---@param message string The message to print.
 function Logging.error(message)
-    print(message)
+    Logging.log(message, LogLevel.ERROR)
+end
+
+-- Sets the Log Level
+---@param logLevel LogLevel The log level.
+function Logging.setLogLevel(logLevel)
+    Logging._logLevel = logLevel
 end
 
 return Logging

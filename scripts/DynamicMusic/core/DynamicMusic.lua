@@ -1,7 +1,5 @@
-local vfs = require('openmw.vfs')
 local GameState = require('scripts.DynamicMusic.core.GameState')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
-local Soundbank = require('scripts.DynamicMusic.models.Soundbank')
 local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 local Log = require('scripts.DynamicMusic.core.Logger')
@@ -9,14 +7,14 @@ local Property = require('scripts.DynamicMusic.core.Property')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 local StringUtils = require('scripts.DynamicMusic.utils.StringUtils')
 local SoundbankManager = require('scripts.DynamicMusic.core.SoundbankManager')
+local SoundbankUtils = require('scripts.DynamicMusic.utils.SoundbankUtils')
 local ambient = require('openmw.ambient')
 
-print("loading DEFAULT soundbank")
+Log.info("loading DEFAULT soundbank")
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundbank')
-print(string.format("DEFAULT soundbank has %s available tracks", DEFAULT_SOUNDBANK:countAvailableTracks()))
+Log.info(string.format("DEFAULT soundbank has %s available tracks", DEFAULT_SOUNDBANK:countAvailableTracks()))
 
 local SOUNDBANK_DIRECTORY = "scripts/DynamicMusic/soundbanks"
- 
 
 ---@class DynamicMusic
 ---@field includeEnemies table<string>
@@ -27,58 +25,23 @@ local SOUNDBANK_DIRECTORY = "scripts/DynamicMusic/soundbanks"
 ---@field soundbankManager SoundbankManager
 local DynamicMusic = {}
 
---Collects the soundbanks from the soundbanks folder.
----@param soundbankDirectory string Path to a directory with soundbank files
----@return table<Soundbank> soundbanks The collected soundbanks.
-local function collectSoundbanks(soundbankDirectory)
-    Log.info("collecting soundbanks from: " .. soundbankDirectory)
-
-    local soundbanks = {}
-    for file in vfs.pathsWithPrefix(soundbankDirectory) do
-        if not string.match(file, "%.lua$") then
-            Log.info("skipping non lua file " ..file)
-            goto continue
-        end
-
-        file = string.gsub(file, ".lua", "")
-
-        local soundbank = require(file)
-
-        if not soundbank.id or soundbank.id ~= "DEFAULT" then
-            soundbank.id = file.gsub(file, soundbankDirectory, "")
-
-            soundbank = Soundbank.Decoder.fromTable(soundbank)
-
-            if soundbank:countAvailableTracks() > 0 then
-                table.insert(soundbanks, soundbank)
-                Log.info("soundbank loaded: " .. file)
-            else
-                Log.info('no tracks available: ' .. file)
-            end
-        end
-
-        ::continue::
-    end
-
-    return soundbanks
-end
-
 ---Creates a new DynamicMusic instance
 ---@param context Context
 function DynamicMusic.Create(context)
     local dynamicMusic = {}
 
+    --fields
     dynamicMusic.context = context
     dynamicMusic.sounbankdb = {}
     dynamicMusic.playlistProperty = Property.Create()
     dynamicMusic.initialized = false
     dynamicMusic.soundbanks = {}
-    dynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundbanks"
     dynamicMusic.ignoreEnemies = {}
     dynamicMusic.includeEnemies = {}
     dynamicMusic.soundbankManager = nil
 
 
+    --functions
     dynamicMusic.initialize = DynamicMusic.initialize
     dynamicMusic.isSoundbankAllowed = DynamicMusic.isSoundbankAllowed
     dynamicMusic.fetchSoundbank = DynamicMusic.fetchSoundbank
@@ -121,7 +84,7 @@ function DynamicMusic.initialize(self)
         Log.info(v ..": " ..tostring(Settings.getValue(v)))
     end
 
-    self.soundbanks = collectSoundbanks(SOUNDBANK_DIRECTORY)
+    self.soundbanks = SoundbankUtils.collectSoundbanks(SOUNDBANK_DIRECTORY)
     self.soundbankManager = SoundbankManager.Create(self.soundbanks)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)

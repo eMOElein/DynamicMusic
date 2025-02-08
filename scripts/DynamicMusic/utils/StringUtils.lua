@@ -4,7 +4,7 @@ local StringUtils = {}
 ---@param str string The string to search.
 ---@param chars string The separator that should be used for splitting.
 ---@return integer|nil index The index where the character sequence occurs or nil it the sequence was not found.
-function StringUtils.find_last_index(str, chars)
+function StringUtils.findLastIndex(str, chars)
     local reversedString = string.reverse(str)
     local reversedIndex = string.find(reversedString, chars)
 

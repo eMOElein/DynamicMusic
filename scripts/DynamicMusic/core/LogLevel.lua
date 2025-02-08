@@ -3,6 +3,7 @@
 --- @field DEBUG LogLevel
 --- @field WARN LogLevel
 --- @field ERROR LogLevel
+--- @field severity integer
 local LogLevel = {}
 
 function LogLevel.Create(name, severity)

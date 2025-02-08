@@ -13,6 +13,7 @@ local storage = require('openmw.storage')
 local GlobalData = require('scripts.DynamicMusic.core.GlobalData')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
+local Log = require('scripts.DynamicMusic.core.Logger')
 local Context = require('scripts.DynamicMusic.core.Context')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 local Settings = require('scripts.DynamicMusic.core.Settings')
@@ -77,7 +78,7 @@ end
 
 local function hasGameStateChanged()
   if GameState.playerState.previous ~= GameState.playerState.current then
-    -- print("change playerState: " ..gameState.playerState.current)
+    Log.debug("change playerState: " ..GameState.playerState.current)
     return true
   end
 
@@ -86,7 +87,7 @@ local function hasGameStateChanged()
   end
 
   if GameState.regionName.current ~= GameState.regionName.previous then
-    --print("change regionName ")
+    Log.debug("change regionName ")
     if GameState.exterior.current and GameState.exterior.previous then
       musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_EXTERIOR_DELAY)
       return false
@@ -96,7 +97,7 @@ local function hasGameStateChanged()
   end
 
   if GameState.cellName.current ~= GameState.cellName.previous then
-    --print("change celName")
+    Log.debug("change celName")
     if GameState.exterior.current and GameState.exterior.previous then
       musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_EXTERIOR_DELAY)
       return false
@@ -106,13 +107,13 @@ local function hasGameStateChanged()
   end
 
   if musicDelayTimer and musicDelayTimer <= 0 then
-    --print("change delayTimer")
+    Log.debug("change delayTimer")
     musicDelayTimer = nil
     return true
   end
 
   if GameState.hourOfDay.current ~= GameState.hourOfDay.previous then
-    --    print(string.format("hour of day changed from %i to %i", GameState.hourOfDay.previous, GameState.hourOfDay.current))
+    Log.debug(string.format("hour of day changed from %i to %i", GameState.hourOfDay.previous, GameState.hourOfDay.current))
     return true
   end
 
@@ -121,8 +122,7 @@ end
 
 local function initialize()
   if not initialized then
-    local context = Context.Create()
-    context.player = self
+    local context = Context.Create(self)
 
     dynamicMusic = DynamicMusic.Create(context)
     dynamicMusic:initialize()
@@ -130,7 +130,7 @@ local function initialize()
 
     local omwMusicSettings = storage.playerSection('SettingsOMWMusic')
     if omwMusicSettings then
-      print("changing built in openmw combat music setting to false")
+      Log.info("changing built in openmw combat music setting to false")
       omwMusicSettings:set("CombatMusicEnabled", false)
     end
   end
