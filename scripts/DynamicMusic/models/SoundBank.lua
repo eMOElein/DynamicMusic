@@ -100,7 +100,7 @@ end
 
 ---Returns the enemy names and/or Ids for which the soundbank is allowed.
 ---@param self Soundbank
----@return [string] allowed enemy names/IDs.
+---@return [string] allowedEnemies A list containing the allowed enemy IDs
 function Soundbank.getEnemies(self)
     return self.enemies
 end

@@ -12,7 +12,8 @@ Settings.KEYS = {
     COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE = 'COMBAT_ENEMIES_IGNORE_RESPECT_LEVEL_DIFFERENCE',
     COMBAT_ENEMIES_INCLUDE = 'COMBAT_ENEMIES_INCLUDE',
     GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK',
-    GENERAL_GENERAL_EXTERIOR_DELAY = 'GENERAL_EXTERIOR_DELAY'
+    GENERAL_EXTERIOR_DELAY = 'GENERAL_EXTERIOR_DELAY',
+    GENERAL_INTERIOR_REGIONS = 'GENERAL_INTERIOR_REGIONS'
 }
 
 Settings.PAGE = {
@@ -102,14 +103,23 @@ Settings.SETTINGS = {
         default = false,
     },
     {
-        key = Settings.KEYS.GENERAL_GENERAL_EXTERIOR_DELAY,
+        key = Settings.KEYS.GENERAL_EXTERIOR_DELAY,
         group = Settings.GROUPS.GENERAL,
         renderer = 'number',
         name = 'Delay exterior music switch',
         description =
         'Delays the music switch when changing between exterior cells for X seconds.',
         default = 0,
-    }
+    },
+    {
+        key = Settings.KEYS.GENERAL_INTERIOR_REGIONS,
+        group = Settings.GROUPS.GENERAL,
+        renderer = 'checkbox',
+        name = 'Interior Regions',
+        description =
+        'Keeps the last exterior cell\'s region when switching to an interior cell. In vanilla interior cells don\'t have a region attached.',
+        default = false,
+        },
 }
 
 I.Settings.registerPage {

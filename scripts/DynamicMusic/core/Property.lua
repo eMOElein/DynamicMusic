@@ -1,3 +1,6 @@
+--- @class Property
+--- @field currentValue any
+--- @field previousValue any
 local Property = {}
 
 function Property.Create()

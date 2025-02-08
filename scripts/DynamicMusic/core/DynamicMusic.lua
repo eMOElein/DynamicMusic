@@ -4,6 +4,7 @@ local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local Soundbank = require('scripts.DynamicMusic.models.Soundbank')
 local MusicPlayer = require('scripts.DynamicMusic.core.MusicPlayer')
 local Settings = require('scripts.DynamicMusic.core.Settings')
+local Log = require('scripts.DynamicMusic.core.Logger')
 local Property = require('scripts.DynamicMusic.core.Property')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 local StringUtils = require('scripts.DynamicMusic.utils.StringUtils')
@@ -14,27 +15,28 @@ print("loading DEFAULT soundbank")
 local DEFAULT_SOUNDBANK = require('scripts.DynamicMusic.core.DefaultSoundbank')
 print(string.format("DEFAULT soundbank has %s available tracks", DEFAULT_SOUNDBANK:countAvailableTracks()))
 
+local SOUNDBANK_DIRECTORY = "scripts/DynamicMusic/soundbanks"
+ 
 
 ---@class DynamicMusic
+---@field includeEnemies table<string>
+---@field ignoreEnemies table<string>
 ---@field soundbanks table<Soundbank>
+---@field playlistProperty Property A playlist property.
+---@field initialized boolean
+---@field soundbankManager SoundbankManager
 local DynamicMusic = {}
-DynamicMusic.sounbankdb = {}
-DynamicMusic.playlistProperty = Property.Create()
-DynamicMusic.initialized = false
-DynamicMusic.soundbanks = {}
-DynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundbanks"
-DynamicMusic.ignoreEnemies = {}
-DynamicMusic.includeEnemies = {}
 
 --Collects the soundbanks from the soundbanks folder.
----@return table<Soundbank> soundbanks The colelcted soundbanks.
-local function collectSoundbanks()
-    print("collecting soundbanks from: " .. DynamicMusic.sondBanksPath)
+---@param soundbankDirectory string Path to a directory with soundbank files
+---@return table<Soundbank> soundbanks The collected soundbanks.
+local function collectSoundbanks(soundbankDirectory)
+    Log.info("collecting soundbanks from: " .. soundbankDirectory)
 
     local soundbanks = {}
-    for file in vfs.pathsWithPrefix(DynamicMusic.sondBanksPath) do
+    for file in vfs.pathsWithPrefix(soundbankDirectory) do
         if not string.match(file, "%.lua$") then
-            print("skipping non lua file " ..file)
+            Log.info("skipping non lua file " ..file)
             goto continue
         end
 
@@ -43,15 +45,15 @@ local function collectSoundbanks()
         local soundbank = require(file)
 
         if not soundbank.id or soundbank.id ~= "DEFAULT" then
-            soundbank.id = file.gsub(file, DynamicMusic.sondBanksPath, "")
+            soundbank.id = file.gsub(file, soundbankDirectory, "")
 
             soundbank = Soundbank.Decoder.fromTable(soundbank)
 
             if soundbank:countAvailableTracks() > 0 then
                 table.insert(soundbanks, soundbank)
-                print("soundbank loaded: " .. file)
+                Log.info("soundbank loaded: " .. file)
             else
-                print('no tracks available: ' .. file)
+                Log.info('no tracks available: ' .. file)
             end
         end
 
@@ -61,12 +63,39 @@ local function collectSoundbanks()
     return soundbanks
 end
 
-local function fetchSoundbank()
+---Creates a new DynamicMusic instance
+---@param context Context
+function DynamicMusic.Create(context)
+    local dynamicMusic = {}
+
+    dynamicMusic.context = context
+    dynamicMusic.sounbankdb = {}
+    dynamicMusic.playlistProperty = Property.Create()
+    dynamicMusic.initialized = false
+    dynamicMusic.soundbanks = {}
+    dynamicMusic.sondBanksPath = "scripts/DynamicMusic/soundbanks"
+    dynamicMusic.ignoreEnemies = {}
+    dynamicMusic.includeEnemies = {}
+    dynamicMusic.soundbankManager = nil
+
+
+    dynamicMusic.initialize = DynamicMusic.initialize
+    dynamicMusic.isSoundbankAllowed = DynamicMusic.isSoundbankAllowed
+    dynamicMusic.fetchSoundbank = DynamicMusic.fetchSoundbank
+    dynamicMusic.newMusic = DynamicMusic.newMusic
+    dynamicMusic.update = DynamicMusic.update
+
+
+
+    return dynamicMusic
+end
+
+function DynamicMusic.fetchSoundbank(self)
     local soundbank = nil
 
-    for index = #DynamicMusic.soundbanks, 1, -1 do
-        if DynamicMusic.isSoundbankAllowed(DynamicMusic.soundbanks[index]) then
-            soundbank = DynamicMusic.soundbanks[index]
+    for index = #self.soundbanks, 1, -1 do
+        if self:isSoundbankAllowed(self.soundbanks[index]) then
+            soundbank = self.soundbanks[index]
             break
         end
     end
@@ -75,52 +104,52 @@ local function fetchSoundbank()
     useDefaultSoundbank = Settings.getValue(Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK)
 
     if not soundbank and useDefaultSoundbank then
-        print("using DEFAULT soundbank")
+        Log.info("using DEFAULT soundbank")
         soundbank = DEFAULT_SOUNDBANK
     end
 
     return soundbank
 end
 
-function DynamicMusic.initialize()
-    if DynamicMusic.initialized then
+function DynamicMusic.initialize(self)
+    if self.initialized then
         return
     end
 
-    print("DynamicMusic Settings")
+    Log.info("DynamicMusic Settings")
     for _,v in pairs(Settings.KEYS) do
-        print(v ..": " ..tostring(Settings.getValue(v)))
+        Log.info(v ..": " ..tostring(Settings.getValue(v)))
     end
 
-    DynamicMusic.soundbanks = collectSoundbanks()
-    DynamicMusic.soundbankManager = SoundbankManager.Create(DynamicMusic.soundbanks)
+    self.soundbanks = collectSoundbanks(SOUNDBANK_DIRECTORY)
+    self.soundbankManager = SoundbankManager.Create(self.soundbanks)
 
     local ignoredEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_IGNORE)
     for _, enemyId in pairs(StringUtils.split(ignoredEnemies, ",")) do
-        DynamicMusic.ignoreEnemies[enemyId] = enemyId
+        self.ignoreEnemies[enemyId] = enemyId
     end
 
     local includedEnemies = Settings.getValue(Settings.KEYS.COMBAT_ENEMIES_INCLUDE)
     for _, enemyId in pairs(StringUtils.split(includedEnemies, ",")) do
-        DynamicMusic.includeEnemies[enemyId] = enemyId
+        self.includeEnemies[enemyId] = enemyId
     end
 
-    DynamicMusic.initialized = true
+    self.initialized = true
 end
 
-function DynamicMusic.isSoundbankAllowed(soundbank)
-    return DynamicMusic.soundbankManager:isSoundbankAllowed(soundbank)
+function DynamicMusic.isSoundbankAllowed(self, soundbank)
+    return self.soundbankManager:isSoundbankAllowed(soundbank)
 end
 
-function DynamicMusic.newMusic(options)
-    print("new music requested")
+function DynamicMusic.newMusic(self, options)
+    Log.info("new music requested")
 
     local force = options and options.force or not ambient.isMusicPlaying()
-    local soundbank = fetchSoundbank()
+    local soundbank = self:fetchSoundbank()
     local newPlaylist = nil
 
     if not soundbank then
-        print("no matching soundbank found")
+        Log.info("no matching soundbank found")
         ambient.streamMusic('')
         return
     end
@@ -133,37 +162,37 @@ function DynamicMusic.newMusic(options)
         newPlaylist = soundbank.combatPlaylist
     end
 
-    if not force and newPlaylist == DynamicMusic.playlistProperty:getValue() then
-        print("playlist already playing so continue with current")
+    if not force and newPlaylist == self.playlistProperty:getValue() then
+        Log.info("playlist already playing so continue with current")
         return
     end
 
     if newPlaylist then
-        print("activating playlist: " .. newPlaylist.id)
+        Log.info("activating playlist: " .. newPlaylist.id)
         MusicPlayer.playPlaylist(newPlaylist, { force = force })
         GameState.soundbank.current = soundbank
-        DynamicMusic.playlistProperty:setValue(newPlaylist)
+        self.playlistProperty:setValue(newPlaylist)
         return
     end
 end
 
-function DynamicMusic.info()
+function DynamicMusic.info(self)
     local soundbanks = 0
     if DynamicMusic.soundbanks then
         soundbanks = #DynamicMusic.soundbanks
     end
 
-    print("=== DynamicMusic Info ===")
-    print("soundbanks: " .. soundbanks)
+    Log.info("=== DynamicMusic Info ===")
+    Log.info("soundbanks: " .. soundbanks)
     for _, sb in ipairs(DynamicMusic.soundbanks) do
-        print("soundbank.id: " .. tostring(sb.id))
-        print("soundbank.combatTracks: " .. #sb.combatTracks)
-        print("sondbank.cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
-        print("soundbank,regions: " ..TableUtils.countKeys(sb.regions))
+        Log.info("soundbank.id: " .. tostring(sb.id))
+        Log.info("soundbank.combatTracks: " .. #sb.combatTracks)
+        Log.info("sondbank.cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
+        Log.info("soundbank,regions: " ..TableUtils.countKeys(sb.regions))
     end
 end
 
-function DynamicMusic.update(deltaTime)
+function DynamicMusic.update(self, deltaTime)
     MusicPlayer.update(deltaTime)
 end
 

@@ -13,9 +13,11 @@ local storage = require('openmw.storage')
 local GlobalData = require('scripts.DynamicMusic.core.GlobalData')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local GameState = require('scripts.DynamicMusic.core.GameState')
+local Context = require('scripts.DynamicMusic.core.Context')
 local DynamicMusic = require('scripts.DynamicMusic.core.DynamicMusic')
 local Settings = require('scripts.DynamicMusic.core.Settings')
 
+local dynamicMusic = {}
 local initialized = false
 local musicDelayTimer = nil
 
@@ -36,19 +38,19 @@ local function isCombatState()
     local inProcessingRange = types.Actor.isInActorsProcessingRange(actor)
 
     if not inProcessingRange then
-      break
+      goto continue
     end
 
-    if DynamicMusic.includeEnemies[hostile.id] then
+    if dynamicMusic.includeEnemies[hostile.id] then
       return true
     end
 
-    if DynamicMusic.ignoreEnemies[hostile.id] then
+    if dynamicMusic.ignoreEnemies[hostile.id] then
       if respectMinLevelDifference and playerLevelAdvantage < minLevelDifference then
         return true
       end
 
-      break
+      goto continue
     end
 
     if playerLevelAdvantage < minLevelDifference then
@@ -58,6 +60,8 @@ local function isCombatState()
     if hostileLevel >= minLevelEnemy then
       return true
     end
+
+    ::continue::
   end
 
   return false
@@ -84,7 +88,7 @@ local function hasGameStateChanged()
   if GameState.regionName.current ~= GameState.regionName.previous then
     --print("change regionName ")
     if GameState.exterior.current and GameState.exterior.previous then
-      musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_GENERAL_EXTERIOR_DELAY)
+      musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_EXTERIOR_DELAY)
       return false
     else
       return true
@@ -94,7 +98,7 @@ local function hasGameStateChanged()
   if GameState.cellName.current ~= GameState.cellName.previous then
     --print("change celName")
     if GameState.exterior.current and GameState.exterior.previous then
-      musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_GENERAL_EXTERIOR_DELAY)
+      musicDelayTimer = Settings.getValue(Settings.KEYS.GENERAL_EXTERIOR_DELAY)
       return false
     else
       return true
@@ -117,6 +121,11 @@ end
 
 local function initialize()
   if not initialized then
+    local context = Context.Create()
+    context.player = self
+
+    dynamicMusic = DynamicMusic.Create(context)
+    dynamicMusic:initialize()
     initialized = true
 
     local omwMusicSettings = storage.playerSection('SettingsOMWMusic')
@@ -128,12 +137,8 @@ local function initialize()
 end
 
 local function onFrame(dt)
-  if not DynamicMusic.initialized then
-    return
-  end
-
   if not initialized then
-    initialize()
+    return
   end
 
   local hourOfDay = math.floor((core.getGameTime() / 3600) % 24)
@@ -150,10 +155,10 @@ local function onFrame(dt)
 
   if hasGameStateChanged() then
     musicDelayTimer = nil
-    DynamicMusic.newMusic()
+    dynamicMusic:newMusic()
   end
 
-  DynamicMusic.update(dt)
+  dynamicMusic:update(dt)
 
   GameState.exterior.previous = GameState.exterior.current
   GameState.cellName.previous = GameState.cellName.current
@@ -189,8 +194,7 @@ local function globalDataCollected(eventData)
   GlobalData.cellNames = data.cellNames
   GlobalData.regionNames = data.regionNames
 
-  DynamicMusic.initialize()
-  --  DynamicMusic.info()
+  initialize()
   data = nil
 end
 
