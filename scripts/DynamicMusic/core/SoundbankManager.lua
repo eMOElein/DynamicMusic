@@ -11,14 +11,17 @@ local SOUNDBANKDB_SECTIONS = {
 
 ---@class SoundbankManager
 ---@field soundbanks [Soundbank]
+---@field gameState GameState
 ---@field _soundbankDatabase any
 local SoundbankManager = {}
 
 ---Creates a new SoundbankManager.
 ---@param soundbanks table<Soundbank>
+---@param gameState GameState
 ---@return SoundbankManager
-function SoundbankManager.Create(soundbanks)
+function SoundbankManager.Create(soundbanks, gameState)
     local soundbankManager = {}
+    soundbankManager.gameState = gameState
     soundbankManager.addSoundbank = SoundbankManager.addSoundbank
     soundbankManager.isSoundbankAllowed = SoundbankManager.isSoundbankAllowed
 
@@ -71,36 +74,36 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         return false
     end
 
-    if not soundbank:isAllowedForHourOfDay(GameState.hourOfDay.current) then
+    if not soundbank:isAllowedForHourOfDay(self.gameState.hourOfDay.current) then
         return false
     end
 
-    if soundbank.interiorOnly and GameState.exterior.current then
+    if soundbank.interiorOnly and self.gameState.exterior.current then
         return false
     end
 
-    if soundbank.exteriorOnly and not GameState.exterior.current then
+    if soundbank.exteriorOnly and not self.gameState.exterior.current then
         return false
     end
 
-    if GameState.playerState.current == PlayerStates.explore then
+    if self.gameState.playerState.current == PlayerStates.explore then
         if #soundbank.tracks == 0 then
             return false
         end
     end
 
-    if GameState.playerState.current == PlayerStates.combat then
+    if self.gameState.playerState.current == PlayerStates.combat then
         if #soundbank.combatTracks == 0 then
             return false
         end
     end
 
     local dbEntry = self._soundbankDatabase[soundbank]
-    if #soundbank.regions > 0 and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONS][GameState.regionName.current] then
+    if #soundbank.regions > 0 and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONS][self.gameState.regionName.current] then
         return false
     end
 
-    if (#soundbank.cellNames > 0 or #soundbank.cellNamePatterns > 0) and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][GameState.cellName.current] then
+    if (#soundbank.cellNames > 0 or #soundbank.cellNamePatterns > 0) and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][self.gameState.cellName.current] then
         return false
     end
 

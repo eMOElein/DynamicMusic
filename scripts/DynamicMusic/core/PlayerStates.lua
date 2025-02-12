@@ -1,3 +1,4 @@
+---@class PlayerStates
 local PlayerStates = {}
 
 PlayerStates.combat = 'combat'

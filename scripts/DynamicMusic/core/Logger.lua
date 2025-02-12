@@ -38,6 +38,12 @@ function Logging.error(message)
     Logging.log(message, LogLevel.ERROR)
 end
 
+-- Prints a fatal message.
+---@param message string The message to print.
+function Logging.fatal(message)
+    Logging.log(message, LogLevel.FATAL)
+end
+
 -- Sets the Log Level
 ---@param logLevel LogLevel The log level.
 function Logging.setLogLevel(logLevel)

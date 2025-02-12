@@ -5,6 +5,7 @@ if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
   return nil
 end
 
+
 local nearby = require('openmw.nearby')
 local self = require('openmw.self')
 local AI = require('openmw.interfaces').AI

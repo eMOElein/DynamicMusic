@@ -1,11 +1,14 @@
 local ambient = require('openmw.ambient')
-local GameState = require('scripts.DynamicMusic.core.GameState')
 local Property = require('scripts.DynamicMusic.core.Property')
 
 local MusicPlayer = {}
-
 local playlistProperty = Property.Create()
 local trackProperty = Property.Create()
+
+local time = {
+    current = os.time(),
+    previous = os.time()
+}
 
 local playbackTimeProperty = {
     current = -1,
@@ -89,11 +92,13 @@ function MusicPlayer._fetchRandomTrack()
     return availableTracks[random]
 end
 
-function MusicPlayer.update(deltaTime)
+function MusicPlayer.update(dt)
+    time.previous = time.current
+    time.current = os.time()
+
     if trackProperty:getValue() then
         if playbackTimeProperty.current > -1 then
-            playbackTimeProperty.current = playbackTimeProperty.current +
-                (GameState.playtime.current - GameState.playtime.previous)
+            playbackTimeProperty.current = playbackTimeProperty.current + (time.current - time.previous)
         end
 
         if not ambient.isMusicPlaying() then

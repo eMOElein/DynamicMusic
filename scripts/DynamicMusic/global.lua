@@ -1,18 +1,19 @@
 local Globals = require('scripts.DynamicMusic.core.Globals')
+local Log = require('scripts.DynamicMusic.core.Logger')
+
 local core = require('openmw.core')
 
 if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
-  print("Unable to load Dynamic Music")
-  print(string.format("At least Lua api revision %s is required. Current Lua api revision is %s", Globals.LUA_API_REVISION_MIN, core.API_REVISION))
+  Log.fatal("Unable to load Dynamic Music")
+  Log.fatal(string.format("At least Lua api revision %s is required. Current Lua api revision is %s", Globals.LUA_API_REVISION_MIN, core.API_REVISION))
   return nil
 end
 
 local world = require('openmw.world')
-local initialized = false
 local players = {}
 
 local function sendGlobalData(player)
-  print("send global data to player: " ..player.id)
+  Log.info("send global data to player: " ..player.id)
   local cellNames = {}
   local regionNames = {}
   local regionNamesSet = {}
