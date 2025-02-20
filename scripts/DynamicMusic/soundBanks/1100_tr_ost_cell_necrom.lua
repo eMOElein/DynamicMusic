@@ -2,6 +2,9 @@ local soundbank =      {
   cellNamePatterns = {
 	'Necrom'
   },
+  cellNamePatternsExclude = {
+	'Necrom, Catacombs'
+  },
   interiorOnly = true,
   tracks = {
     {
