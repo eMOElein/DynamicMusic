@@ -4,7 +4,8 @@ local soundbank =      {
 	'Gedna Relvel\'s Tomb',
 	'Abandoned Crypt',
 	'Barrow',
-	'Burial'
+	'Burial',
+	'Necrom, Catacombs'
   },
   tracks = {
     {
