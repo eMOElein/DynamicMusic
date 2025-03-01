@@ -72,7 +72,7 @@ function GameState.update(self, dt)
   self.exterior.current = player.cell and player.cell.isExterior
   self.cellName.current = player.cell and player.cell.name or ""
   self.playtime.current = os.time()
-  self.regionName.current = GameState._fetchRegion(self)
+  self.regionName.current = GameState._fetchRegion(self, self.exterior.current)
   self.playerState.current = self:getPlayerState()
   self.hourOfDay.current = hourOfDay
 end
@@ -163,11 +163,11 @@ function GameState.getPlayerState(self)
   return PlayerStates.explore
 end
 
-function GameState._fetchRegion(self)
+function GameState._fetchRegion(self, current_exterior)
   local player = self.context:getPlayer()
   local interiorRegions = Settings.getValue(Settings.KEYS.GENERAL_INTERIOR_REGIONS)
 
-  if not self.context.gameState.exterior.current and  interiorRegions then
+  if not current_exterior and  interiorRegions then
     return self.regionName.previous
   end
 
