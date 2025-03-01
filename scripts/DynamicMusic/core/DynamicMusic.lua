@@ -186,7 +186,7 @@ function DynamicMusic._fetchDelayTime(self)
         return nil
     end
 
-    -- no delay if we are or were in a combat state.
+    -- no delay if we are/were in a combat state.
     if gameState.playerState.current == PlayerStates.combat or gameState.playerState.previous == PlayerStates.combat then
         return nil
     end
@@ -196,7 +196,12 @@ function DynamicMusic._fetchDelayTime(self)
         return nil
     end
 
-    return Settings.getValue(Settings.KEYS.GENERAL_EXTERIOR_DELAY)
+    local delay = Settings.getValue(Settings.KEYS.GENERAL_EXTERIOR_DELAY)
+    if delay > 0 then
+        return delay
+    end
+
+    return nil
 end
 
 return DynamicMusic
