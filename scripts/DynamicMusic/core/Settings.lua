@@ -115,11 +115,11 @@ Settings.SETTINGS = {
         key = Settings.KEYS.GENERAL_INTERIOR_REGIONS,
         group = Settings.GROUPS.GENERAL,
         renderer = 'checkbox',
-        name = 'Interior Regions',
+        name = 'Interior regions',
         description =
-        'Keeps the last exterior cell\'s region when switching to an interior cell. In vanilla interior cells don\'t have a region attached.',
+        'Keep the region of the last exterior cell for interior cells.',
         default = false,
-        },
+    }
 }
 
 I.Settings.registerPage {
