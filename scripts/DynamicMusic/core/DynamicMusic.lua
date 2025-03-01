@@ -20,7 +20,7 @@ local SOUNDBANK_DIRECTORY = "scripts/DynamicMusic/soundbanks"
 ---@field playlistProperty Property A playlist property.
 ---@field initialized boolean
 ---@field soundbankManager SoundbankManager
----@field _delayTime integer
+---@field _delayTime number | nil
 local DynamicMusic = {}
 
 ---Creates a new DynamicMusic instance
@@ -36,7 +36,7 @@ function DynamicMusic.Create(context)
     dynamicMusic.initialized = false
     dynamicMusic.soundbanks = {}
     dynamicMusic.soundbankManager = nil
-    dynamicMusic._delayTime = 0
+    dynamicMusic._delayTime = nil
 
 
     --functions
@@ -45,6 +45,7 @@ function DynamicMusic.Create(context)
     dynamicMusic.fetchSoundbank = DynamicMusic.fetchSoundbank
     dynamicMusic.newMusic = DynamicMusic.newMusic
     dynamicMusic.update = DynamicMusic.update
+    dynamicMusic._fetchDelayTime = DynamicMusic._fetchDelayTime
 
 
 
@@ -78,8 +79,8 @@ function DynamicMusic.initialize(self)
     end
 
     Log.info("DynamicMusic Settings")
-    for _,v in pairs(Settings.KEYS) do
-        Log.info(v ..": " ..tostring(Settings.getValue(v)))
+    for _, v in pairs(Settings.KEYS) do
+        Log.info(v .. ": " .. tostring(Settings.getValue(v)))
     end
 
     self.soundbanks = SoundbankUtils.collectSoundbanks(SOUNDBANK_DIRECTORY)
@@ -148,16 +149,54 @@ function DynamicMusic.info(self)
         Log.info("soundbank.id: " .. tostring(sb.id))
         Log.info("soundbank.combatTracks: " .. #sb.combatTracks)
         Log.info("sondbank.cellNamePatterns: " .. TableUtils.countKeys(sb.cellNamePatterns))
-        Log.info("soundbank,regions: " ..TableUtils.countKeys(sb.regions))
+        Log.info("soundbank,regions: " .. TableUtils.countKeys(sb.regions))
     end
 end
 
 function DynamicMusic.update(self, dt)
     MusicPlayer.update(dt)
+    local gameState = self.context.gameState
 
-    if self.context.gameState:hasGameStateChanged() then
+    if self._delayTime and self._delayTime <= 0 then
+        self._delayTime = nil
+        self:newMusic()
+        return
+    end
+
+    if self._delayTime then
+        self._delayTime = self._delayTime - dt
+    end
+
+    if gameState:hasGameStateChanged() then
+        self._delayTime = self:_fetchDelayTime()
+
+        if self._delayTime then
+            return
+        end
+
         self:newMusic()
     end
+end
+
+function DynamicMusic._fetchDelayTime(self)
+    local gameState = self.context.gameState
+
+    -- no delay if we are not in an exterior cell
+    if not gameState.exterior.current then
+        return nil
+    end
+
+    -- no delay if we are or were in a combat state.
+    if gameState.playerState.current == PlayerStates.combat or gameState.playerState.previous == PlayerStates.combat then
+        return nil
+    end
+
+    -- no delay if we switched between exterior to interior and vice versa.
+    if gameState.exterior.previous ~= gameState.exterior.current then
+        return nil
+    end
+
+    return Settings.getValue(Settings.KEYS.GENERAL_EXTERIOR_DELAY)
 end
 
 return DynamicMusic
