@@ -171,6 +171,7 @@ function DynamicMusic.update(self, dt)
         self._delayTime = self:_fetchDelayTime()
 
         if self._delayTime then
+            Log.info(string.format("delaying new music for %d seconds", self._delayTime))
             return
         end
 
