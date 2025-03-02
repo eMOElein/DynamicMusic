@@ -7,8 +7,18 @@ https://www.nexusmods.com/morrowind/mods/53568
 # Script Settings
 ## General Settings
 ### Use Default Soundbank
-This uses the DEFAULT soundbank from **scripts/DynamicMusic/soundbanks/DEFAULT.lua** for all situations that are not covered by any other soundbank. This needs to be active for most of the dynamic combat music settings to work properly.
+This uses the DEFAULT soundbank from **scripts/DynamicMusic/soundbanks/DEFAULT.lua** for all situations that are not covered by any other soundbank.  
+This needs to be active for most of the dynamic combat music settings to work properly.
 If you had custom music tracks in your vanilla music folder you need to add them to the DEFAULT soundbank manually as it only contains the vanilla Morrowind tracks.
+
+### Delay exterior music switch
+This will delay the music switch for X seconds when changing between two exterior cells.  
+This can help to prevent constant music switches in certain edge cases where the player is constantly jittering between two cells.
+
+### Interior regions
+This will assume that an interior cell has the same region as the last exterior cell.  
+Normally interior cells do not have a region.  
+This way the regions filter in soundbanks can be extended to play in interior cells too.
 
 ## Combat Settings
 ### Play combat music
@@ -20,7 +30,7 @@ Combat music will only play if the enemy that is attacking has at least this lev
 
 ### Min. Level Difference
 Ensures that combat music is still being played if the player is not X levels ahead of the enemy.
-Even if the enemy's level is below the value that was set in "Min. Enemy Level".
+Even if the enemy's level is below the value that was set in "Min. Enemy Level".  
 This way low level enemys that might still be a threat if the player has a low level will trigger combat music.
 Set this option to 0 if you don't like this behaviour.
 
@@ -47,29 +57,35 @@ local soundbank = {
         'Balmora',
         'Mage\'s Guild'
     },
+
+
     -- The soundbank is only allowed to play if the current cell's name exactly matches with one or more of the strings listed in this filter.
     -- If this filter is not provided it will be ignored.
     cellNames = {
         'Balmora',
         'Balmora, Guild of Mages'
     },
-    -- This is a bit misleading at the moment since region Ids are expected here instead of region names.
+
     -- The soundbank is only allowed to play it the current cell's region id matches one of the region Ids listed in this filter.
     -- If this filter is not provided it will be ignored.
-    regionNames = {
+    regions = {
         'armun ashlands region',
         'ashlands region'
     },
+
     -- If this filter is set to true the soundbank is only allowed to play if the current cell is an interior cell.
     -- If this filter is not provided it will be ignored.
     interiorOnly = true,
+
     -- If this filter is set to true the soundbank is only allowed to play if the current cell is an exterior cell.
     -- If this filter is not provided it will be ignored.
     exteriorOnly = true,
+
     -- If this filter is set the soundbank is only allowed during the ingame hours in the list.
     -- In this example the soundbank is allowed to play from 18:00pm until 21:00pm
     -- It this filter is not provided it will be ignored.
     hourOfDay = {18,19,20},
+
     -- This filter is only checked if the game is currently in "combat" state.
     -- Combat tracks are only played if the enemy's name matches with one of the strings listed in this filter.
     -- If this filter is not provided it will be ignored.
@@ -78,6 +94,7 @@ local soundbank = {
         "Ash Ghoul",
         "Ash Slave",
     },
+    
     -- Tracks that should play if the game is in "exploration" state
     tracks = {
         {
