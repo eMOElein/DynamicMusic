@@ -20,13 +20,13 @@ function Logging.info(message)
     Logging.log(message, LogLevel.INFO)
 end
 
--- Prints an debug message.
+-- Prints a debug message.
 ---@param message string The message to print.
 function Logging.debug(message)
     Logging.log(message, LogLevel.DEBUG)
 end
 
--- Prints an warning message.
+-- Prints a warning message.
 ---@param message string The message to print.
 function Logging.warn(message)
     Logging.log(message, LogLevel.WARN)

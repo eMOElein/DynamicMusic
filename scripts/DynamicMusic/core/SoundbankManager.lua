@@ -125,7 +125,8 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         local hostileFactionAllowed = false
 
         for _, faction in ipairs(firstHostile.factions) do
-            Log.info("checking faction: " ..faction)
+            Log.debug(string.format("check firstHostile faction: %s", faction))
+
             if dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMY_FACTIONS][faction] then
                 hostileFactionAllowed = true
             end

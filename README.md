@@ -66,7 +66,7 @@ local soundbank = {
         'Balmora, Guild of Mages'
     },
 
-    -- The soundbank is only allowed to play it the current cell's region id matches one of the region Ids listed in this filter.
+    -- The soundbank is only allowed to play it the current cell's region ID matches with one or more of the region IDs listed in this filter.
     -- If this filter is not provided it will be ignored.
     regions = {
         'armun ashlands region',
@@ -83,7 +83,7 @@ local soundbank = {
 
     -- If this filter is set the soundbank is only allowed during the ingame hours in the list.
     -- In this example the soundbank is allowed to play from 18:00pm until 21:00pm
-    -- It this filter is not provided it will be ignored.
+    -- If this filter is not provided it will be ignored.
     hourOfDay = {18,19,20},
 
     -- This filter is only checked if the game is currently in "combat" state.
@@ -96,7 +96,7 @@ local soundbank = {
     },
 
     -- This filter is only checked if the game is currently in "combat" state.
-    -- Combat tracks are only played if the enemy's faction ID matches with one of the strings listed in this filter.
+    -- Combat tracks are only played if the enemy's faction ID matches with one or more of the strings listed in this filter.
     -- Look up the ID for a faction in the Construction Set.
     -- If this filter is not provided it will be ignored.
     enemyFactions = {
