@@ -1,5 +1,6 @@
 local Globals = require('scripts.DynamicMusic.core.Globals')
 local core = require('openmw.core')
+local NPC = require('openmw.types').NPC;
 
 if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
   return nil
@@ -21,6 +22,7 @@ local function emitEvent(eventName)
       actor:sendEvent(eventName, {
         actor = self,
         name = self.type.record(self).name,
+        factions = NPC.getFactions(self),
         id = self.type.record(self).id,
         level = types.Actor.stats.level(self).current,
         targetActor = AI.getActivePackage().target

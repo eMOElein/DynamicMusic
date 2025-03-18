@@ -10,6 +10,7 @@ local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
 ---@field combatTracks [Track]
 ---@field combatPlaylist any
 ---@field enemies [string]
+---@field enemyFactions [string]
 ---@field exteriorOnly boolean
 ---@field explorePlaylist any
 ---@field hourOfDay [integer]
@@ -60,6 +61,7 @@ function Soundbank.Create(id)
     soundbank.cellNamePatterns = {}
     soundbank.cellNamePatternsExclude = {}
     soundbank.enemies = {}
+    soundbank.enemyFactions = {}
     soundbank.exteriorOnly = false
     soundbank.hourOfDay = {}
     soundbank.interiorOnly = false
@@ -69,6 +71,7 @@ function Soundbank.Create(id)
 
     soundbank.countAvailableTracks = Soundbank.countAvailableTracks
     soundbank.getEnemies = Soundbank.getEnemies
+    soundbank.getEnemyFactions = Soundbank.getEnemyFactions
     soundbank.isAllowedForEnemyName = Soundbank.isAllowedForEnemy
     soundbank.isAllowedForCellName = Soundbank.isAllowedForCellName
     soundbank.isAllowedForRegion = Soundbank.isAllowedForRegion
@@ -77,6 +80,7 @@ function Soundbank.Create(id)
     soundbank.setCellNamePatterns = Soundbank.setCellNamePatterns
     soundbank.setCellNamePatternsExclude = Soundbank.setCellNamePatternsExclude
     soundbank.setEnemies = Soundbank.setEnemies
+    soundbank.setEnemyFactions = Soundbank.setEnemyFactions
     soundbank.setExteriorOnly = Soundbank.setExteriorOnly
     soundbank.setCombatTracks = Soundbank.setCombatTracks
     soundbank.setHours = Soundbank.setHours
@@ -103,6 +107,13 @@ end
 ---@return [string] allowedEnemies A list containing the allowed enemy IDs
 function Soundbank.getEnemies(self)
     return self.enemies
+end
+
+---Returns the enemy faction IDs for which the soundbank is allowed.
+---@param self Soundbank
+---@return [string] allowedEnemyFactions A list containing the allowed enemy faction IDs.
+function Soundbank.getEnemyFactions(self)
+    return self.enemyFactions
 end
 
 ---Returns if this soundbank is allowed to play for the given enemyname when in combat mode.
@@ -226,6 +237,13 @@ function Soundbank.setEnemies(self, enemies)
     TableUtils.setAll(self.enemies, enemies)
 end
 
+---Sets the enemy faction IDs for which this soundbank is allowed to play when in combat state.
+---@param self Soundbank
+---@param enemyFactions table<string> A list of faction IDs.
+function Soundbank.setEnemyFactions(self, enemyFactions)
+    TableUtils.setAll(self.enemyFactions, enemyFactions)
+end
+
 ---Sets if this soundbank is only allowed to play in exterior cells.
 ---@param self Soundbank
 ---@param exteriorOnly boolean
@@ -289,6 +307,11 @@ Soundbank.Decoder = {
             TableUtils.addAll(enemies, soundbankData.enemies)
         end
 
+        local enemyFactions = {}
+        if soundbankData.enemyFactions then
+            TableUtils.addAll(enemyFactions, soundbankData.enemyFactions)
+        end
+
         local soundbank = Soundbank.Create(id)
         soundbank:setTracks(TableUtils.map(soundbankData.tracks or {}, Track.Decoder.fromTable))
         soundbank:setCombatTracks(TableUtils.map(soundbankData.combatTracks or {}, Track.Decoder.fromTable))
@@ -297,6 +320,7 @@ Soundbank.Decoder = {
         soundbank:setCellNamePatterns(soundbankData.cellNamePatterns or {})
         soundbank:setCellNamePatternsExclude(soundbankData.cellNamePatternsExclude or {})
         soundbank:setEnemies(enemies)
+        soundbank:setEnemyFactions(enemyFactions)
         soundbank:setHours(soundbankData.hourOfDay or {})
         soundbank:setInteriorOnly(soundbankData.interiorOnly or false)
         soundbank:setRegions(regions)

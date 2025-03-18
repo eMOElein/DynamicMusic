@@ -94,6 +94,16 @@ local soundbank = {
         "Ash Ghoul",
         "Ash Slave",
     },
+
+    -- This filter is only checked if the game is currently in "combat" state.
+    -- Combat tracks are only played if the enemy's faction ID matches with one of the strings listed in this filter.
+    -- Look up the ID for a faction in the Construction Set.
+    -- If this filter is not provided it will be ignored.
+    enemyFactions = {
+        "redoran",
+        "hlaalu",
+        "telvanni",
+    },
     
     -- Tracks that should play if the game is in "exploration" state
     tracks = {

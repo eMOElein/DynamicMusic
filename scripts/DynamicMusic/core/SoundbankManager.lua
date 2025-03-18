@@ -2,11 +2,13 @@ local GameState = require('scripts.DynamicMusic.core.GameState')
 local GlobalData = require('scripts.DynamicMusic.core.GlobalData')
 local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 local TableUtils = require('scripts.DynamicMusic.utils.TableUtils')
+local Log = require('scripts.DynamicMusic.core.Logger')
 
 local SOUNDBANKDB_SECTIONS = {
     ALLOWED_CELLS = "allowed_cells",
     ALLOWED_REGIONS = "ALLOWED_REGIONS",
-    ALLOWED_ENEMIES = "allowed_enemies"
+    ALLOWED_ENEMIES = "allowed_enemies",
+    ALLOWED_ENEMY_FACTIONS = "allowed_enemy_factions"
 }
 
 ---@class SoundbankManager
@@ -57,10 +59,16 @@ function SoundbankManager.addSoundbank(self, soundbank)
         allowedEnemies[enemy] = true
     end
 
+    local allowedEnemyFactions = {}
+    for _, enemyFaction in pairs(soundbank:getEnemyFactions()) do
+        allowedEnemyFactions[enemyFaction] = true
+    end
+
     local dbEntry = {}
     dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES] = allowedEnemies
     dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS] = allowedCells
     dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_REGIONS] = allowedRegions
+    dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMY_FACTIONS] = allowedEnemyFactions
 
     self._soundbankDatabase[soundbank] = dbEntry
 end
@@ -110,6 +118,20 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
     local firstHostile = TableUtils.getFirstElement(GlobalData.hostileActors)
     if #soundbank.enemies > 0 and firstHostile and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.name] and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMIES][firstHostile.id]then
         return false
+    end
+
+
+    if firstHostile and firstHostile.factions and #soundbank.enemyFactions > 0 then
+        local hostileFactionAllowed = false
+
+        for _, faction in ipairs(firstHostile.factions) do
+            Log.info("checking faction: " ..faction)
+            if dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMY_FACTIONS][faction] then
+                hostileFactionAllowed = true
+            end
+        end
+
+        return hostileFactionAllowed
     end
 
     if soundbank.id == "DEFAULT" then
