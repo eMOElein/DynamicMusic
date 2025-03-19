@@ -1,12 +1,12 @@
 local Globals = require('scripts.DynamicMusic.core.Globals')
 local core = require('openmw.core')
-local NPC = require('openmw.types').NPC;
+
 
 if core.API_REVISION < Globals.LUA_API_REVISION_MIN then
   return nil
 end
 
-
+local NPC = require('openmw.types').NPC;
 local nearby = require('openmw.nearby')
 local self = require('openmw.self')
 local AI = require('openmw.interfaces').AI
