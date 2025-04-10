@@ -8,3 +8,4 @@
 ## Bugfixes
 - fixed cellNamePatternsExclude filter in soundbanks not working.
 - ignoring non Lua files when scanning for available soundbanks.
+- default value for using DEFAULT soundbank set to true.

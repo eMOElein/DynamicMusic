@@ -100,7 +100,7 @@ Settings.SETTINGS = {
         name = 'Use DEFAULT Soundbank',
         description =
         'Uses the DEFAULT soundbank if no other soundbank matches. LEAVE THIS SET TO TRUE.',
-        default = false,
+        default = true,
     },
     {
         key = Settings.KEYS.GENERAL_EXTERIOR_DELAY,
