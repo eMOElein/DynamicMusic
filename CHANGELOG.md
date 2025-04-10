@@ -1,4 +1,9 @@
-# v0.14
+# v0.14.1
+
+## Bugfixes
+- default value for using DEFAULT soundbank set to true.
+
+# v0.14.0
 
 ## Features
 - configurable music switch delay when changing between exterior cells.
@@ -8,4 +13,3 @@
 ## Bugfixes
 - fixed cellNamePatternsExclude filter in soundbanks not working.
 - ignoring non Lua files when scanning for available soundbanks.
-- default value for using DEFAULT soundbank set to true.
