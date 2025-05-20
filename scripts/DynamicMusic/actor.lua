@@ -50,14 +50,14 @@ end
 local function onUpdate(dt)
   local activePackage = AI.getActivePackage()
 
-  if not combatState and activePackage and activePackage.type == "Combat" and types.Actor.stats.dynamic.health(self).current > 0 then
+  if not combatState and activePackage and activePackage.type == "Combat" and not types.Actor.isDead(self) then
     combatState = true
     emitEvent('engaging')
   end
 
   --print("health " ..types.Actor.stats.dynamic.health(self).current)
 
-  if combatState and (not activePackage or activePackage.type ~= "Combat" or types.Actor.stats.dynamic.health(self).current <= 0) then
+  if combatState and (not activePackage or activePackage.type ~= "Combat" or types.Actor.isDead(self)) then
     combatState = false
     emitEvent('disengaging');
   end
