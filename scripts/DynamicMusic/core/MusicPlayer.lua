@@ -130,7 +130,7 @@ function MusicPlayer.update(dt,playerState)
         end
 
         if trackProperty:getValue().length then
-            if playbackTimeProperty.current > -1 and playbackTimeProperty.current >= (trackProperty:getValue().length) then
+            if playbackTimeProperty.current > -1 and playbackTimeProperty.current >= trackProperty:getValue().length then
                 MusicPlayer._playNewTrack(playerState)
                 return
             end
