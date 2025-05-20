@@ -129,9 +129,11 @@ function DynamicMusic.newMusic(self, options)
         return
     end
 
+    local playerState = self.context.gameState.playerState.current
+
     if newPlaylist then
         Log.info("activating playlist: " .. newPlaylist.id)
-        MusicPlayer.playPlaylist(newPlaylist, { force = force })
+        MusicPlayer.playPlaylist(newPlaylist, { force = force }, playerState)
         self.playlistProperty:setValue(newPlaylist)
         return
     end
@@ -154,7 +156,10 @@ function DynamicMusic.info(self)
 end
 
 function DynamicMusic.update(self, dt)
-    MusicPlayer.update(dt)
+    -- Letting the MusicPlayer know if player is in combat or not, so the appropriate fade value can be used.
+    local playerState = self.context.gameState.playerState.current
+    MusicPlayer.update(dt,playerState)
+
     local gameState = self.context.gameState
 
     if self._delayTime and self._delayTime <= 0 then
