@@ -1,5 +1,7 @@
 local ambient = require('openmw.ambient')
 local Property = require('scripts.DynamicMusic.core.Property')
+local Settings = require('scripts.DynamicMusic.core.Settings')
+local PlayerStates = require('scripts.DynamicMusic.core.PlayerStates')
 
 local MusicPlayer = {}
 local playlistProperty = Property.Create()
@@ -17,7 +19,13 @@ local playbackTimeProperty = {
 
 local availableTracks = {}
 
-function MusicPlayer.playPlaylist(playlist, options)
+-- Lets me know if any other tracks have been played since initialization
+local firstTrack = true
+-- Setting these variables here so that the player can't change them while a track is playing which would cause weirdness
+local fadeOutCombat = Settings.getValue(Settings.KEYS.GENERAL_COMBAT_FADE_TIME)
+local fadeOutExplore = Settings.getValue(Settings.KEYS.GENERAL_EXPLORE_FADE_TIME)
+
+function MusicPlayer.playPlaylist(playlist, options, playerState)
     local force = options and options.force
 
     if not force and playlistProperty:getValue() == playlist then
@@ -38,7 +46,7 @@ function MusicPlayer.playPlaylist(playlist, options)
         end
     end
 
-    MusicPlayer._playNewTrack()
+    MusicPlayer._playNewTrack(playerState)
 end
 
 function MusicPlayer._fillTracks()
@@ -67,17 +75,31 @@ function MusicPlayer._removeAvailableTrack(track)
     end
 end
 
-function MusicPlayer._playNewTrack()
+function MusicPlayer._playNewTrack(playerState)
     if #availableTracks == 0 then
         MusicPlayer._fillTracks()
     end
 
     local track = MusicPlayer._fetchRandomTrack()
 
+    local fadeOutParameter = {
+        fadeOut=1
+    }
+
+    -- If this is the first track played since initialization then don't fade, otherwise assign the appropriate fade value
+    if firstTrack then
+        fadeOutParameter['fadeOut'] = 0
+        firstTrack = false
+    elseif playerState == PlayerStates.combat then
+        fadeOutParameter['fadeOut'] = fadeOutCombat
+    else
+        fadeOutParameter['fadeOut'] = fadeOutExplore
+    end
+
     if track then
         trackProperty:setValue(track)
         print("playing track: " ..track.path)
-        ambient.streamMusic(track.path)
+        ambient.streamMusic(track.path, fadeOutParameter)
         playbackTimeProperty.current = 0
         MusicPlayer._removeAvailableTrack(track)
     end
@@ -92,7 +114,7 @@ function MusicPlayer._fetchRandomTrack()
     return availableTracks[random]
 end
 
-function MusicPlayer.update(dt)
+function MusicPlayer.update(dt,playerState)
     time.previous = time.current
     time.current = os.time()
 
@@ -103,13 +125,13 @@ function MusicPlayer.update(dt)
 
         if not ambient.isMusicPlaying() then
             print("no music playing: play new track from playlist")
-            MusicPlayer._playNewTrack()
+            MusicPlayer._playNewTrack(playerState)
             return
         end
 
         if trackProperty:getValue().length then
-            if playbackTimeProperty.current > -1 and playbackTimeProperty.current >= trackProperty:getValue().length then
-                MusicPlayer._playNewTrack()
+            if playbackTimeProperty.current > -1 and playbackTimeProperty.current >= (trackProperty:getValue().length) then
+                MusicPlayer._playNewTrack(playerState)
                 return
             end
         end
