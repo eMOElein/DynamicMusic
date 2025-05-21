@@ -1,3 +1,8 @@
+# v0.14.2
+
+## Bugfixes
+- don't play combat music when dead enemies still have health > 0.
+
 # v0.14.1
 
 ## Bugfixes
