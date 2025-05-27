@@ -15,6 +15,7 @@ local SOUNDBANKDB_SECTIONS = {
 ---@field soundbanks [Soundbank]
 ---@field gameState GameState
 ---@field _soundbankDatabase any
+---@field _cellNameDatabase any
 local SoundbankManager = {}
 
 ---Creates a new SoundbankManager.
@@ -29,6 +30,7 @@ function SoundbankManager.Create(soundbanks, gameState)
 
     soundbankManager.soundbanks = soundbanks
     soundbankManager._soundbankDatabase = {}
+    soundbankManager._cellNameDatabase = {}
 
     for _, soundbank in pairs(soundbanks) do
         soundbankManager:addSoundbank(soundbank)
@@ -41,6 +43,7 @@ end
 ---@param soundbank Soundbank
 function SoundbankManager.addSoundbank(self, soundbank)
     local allowedCells = {}
+
     for _, cellName in pairs(GlobalData.cellNames) do
         if soundbank:isAllowedForCellName(cellName) then
             allowedCells[cellName] = true
@@ -71,6 +74,13 @@ function SoundbankManager.addSoundbank(self, soundbank)
     dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_ENEMY_FACTIONS] = allowedEnemyFactions
 
     self._soundbankDatabase[soundbank] = dbEntry
+
+    for cellName, allowed in pairs(allowedCells) do
+        if allowed then
+            self._cellNameDatabase[cellName] = self._cellNameDatabase[cellName] or {}
+        end
+        self._cellNameDatabase[cellName][soundbank] = allowed
+    end
 end
 
 ---Checks if the soundbank is allowed to play for the current gamestate.
@@ -111,7 +121,8 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         return false
     end
 
-    if (#soundbank.cellNames > 0 or #soundbank.cellNamePatterns > 0) and not dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][self.gameState.cellName.current] then
+    if (#soundbank.cellNames > 0 or #soundbank.cellNamePatterns > 0 or #soundbank.cellNamePatternsExclude > 0) and (self._cellNameDatabase[self.gameState.cellName.current] and not self._cellNameDatabase[self.gameState.cellName.current][soundbank]) then --dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][self.gameState.cellName.current] then
+        print(soundbank.id .."raus wegen cellname")
         return false
     end
 
