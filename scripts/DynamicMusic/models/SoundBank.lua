@@ -147,6 +147,10 @@ function Soundbank.isAllowedForCellName(self, cellName)
         end
     end
 
+    if #self.cellNames == 0 and #self.cellNamePatterns == 0 then
+        return true
+    end
+
     if self.cellNames then
         for _, allowedCellName in ipairs(self.cellNames) do
             if cellName == allowedCellName then

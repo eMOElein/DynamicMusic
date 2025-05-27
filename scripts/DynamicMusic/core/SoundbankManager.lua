@@ -121,8 +121,7 @@ function SoundbankManager.isSoundbankAllowed(self, soundbank)
         return false
     end
 
-    if (#soundbank.cellNames > 0 or #soundbank.cellNamePatterns > 0 or #soundbank.cellNamePatternsExclude > 0) and (self._cellNameDatabase[self.gameState.cellName.current] and not self._cellNameDatabase[self.gameState.cellName.current][soundbank]) then --dbEntry[SOUNDBANKDB_SECTIONS.ALLOWED_CELLS][self.gameState.cellName.current] then
-        print(soundbank.id .."raus wegen cellname")
+    if (#soundbank.cellNames > 0 or #soundbank.cellNamePatterns > 0 or #soundbank.cellNamePatternsExclude > 0) and (self._cellNameDatabase[self.gameState.cellName.current] and not self._cellNameDatabase[self.gameState.cellName.current][soundbank]) then
         return false
     end
 
