@@ -13,7 +13,9 @@ Settings.KEYS = {
     COMBAT_ENEMIES_INCLUDE = 'COMBAT_ENEMIES_INCLUDE',
     GENERAL_USE_DEFAULT_SOUNDBANK = 'GENERAL_USE_DEFAULT_SOUNDBANK',
     GENERAL_EXTERIOR_DELAY = 'GENERAL_EXTERIOR_DELAY',
-    GENERAL_INTERIOR_REGIONS = 'GENERAL_INTERIOR_REGIONS'
+    GENERAL_INTERIOR_REGIONS = 'GENERAL_INTERIOR_REGIONS',
+    GENERAL_COMBAT_FADE_TIME = 'GENERAL_COMBAT_FADE_TIME',
+    GENERAL_EXPLORE_FADE_TIME = 'GENERAL_EXPLORE_FADE_TIME',
 }
 
 Settings.PAGE = {
@@ -94,6 +96,15 @@ Settings.SETTINGS = {
         default = ''
     },
     {
+        key = Settings.KEYS.GENERAL_COMBAT_FADE_TIME,
+        group = Settings.GROUPS.COMBAT,
+        renderer = 'number',
+        name = '6. Combat track fade-in time',
+        description =
+        'Time spent fading out the current track before a new combat track is played. Takes effect next time a save is loaded.',
+        default = 1,
+    },
+    {
         key = Settings.KEYS.GENERAL_USE_DEFAULT_SOUNDBANK,
         group = Settings.GROUPS.GENERAL,
         renderer = 'checkbox',
@@ -119,6 +130,15 @@ Settings.SETTINGS = {
         description =
         'Keep the region of the last exterior cell for interior cells.',
         default = false,
+    },
+    {
+        key = Settings.KEYS.GENERAL_EXPLORE_FADE_TIME,
+        group = Settings.GROUPS.GENERAL,
+        renderer = 'number',
+        name = 'Explore track fade-in time',
+        description =
+        'Time spent fading out the current track before a new explore track is played. Takes effect next time a save is loaded.',
+        default = 3,
     }
 }
 

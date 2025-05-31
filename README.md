@@ -20,6 +20,11 @@ This will assume that an interior cell has the same region as the last exterior 
 Normally interior cells do not have a region.  
 This way the regions filter in soundbanks can be extended to play in interior cells too.
 
+### Track fade-in time
+Changes how quickly new music kicks in when changing cells or game states.
+Set to the number of seconds you want the current music track to fade out before new music starts.
+For best results, don't go higher than 10 seconds.
+
 ## Combat Settings
 ### Play combat music
 Controls whether combat music should be played or not.
